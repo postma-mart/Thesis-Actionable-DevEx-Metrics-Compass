@@ -186,6 +186,14 @@
                                 <button class="overlay-action-button role-select-btn" data-role="researcher">Continue as researcher</button>
                             </div>
                         </div>
+                        <div class="explore-entry-card">
+                            <div class="explore-entry-card-icon welcome-card-icon--additive">?</div>
+                            <div class="explore-entry-card-body">
+                                <div class="explore-entry-card-title">Profile my context</div>
+                                <div class="explore-entry-card-description">Answer six questions and rank metrics against your goals, bandwidth, friction, and data preferences.</div>
+                                <button class="overlay-action-button" id="direct-context-profile-btn" type="button">Start context profile</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="wizard-nav">
                         <button class="wizard-back-btn" id="skip-wizard-link" type="button">Skip wizard</button>
@@ -227,6 +235,14 @@
                                 <div class="explore-entry-card-title">Start from an existing selection</div>
                                 <div class="explore-entry-card-description">Already tracking some of these? Load a company's metrics from the dataset, or import a previous export.</div>
                                 <button class="overlay-action-button start-choice-btn" data-action="existingSelection">Load a selection</button>
+                            </div>
+                        </div>
+                        <div class="explore-entry-card">
+                            <div class="explore-entry-card-icon welcome-card-icon--additive">?</div>
+                            <div class="explore-entry-card-body">
+                                <div class="explore-entry-card-title">Profile my context</div>
+                                <div class="explore-entry-card-description">Answer six questions and rank metrics against your team's goals, bandwidth, friction, and data preferences.</div>
+                                <button class="overlay-action-button start-choice-btn" data-action="contextProfiling">Start context profile</button>
                             </div>
                         </div>
                     </div>
@@ -433,6 +449,25 @@
 
                     <div class="wizard-nav">
                         <button class="wizard-back-btn go-back-btn" data-target-step="start-choice-step">&larr; Go back</button>
+                    </div>
+                </div>
+
+                <!-- Context profiling wizard and ranked results -->
+                <div id="context-profiling-step" class="wizard-step hidden">
+                    <p class="wizard-step-label" id="context-profiling-progress">Question 1 of 6</p>
+                    <div id="context-profiling-question"></div>
+                    <div class="wizard-nav">
+                        <button class="wizard-back-btn" id="context-profiling-back-btn" type="button">&larr; Go back</button>
+                        <button class="overlay-action-button" id="context-profiling-next-btn" type="button">Continue</button>
+                    </div>
+                </div>
+
+                <div id="context-ranking-step" class="wizard-step hidden">
+                    <div class="controls-title">Recommended metrics</div>
+                    <p class="filter-description" id="context-ranking-summary"></p>
+                    <div id="context-ranking-list" class="context-ranking-list"></div>
+                    <div class="wizard-nav">
+                        <button class="overlay-action-button context-ranking-restart-btn" id="context-ranking-restart-btn" type="button">Restart wizard</button>
                     </div>
                 </div>
 

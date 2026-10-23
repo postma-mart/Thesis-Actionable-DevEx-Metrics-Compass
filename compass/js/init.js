@@ -36,11 +36,13 @@ anychart.onDocumentReady(function() {
         const entryInfo = getUrlEntry();
 
         if (restored.hadUrlState) {
-            // First-time visitor arriving via a shared link (no localStorage yet) —
-            // dismiss the welcome wizard so the restored view isn't blocked by it.
-            myOverlay.style.display = 'none';
-            modeChosen = true;
-            hideExploreStartView();
+            // A shared link without a role still needs the role-selection wizard.
+            // Explicitly role-scoped links and returning users can open directly.
+            if (currentRole) {
+                myOverlay.style.display = 'none';
+                modeChosen = true;
+                hideExploreStartView();
+            }
         }
 
         filterData();
@@ -60,6 +62,10 @@ anychart.onDocumentReady(function() {
         restoreMetricPopupFromUrl();
 
         logEvent(TELEMETRY.PAGE_LOAD, { totalMetrics: originalData.filter(m => m.type).length, shortlistCount: clickedMetrics.length, hasShortlist: clickedMetrics.length > 0, viewport: window.innerWidth < 768 ? 'mobile' : 'desktop', entry: entryInfo.entry, fromSeo: entryInfo.fromSeo, seoPage: entryInfo.seoPage });
+
+        window.dispatchEvent(new CustomEvent('compass:data-loaded', {
+            detail: originalData
+        }));
     })
     .catch(error => {
         console.error("Error loading JSON data:", error);

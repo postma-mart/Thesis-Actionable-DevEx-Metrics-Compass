@@ -1,4 +1,3 @@
-
 /* Main containers */
 html, body {
     height: 100%; 
@@ -219,6 +218,115 @@ body {
 .wizard-option-btn:hover {
     background: #e8eafd;
     border-color: #1B1AFF;
+}
+
+.context-profile-option.active {
+    background: #e8eafd;
+    border-color: #1B1AFF;
+    box-shadow: inset 4px 0 #1B1AFF;
+}
+
+#context-profiling-question {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+}
+
+#context-profiling-question h2 {
+    width: 100%;
+}
+
+#context-profiling-question .wizard-options {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.context-profile-option {
+    align-items: flex-start;
+}
+
+.context-profile-option-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    line-height: 1.4;
+}
+
+.context-profile-option-content span {
+    color: #666;
+    font-size: 13px;
+}
+
+.context-ranking-restart-btn {
+    font-weight: bold;
+    min-width: 180px;
+}
+
+.context-ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0 20px;
+    width: 100%;
+}
+
+.context-ranking-card {
+    background: #fff;
+    border: 1px solid #d0d2f8;
+    border-radius: 8px;
+    padding: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.context-ranking-card-header {
+    align-items: center;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+}
+
+.context-ranking-card-header > strong {
+    color: #777;
+}
+
+.context-ranking-card h3 {
+    color: #333;
+    font-size: 15px;
+    margin: 0;
+}
+
+.context-ranking-score {
+    background: #1B1AFF;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 6px 8px;
+    white-space: nowrap;
+}
+
+.context-ranking-chips,
+.context-ranking-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.context-ranking-chips span,
+.context-ranking-metadata span {
+    background: #f4f5ff;
+    border-radius: 4px;
+    color: #555;
+    font-size: 11px;
+    padding: 4px 6px;
+}
+
+.context-ranking-metadata span {
+    background: #f0f0f0;
 }
 
 .option-num {
@@ -3767,5 +3875,227 @@ a {
 
     .nextsteps-col-list {
         max-height: 40vh;
+    }
+}
+
+.profiling-launch-btn,
+.profiling-primary,
+.profiling-secondary {
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    padding: 12px 18px;
+}
+
+.profiling-launch-btn,
+.profiling-primary {
+    background: #1b1aff;
+    color: #fff;
+}
+
+.profiling-secondary {
+    background: #e7e7e7;
+    color: #202020;
+}
+
+.profiling-screen {
+    background: #f4f1ea;
+    inset: 0;
+    overflow-y: auto;
+    padding: 48px 24px;
+    position: fixed;
+    z-index: 1000;
+}
+
+.profiling-panel,
+.profiling-results {
+    box-sizing: border-box;
+    margin: 0 auto;
+    max-width: 920px;
+}
+
+.profiling-panel {
+    background: #fff;
+    border: 1px solid #d9d6ce;
+    padding: 36px;
+}
+
+.profiling-header,
+.profiling-results-header,
+.profiling-navigation {
+    align-items: center;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+}
+
+.profiling-kicker {
+    color: #1b1aff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+}
+
+.profiling-header h1,
+.profiling-results-header h1 {
+    margin: 0;
+}
+
+.profiling-close {
+    background: transparent;
+    border: 0;
+    color: #555;
+    cursor: pointer;
+    font-size: 30px;
+}
+
+.profiling-progress {
+    color: #666;
+    font-size: 13px;
+    margin: 32px 0 48px;
+}
+
+.profiling-progress-track {
+    background: #e5e2da;
+    height: 6px;
+    margin-top: 10px;
+}
+
+.profiling-progress-track span {
+    background: #1b1aff;
+    display: block;
+    height: 100%;
+    transition: width 180ms ease;
+    width: 16.666%;
+}
+
+.profiling-question h2 {
+    font-size: 28px;
+    margin: 0 0 24px;
+}
+
+.profiling-options {
+    display: grid;
+    gap: 12px;
+}
+
+.profiling-option {
+    background: #fff;
+    border: 1px solid #cfcac0;
+    cursor: pointer;
+    padding: 18px;
+    text-align: left;
+}
+
+.profiling-option:hover,
+.profiling-option.is-selected {
+    border-color: #1b1aff;
+    box-shadow: inset 4px 0 #1b1aff;
+}
+
+.profiling-option strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.profiling-navigation {
+    border-top: 1px solid #e5e2da;
+    margin-top: 40px;
+    padding-top: 24px;
+}
+
+.profiling-results {
+    padding: 48px 24px;
+}
+
+.profiling-results-header {
+    margin-bottom: 28px;
+}
+
+.profiling-results-header p {
+    color: #666;
+}
+
+.profiling-ranking {
+    display: grid;
+    gap: 12px;
+}
+
+.profiling-card {
+    background: #fff;
+    border: 1px solid #d9d6ce;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 54px minmax(180px, 1fr) auto;
+    padding: 20px;
+}
+
+.profiling-rank {
+    color: #777;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.profiling-card h2 {
+    font-size: 18px;
+    margin: 0 0 10px;
+}
+
+.profiling-score {
+    background: #1b1aff;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+.profiling-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.profiling-chip {
+    background: #f0eee8;
+    color: #444;
+    font-size: 12px;
+    padding: 5px 8px;
+}
+
+.profiling-chip--score {
+    background: #e7e5ff;
+    color: #17158a;
+}
+
+@media (max-width: 700px) {
+    .profiling-screen {
+        padding: 16px;
+    }
+
+    .profiling-panel {
+        padding: 24px;
+    }
+
+    .profiling-results {
+        padding: 24px 16px;
+    }
+
+    .profiling-card {
+        grid-template-columns: 38px 1fr;
+    }
+
+    .profiling-score {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .profiling-results-header {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

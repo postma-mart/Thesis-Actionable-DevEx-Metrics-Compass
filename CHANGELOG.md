@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-19 — Added context profiling and ranked metric candidates
+
+- Added a six-question context profiling option to onboarding, scoring eligible metrics against goals, friction area, collection preference, bandwidth, and consensus.
+- Added AI-metric exclusion when AI tools are not being tracked, plus a ranked results view with score breakdowns and metadata.
+
 ## 2026-07-27 — Repo folders renamed: `compass/` and `dataset/`
 
 - Renamed `dashboard/` to `compass/` and `metrics and parser/` to `dataset/` (no more space in the path). Purely a repo-layout change: the deployed site is unaffected, since `compass/`'s contents are uploaded to the web root as before.
