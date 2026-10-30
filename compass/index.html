@@ -35,7 +35,7 @@
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js"></script>
     <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" type="text/css" rel="stylesheet">
     <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20261030-roadmap14">
 </head>
 
 <body>
@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    <!-- 3-step progress bar -->
+    <!-- 4-step progress bar -->
     <div id="step-bar" class="step-bar">
         <div class="step-bar-top">
             <span class="step-bar-brand">
@@ -82,6 +82,11 @@
             <button class="step-btn" id="step-btn-nextsteps" data-step="nextsteps">
                 <span class="step-btn-num">3</span>
                 <span class="step-btn-label">Review &amp; Implement Metrics</span>
+            </button>
+            <div class="step-connector roadmap-step-control" hidden></div>
+            <button class="step-btn roadmap-step-control" id="step-btn-roadmap" data-step="roadmap" hidden>
+                <span class="step-btn-num">4</span>
+                <span class="step-btn-label">90-Day Roadmap</span>
             </button>
             </div><!-- /.step-bar-steps -->
         </div><!-- /.step-bar-top -->
@@ -144,7 +149,11 @@
                         <div class="nextsteps-col-list" id="ns-planned-list"></div>
                     </div>
                 </div>
+
             </div>
+
+            <!-- Step 4: Wizard-generated 90-day roadmap -->
+            <div id="roadmap-view" class="roadmap-view" style="display:none"></div>
         </div>
 
         <!-- Container containing the filters / step-specific controls -->
@@ -458,6 +467,7 @@
                     <div id="context-profiling-question"></div>
                     <div class="wizard-nav">
                         <button class="wizard-back-btn" id="context-profiling-back-btn" type="button">&larr; Go back</button>
+                        <button class="wizard-back-btn" id="context-profiling-randomize-btn" type="button">Randomize &amp; Skip</button>
                         <button class="overlay-action-button" id="context-profiling-next-btn" type="button">Continue</button>
                     </div>
                 </div>
@@ -707,6 +717,9 @@
                 </div>
             </div><!-- /#nextsteps-panel -->
 
+            <div id="roadmap-panel" class="roadmap-panel" style="display:none">
+            </div><!-- /#roadmap-panel -->
+
             </div><!-- /.right-panel-scroll -->
 
             <!-- Step navigation bar: shared, always at bottom of right panel.
@@ -824,6 +837,13 @@
             </div>
 
             <div class="changelog-entries">
+
+                <div class="changelog-entry">
+                    <div class="changelog-date">October 2026</div>
+                    <ul>
+                        <li>Added a wizard-generated 90-Day Roadmap with three phases, time budgets, fixed qualitative and quantitative slots, a ranked backlog, phase owners, and drag-and-drop planning</li>
+                    </ul>
+                </div>
 
                 <div class="changelog-entry">
                     <div class="changelog-date">July 2026</div>
@@ -1092,10 +1112,11 @@
     <script src="js/chart.js"></script>
     <script src="js/metrics-selection.js"></script>
     <script src="js/wizard.js"></script>
-    <script src="js/titlebar.js"></script>
+    <script src="js/titlebar.js?v=20261030-roadmap14"></script>
     <script src="js/compare.js"></script>
     <script src="js/pdf-export.js"></script>
     <script src="js/nextsteps.js"></script>
+    <script src="js/roadmap.js?v=20261030-roadmap14"></script>
     <script src="js/init.js"></script>
     <script src="js/telemetry-logger.js"></script>
     <script src="js/feedback.js"></script>

@@ -109,7 +109,7 @@ const ROLE_CONFIG = {
 };
 
 // Step constants for the 3-step progress bar
-const STEP = { EXPLORE: 'explore', COMPARE: 'compare', NEXTSTEPS: 'nextsteps' };
+const STEP = { EXPLORE: 'explore', COMPARE: 'compare', NEXTSTEPS: 'nextsteps', ROADMAP: 'roadmap' };
 let currentStep = STEP.EXPLORE;
 
 // State for Compare step (Step 2)

@@ -110,7 +110,7 @@ function restoreStateFromUrl() {
 
     let step = null;
     const stepParam = params.get('step');
-    if (stepParam && Object.values(STEP).includes(stepParam)) {
+    if (stepParam && Object.values(STEP).includes(stepParam) && stepParam !== STEP.ROADMAP) {
         step = stepParam;
         hadUrlState = true;
     }

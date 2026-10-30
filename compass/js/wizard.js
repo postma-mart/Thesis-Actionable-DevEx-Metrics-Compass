@@ -431,6 +431,7 @@ let contextProfilingState = {
     answers: {},
     returnStep: 'start-choice-step'
 };
+let contextRankingResults = [];
 
 function contextMetricField(metric, ...keys) {
     for (const key of keys) {
@@ -641,8 +642,22 @@ function previousContextProfilingQuestion() {
     renderContextProfilingQuestion();
 }
 
+function randomizeContextProfiling() {
+    contextProfilingState.answers = Object.fromEntries(
+        CONTEXT_PROFILE_QUESTIONS.map(question => {
+            const option = question.options[Math.floor(Math.random() * question.options.length)];
+            return [question.key, typeof option === 'string' ? option : option.value];
+        })
+    );
+    renderContextRanking();
+    if (typeof unlockRoadmapFromRanking === 'function') unlockRoadmapFromRanking();
+}
+
 function renderContextRanking() {
     const rankedMetrics = rankContextMetrics();
+    contextRankingResults = rankedMetrics.map(item => ({
+        metric: { ...item.metric, roadmapScore: item.total }
+    }));
     const rankingList = document.getElementById('context-ranking-list');
 
     document.getElementById('context-ranking-summary').textContent =
@@ -670,6 +685,12 @@ function renderContextRanking() {
         </article>
     `).join('');
 
+    const actions = document.querySelector('.context-ranking-restart-btn')?.parentElement;
+    if (actions && !document.getElementById('generate-roadmap-btn')) {
+        actions.insertAdjacentHTML('afterbegin', '<button class="overlay-action-button roadmap-primary-btn" id="generate-roadmap-btn" type="button">Generate 90-Day Roadmap</button>');
+        document.getElementById('generate-roadmap-btn').addEventListener('click', unlockRoadmapFromRanking);
+    }
+
     showWizardStep('context-ranking-step');
 }
 
@@ -684,6 +705,7 @@ function restartContextProfiling() {
 
 document.getElementById('context-profiling-next-btn').addEventListener('click', nextContextProfilingQuestion);
 document.getElementById('context-profiling-back-btn').addEventListener('click', previousContextProfilingQuestion);
+document.getElementById('context-profiling-randomize-btn').addEventListener('click', randomizeContextProfiling);
 document.getElementById('context-ranking-restart-btn').addEventListener('click', restartContextProfiling);
 
 // ─── Go-back links (shared across role/start-choice/question/company-list steps) ─

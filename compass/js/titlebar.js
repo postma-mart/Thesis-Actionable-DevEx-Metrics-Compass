@@ -1,4 +1,4 @@
-// ─── 3-step progress bar ───────────────────────────────────────────────────────
+// ─── 4-step progress bar ───────────────────────────────────────────────────────
 
 // Previous shortlist counts, used to detect changes and trigger the pill-bump animation
 let prevCapturing = null;
@@ -11,6 +11,7 @@ function bumpPill(el) {
 }
 
 function switchToStep(step) {
+    if (step === STEP.ROADMAP && !roadmapUnlocked) return;
     const prevStep = currentStep;
     currentStep = step;
     logEvent(TELEMETRY.STEP_CHANGE, { from: prevStep, to: step, shortlistCount: clickedMetrics.length });
@@ -23,7 +24,7 @@ function switchToStep(step) {
     // Swap the main-container step class (drives CSS panel visibility)
     const mc = document.getElementById('main-container');
     if (mc) {
-        mc.classList.remove('step-explore', 'step-compare', 'step-nextsteps');
+        mc.classList.remove('step-explore', 'step-compare', 'step-nextsteps', 'step-roadmap');
         mc.classList.add(`step-${step}`);
     }
 
@@ -31,10 +32,12 @@ function switchToStep(step) {
     const sunburst     = document.getElementById('container');
     const diffView     = document.getElementById('diff-view');
     const nextstepsView = document.getElementById('nextsteps-view');
+    const roadmapView = document.getElementById('roadmap-view');
 
     if (sunburst)     sunburst.style.display     = step === STEP.EXPLORE   ? '' : 'none';
     if (diffView)     diffView.style.display     = step === STEP.COMPARE   ? 'flex' : 'none';
     if (nextstepsView) nextstepsView.style.display = step === STEP.NEXTSTEPS ? 'flex' : 'none';
+    if (roadmapView) roadmapView.style.display = step === STEP.ROADMAP ? 'flex' : 'none';
 
     // Hide inline mode picker when leaving Explore step
     const exploreStartView = document.getElementById('explore-start-view');
@@ -64,10 +67,19 @@ function switchToStep(step) {
     const explorePanel   = document.getElementById('explore-right-panel');
     const comparePanel   = document.getElementById('compare-panel');
     const nextstepsPanel = document.getElementById('nextsteps-panel');
+    const roadmapPanel = document.getElementById('roadmap-panel');
 
     if (explorePanel)   explorePanel.style.display   = step === STEP.EXPLORE   ? '' : 'none';
     if (comparePanel)   comparePanel.style.display   = step === STEP.COMPARE   ? '' : 'none';
     if (nextstepsPanel) nextstepsPanel.style.display = step === STEP.NEXTSTEPS ? '' : 'none';
+    if (roadmapPanel) roadmapPanel.style.display = step === STEP.ROADMAP ? '' : 'none';
+    if (step === STEP.ROADMAP) {
+        document.querySelector('.right-panel-scroll')?.scrollTo(0, 0);
+    }
+    if (step === STEP.EXPLORE) {
+        document.getElementById('context-ranking-step')?.classList.add('hidden');
+        if (typeof hideExploreStartView === 'function') hideExploreStartView();
+    }
 
     // On entering Compare: re-render diff view
     if (step === STEP.COMPARE && typeof renderDiffView === 'function') {
@@ -77,6 +89,9 @@ function switchToStep(step) {
     // On entering Next Steps: render the two-column view
     if (step === STEP.NEXTSTEPS && typeof renderNextStepsView === 'function') {
         renderNextStepsView();
+    }
+    if (step === STEP.ROADMAP && typeof renderRoadmap === 'function' && roadmapState) {
+        renderRoadmap();
     }
 
     // On returning to Explore: restore chart if needed
@@ -131,6 +146,9 @@ function updateStepBar() {
                 countEl.textContent = '';
                 if (sepCount) sepCount.style.display = 'none';
             }
+        } else if (currentStep === STEP.ROADMAP) {
+            countEl.textContent = '';
+            if (sepCount) sepCount.style.display = 'none';
         }
     }
 
@@ -184,6 +202,7 @@ function getStepHint(hasShortlist) {
         if (hasShortlist) return 'Review and export my shortlist';
         return 'Go back to explore and mark metrics to build my shortlist';
     }
+    if (currentStep === STEP.ROADMAP) return 'Drag ranked metrics into your 90-day plan';
     return '';
 }
 

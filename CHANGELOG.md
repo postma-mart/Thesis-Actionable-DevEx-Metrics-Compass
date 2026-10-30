@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-30 — Added wizard-generated 90-day roadmap
+
+- Added a gated fourth step that turns context-profile ranking results into a three-phase roadmap with time budgets, phase owners, fixed qualitative and quantitative slots, backlog handling, and drag-and-drop placement.
+- Added backlog filters, visual capacity tracking with overflow warnings, global balance alerts, and reliable cleanup when returning to Explore metrics.
+- Refined roadmap statistics with stacked capacity segments, clearer balance warnings, and slot-only metric owner fields.
+- Polished warning spacing and bounded capacity overflow visualization.
+- Rounded warning cards and restored absolute capacity scaling against the full roadmap budget.
+- Added dynamic capacity scaling with a budget-limit marker and crossover green/red metric segments.
+- Fixed the budget marker overlay so it no longer obscures capacity segments.
+
 ## 2026-10-19 — Added context profiling and ranked metric candidates
 
 - Added a six-question context profiling option to onboarding, scoring eligible metrics against goals, friction area, collection preference, bandwidth, and consensus.
