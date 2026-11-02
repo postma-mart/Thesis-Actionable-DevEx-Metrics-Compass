@@ -2606,6 +2606,11 @@ a {
     align-items: stretch;
 }
 
+.nextsteps-roadmap-btn {
+    margin-top: 12px;
+    width: 100%;
+}
+
 .ns-download-section {
     margin-top: 40px;
 }
@@ -4093,6 +4098,64 @@ a {
     width: 100%;
 }
 
+.roadmap-unavailable {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+    min-height: 260px;
+    padding: 32px;
+    text-align: center;
+}
+
+.roadmap-unavailable h2 {
+    color: #1B1AFF;
+    margin: 0;
+}
+
+.roadmap-unavailable p {
+    color: #555;
+    margin: 0;
+    max-width: 520px;
+}
+
+.roadmap-unavailable .next-step-btn {
+    flex: 0 0 auto;
+}
+
+.roadmap-unavailable-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.roadmap-profiling-transition {
+    align-items: center;
+    color: #555;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 240px;
+    padding: 32px;
+    text-align: center;
+}
+
+.roadmap-profiling-transition[hidden] {
+    display: none;
+}
+
+.roadmap-profiling-transition h2 {
+    color: #1B1AFF;
+    margin: 0 0 8px;
+}
+
+.roadmap-profiling-transition p {
+    margin: 0;
+}
+
 .roadmap-intro-backdrop {
     background: rgba(244, 241, 234, 0.62);
     backdrop-filter: blur(5px);
@@ -4483,6 +4546,10 @@ a {
 
 .step-roadmap .right-panel-scroll {
     overflow: hidden;
+}
+
+.step-roadmap-profiling .right-panel-scroll {
+    overflow-y: auto;
 }
 
 .roadmap-panel .roadmap-backlog-list {

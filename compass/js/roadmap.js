@@ -13,6 +13,7 @@ let roadmapDragDropHandled = false;
 let roadmapBacklogFilters = { type: 'all', score: 'all', difficulty: 'all' };
 let roadmapActiveTab = 'backlog';
 let isRoadmapIntroActive = false;
+let isRoadmapProfilingActive = false;
 
 function addRoadmapOwner(value) {
     const owner = String(value || '').trim();
@@ -120,7 +121,9 @@ function roadmapCanFit(metric, phaseIndex, placements = roadmapState.placements)
 
 function reconcileRoadmapShortlist() {
     const activeMetrics = roadmapState
-        ? roadmapState.placements.flatMap(Object.values).filter(Boolean)
+        ? roadmapState.shortlistMode
+            ? [...roadmapState.placements.flatMap(Object.values).filter(Boolean), ...roadmapState.backlog]
+            : roadmapState.placements.flatMap(Object.values).filter(Boolean)
         : [];
     clickedMetrics = activeMetrics.map(metric => ({ ...metric, collectionStatus: 'planning' }));
     saveClickedMetricsToLocalStorage();
@@ -131,6 +134,7 @@ function reconcileRoadmapShortlist() {
 function resetRoadmapState() {
     roadmapState = null;
     roadmapUnlocked = false;
+    isRoadmapProfilingActive = false;
     roadmapActiveTab = 'backlog';
     isRoadmapIntroActive = false;
     reconcileRoadmapShortlist();
@@ -140,13 +144,18 @@ function initializeRoadmap() {
     const ranked = Array.isArray(contextRankingResults) ? contextRankingResults.map(item => item.metric) : [];
     const placements = ROADMAP_PHASES.map(() => ({ qualitative: null, quantitative: null }));
     const remaining = [...ranked];
+    const shortlistMode = Boolean(contextProfilingState.shortlistOnly);
 
     ROADMAP_PHASES.forEach((phase, phaseIndex) => {
         ['qualitative', 'quantitative'].forEach(type => {
-            const candidateIndex = remaining.findIndex(metric =>
+            let candidateIndex = remaining.findIndex(metric =>
                 roadmapType(metric) === type &&
-                roadmapCanFit(metric, phaseIndex, placements.map(slots => Object.values(slots)))
+                (shortlistMode || roadmapCanFit(metric, phaseIndex, placements.map(slots => Object.values(slots))))
             );
+            if (candidateIndex < 0 && shortlistMode) {
+                candidateIndex = remaining.findIndex(metric => !roadmapType(metric));
+                if (candidateIndex < 0) candidateIndex = remaining.length ? 0 : -1;
+            }
             if (candidateIndex >= 0) {
                 placements[phaseIndex][type] = remaining.splice(candidateIndex, 1)[0];
             }
@@ -161,10 +170,43 @@ function initializeRoadmap() {
             placements.flatMap(Object.values).filter(Boolean).map(metric => [metric.id, 'suggested'])
         ),
         placements,
-        backlog: remaining
+        backlog: remaining,
+        shortlistMode
     };
     reconcileRoadmapShortlist();
     renderRoadmap();
+}
+
+function setShortlistRankingResults(metrics) {
+    contextRankingResults = metrics.map((metric, index) => ({
+        metric: { ...metric, roadmapScore: metric.roadmapScore ?? metric.value ?? 0 },
+        breakdown: { goal: 0, friction: 0, type: 0, bandwidth: 0, consensus: 0 },
+        cardsortGroup: '',
+        ease: metric.ease_of_collection || '',
+        collectionType: metric.type || '',
+        shortlistRank: index + 1
+    }));
+}
+
+function startRoadmapFromShortlist() {
+    if (!clickedMetrics.length) return;
+    const shortlist = [...clickedMetrics];
+    if (shortlist.length > 6) {
+        isRoadmapProfilingActive = true;
+        roadmapUnlocked = true;
+        switchToStep(STEP.ROADMAP);
+        startContextProfiling(STEP.NEXTSTEPS, true);
+        return;
+    }
+
+    setShortlistRankingResults(shortlist);
+    contextProfilingState = {
+        questionIndex: CONTEXT_PROFILE_QUESTIONS.length - 1,
+        answers: {},
+        returnStep: 'nextsteps',
+        shortlistOnly: true
+    };
+    unlockRoadmapFromRanking();
 }
 
 function renderRoadmapCard(metric, expectedType = null) {
@@ -308,6 +350,7 @@ function renderRoadmap() {
         `);
         view.querySelector('#reveal-roadmap-btn').addEventListener('click', revealSuggestedRoadmap);
     }
+
     const filteredBacklog = roadmapState.backlog.filter(roadmapBacklogMatches);
     const rankedMetrics = Array.isArray(contextRankingResults) ? contextRankingResults : [];
     panel.innerHTML = `
@@ -426,6 +469,29 @@ function renderRoadmap() {
     view.querySelector('#roadmap-reset-btn').addEventListener('click', initializeRoadmap);
     view.querySelector('#roadmap-restart-ranking').addEventListener('click', restartContextProfiling);
     view.querySelector('#roadmap-pdf-btn').addEventListener('click', downloadRoadmapPdf);
+}
+
+function renderRoadmapUnavailable() {
+    const view = document.getElementById('roadmap-view');
+    const panel = document.getElementById('roadmap-panel');
+    if (!view || !panel) return;
+    view.innerHTML = '';
+    panel.innerHTML = `
+        <section class="roadmap-unavailable" role="status">
+            <h2>Roadmap not ready yet</h2>
+            <p>Select metrics in Explore Metrics and add them to your shortlist, or complete the context ranking wizard first.</p>
+            <div class="roadmap-unavailable-actions">
+                <button class="next-step-btn next-step-btn--primary" id="roadmap-unavailable-explore" type="button">Explore metrics</button>
+                <button class="next-step-btn next-step-btn--secondary" id="roadmap-unavailable-profile" type="button">Profile my context</button>
+            </div>
+        </section>
+    `;
+    panel.querySelector('#roadmap-unavailable-explore').addEventListener('click', () => switchToStep(STEP.EXPLORE));
+    panel.querySelector('#roadmap-unavailable-profile').addEventListener('click', () => {
+        switchToStep(STEP.EXPLORE);
+        showExploreStartView();
+        startContextProfiling('role-select-step');
+    });
 }
 
 async function downloadRoadmapPdf() {
@@ -625,6 +691,7 @@ function roadmapBacklogMatches(metric) {
 }
 
 function unlockRoadmapFromRanking() {
+    isRoadmapProfilingActive = false;
     roadmapUnlocked = true;
     roadmapActiveTab = 'ranking';
     isRoadmapIntroActive = true;

@@ -85,10 +85,10 @@
                 <span class="step-btn-num">3</span>
                 <span class="step-btn-label">Review &amp; Implement Metrics</span>
             </button>
-            <div class="step-connector roadmap-step-control" hidden></div>
-            <button class="step-btn roadmap-step-control" id="step-btn-roadmap" data-step="roadmap" hidden>
+            <div class="step-connector roadmap-step-control"></div>
+            <button class="step-btn roadmap-step-control" id="step-btn-roadmap" data-step="roadmap">
                 <span class="step-btn-num">4</span>
-                <span class="step-btn-label">90-Day Roadmap</span>
+                <span class="step-btn-label">Actionable Roadmap</span>
             </button>
             </div><!-- /.step-bar-steps -->
         </div><!-- /.step-bar-top -->
@@ -105,6 +105,10 @@
         <div class="left-container">
             <!-- Step 1: Sunburst chart -->
             <div id="container"></div>
+            <div id="roadmap-profiling-transition" class="roadmap-profiling-transition" hidden>
+                <h2>Preparing your roadmap</h2>
+                <p>Profiling your context to rank your shortlisted metrics.</p>
+            </div>
 
             <!-- First-time hint pointing at a metric to teach that the outer ring is clickable -->
             <svg id="metric-hint-arrow-svg" class="metric-hint-arrow-svg" style="display:none;">
@@ -733,6 +737,7 @@
                         <button class="clear-all-metrics ns-btn-clear" id="copy-shortlist-link-nextsteps" title="Copy a link that lets someone else load your shortlist">🔗 Copy shareable link</button>
                         <button class="clear-all-metrics ns-btn-clear" id="clear-all-metrics-nextsteps" title="Remove every metric from your shortlist">🗑️ Clear shortlist</button>
                     </div>
+                    <button class="next-step-btn next-step-btn--primary nextsteps-roadmap-btn" id="generate-roadmap-nextsteps" type="button">Generate roadmap</button>
                     <a id="json-download-anchor" style="display:none"></a>
                 </div>
             </div><!-- /#nextsteps-panel -->

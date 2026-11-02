@@ -11,7 +11,17 @@ function bumpPill(el) {
 }
 
 function switchToStep(step) {
-    if (step === STEP.ROADMAP && !roadmapUnlocked) return;
+    if (step === STEP.ROADMAP && !roadmapUnlocked && !isRoadmapProfilingActive &&
+        (clickedMetrics.length > 0 || contextRankingResults.length > 0)) {
+        if (clickedMetrics.length > 0 && typeof startRoadmapFromShortlist === 'function') {
+            startRoadmapFromShortlist();
+        } else if (typeof initializeRoadmap === 'function') {
+            roadmapUnlocked = true;
+            initializeRoadmap();
+            switchToStep(STEP.ROADMAP);
+        }
+        return;
+    }
     const prevStep = currentStep;
     currentStep = step;
     logEvent(TELEMETRY.STEP_CHANGE, { from: prevStep, to: step, shortlistCount: clickedMetrics.length });
@@ -24,8 +34,11 @@ function switchToStep(step) {
     // Swap the main-container step class (drives CSS panel visibility)
     const mc = document.getElementById('main-container');
     if (mc) {
-        mc.classList.remove('step-explore', 'step-compare', 'step-nextsteps', 'step-roadmap');
+        mc.classList.remove('step-explore', 'step-compare', 'step-nextsteps', 'step-roadmap', 'step-roadmap-profiling');
         mc.classList.add(`step-${step}`);
+        if (step === STEP.ROADMAP && isRoadmapProfilingActive) {
+            mc.classList.add('step-roadmap-profiling');
+        }
     }
 
     // Left panel: show the right visualization
@@ -33,11 +46,14 @@ function switchToStep(step) {
     const diffView     = document.getElementById('diff-view');
     const nextstepsView = document.getElementById('nextsteps-view');
     const roadmapView = document.getElementById('roadmap-view');
+    const roadmapProfilingTransition = document.getElementById('roadmap-profiling-transition');
 
-    if (sunburst)     sunburst.style.display     = step === STEP.EXPLORE   ? '' : 'none';
+    const showingRoadmapProfiling = step === STEP.ROADMAP && isRoadmapProfilingActive;
+    if (sunburst)     sunburst.style.display     = step === STEP.EXPLORE && !showingRoadmapProfiling ? '' : 'none';
     if (diffView)     diffView.style.display     = step === STEP.COMPARE   ? 'flex' : 'none';
     if (nextstepsView) nextstepsView.style.display = step === STEP.NEXTSTEPS ? 'flex' : 'none';
-    if (roadmapView) roadmapView.style.display = step === STEP.ROADMAP ? 'flex' : 'none';
+    if (roadmapView) roadmapView.style.display = step === STEP.ROADMAP && !showingRoadmapProfiling ? 'flex' : 'none';
+    if (roadmapProfilingTransition) roadmapProfilingTransition.hidden = !showingRoadmapProfiling;
 
     // Hide inline mode picker when leaving Explore step
     const exploreStartView = document.getElementById('explore-start-view');
@@ -65,18 +81,22 @@ function switchToStep(step) {
 
     // Right panel: show the right controls
     const explorePanel   = document.getElementById('explore-right-panel');
+    const exploreEntryPanel = document.getElementById('explore-entry-panel');
+    const exploreFiltersSection = document.getElementById('explore-filters-section');
     const comparePanel   = document.getElementById('compare-panel');
     const nextstepsPanel = document.getElementById('nextsteps-panel');
     const roadmapPanel = document.getElementById('roadmap-panel');
 
-    if (explorePanel)   explorePanel.style.display   = step === STEP.EXPLORE   ? '' : 'none';
+    if (explorePanel)   explorePanel.style.display   = step === STEP.EXPLORE || showingRoadmapProfiling ? '' : 'none';
+    if (exploreEntryPanel && showingRoadmapProfiling) exploreEntryPanel.style.display = '';
+    if (exploreFiltersSection && showingRoadmapProfiling) exploreFiltersSection.style.display = 'none';
     if (comparePanel)   comparePanel.style.display   = step === STEP.COMPARE   ? '' : 'none';
     if (nextstepsPanel) nextstepsPanel.style.display = step === STEP.NEXTSTEPS ? '' : 'none';
-    if (roadmapPanel) roadmapPanel.style.display = step === STEP.ROADMAP ? '' : 'none';
+    if (roadmapPanel) roadmapPanel.style.display = step === STEP.ROADMAP && !showingRoadmapProfiling ? '' : 'none';
     if (step === STEP.ROADMAP) {
         document.querySelector('.right-panel-scroll')?.scrollTo(0, 0);
     }
-    if (step === STEP.EXPLORE) {
+    if (step === STEP.EXPLORE && !showingRoadmapProfiling) {
         if (typeof hideExploreStartView === 'function') hideExploreStartView();
     }
 
@@ -89,12 +109,16 @@ function switchToStep(step) {
     if (step === STEP.NEXTSTEPS && typeof renderNextStepsView === 'function') {
         renderNextStepsView();
     }
-    if (step === STEP.ROADMAP && typeof renderRoadmap === 'function' && roadmapState) {
-        renderRoadmap();
+    if (step === STEP.ROADMAP && !showingRoadmapProfiling) {
+        if (typeof renderRoadmap === 'function' && roadmapState) {
+            renderRoadmap();
+        } else if (typeof renderRoadmapUnavailable === 'function') {
+            renderRoadmapUnavailable();
+        }
     }
 
     // On returning to Explore: restore chart if needed
-    if (step === STEP.EXPLORE && typeof filterData === 'function') {
+    if (step === STEP.EXPLORE && !showingRoadmapProfiling && typeof filterData === 'function') {
         filterData();
     }
 

@@ -443,7 +443,8 @@ const CONTEXT_PROFILE_QUESTIONS = [
 let contextProfilingState = {
     questionIndex: 0,
     answers: {},
-    returnStep: 'start-choice-step'
+    returnStep: 'start-choice-step',
+    shortlistOnly: false
 };
 let contextRankingResults = [];
 
@@ -550,8 +551,9 @@ function scoreContextMetric(metric, answers, parentById) {
 function rankContextMetrics() {
     const answers = contextProfilingState.answers;
     const parentById = new Map(originalData.map(item => [String(item.id), item]));
+    const candidates = contextProfilingState.shortlistOnly ? clickedMetrics : originalData;
 
-    return originalData
+    return candidates
         .filter(metric => contextMetricField(
             metric,
             'dataCollectionType',
@@ -586,8 +588,8 @@ function contextCollectionLabel(type) {
     }[type] || type || 'Unknown type';
 }
 
-function startContextProfiling(returnStep = 'role-select-step') {
-    contextProfilingState = { questionIndex: 0, answers: {}, returnStep };
+function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = false) {
+    contextProfilingState = { questionIndex: 0, answers: {}, returnStep, shortlistOnly };
     document.getElementById('context-profiling-question').innerHTML = '';
     showWizardStep('context-profiling-step');
     renderContextProfilingQuestion();
@@ -649,7 +651,12 @@ function nextContextProfilingQuestion() {
 
 function previousContextProfilingQuestion() {
     if (contextProfilingState.questionIndex === 0) {
-        showWizardStep(contextProfilingState.returnStep);
+        if (contextProfilingState.returnStep === STEP.NEXTSTEPS) {
+            isRoadmapProfilingActive = false;
+            switchToStep(STEP.NEXTSTEPS);
+        } else {
+            showWizardStep(contextProfilingState.returnStep);
+        }
         return;
     }
 

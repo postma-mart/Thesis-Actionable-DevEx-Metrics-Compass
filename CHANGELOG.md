@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-11-02 — Added roadmap context profile entry point
+
+- Added a direct context-profile action to the roadmap empty state.
+
+## 2026-11-02 — Exposed roadmap step navigation
+
+- Made Step 4 visible in the titlebar, connected it to shortlist-based generation, and added guidance when no roadmap data is available.
+
+## 2026-11-02 — Fixed roadmap profiling transition layout
+
+- Hid the transition message outside profiling, restored scrolling for longer profiling questions, and kept the Roadmap step active.
+
+## 2026-11-02 — Decoupled roadmap profiling transition
+
+- Kept Step 3-to-Step 4 profiling on the Roadmap step while replacing the chart with a clean transition state and removing the Step 1 blur.
+
+## 2026-11-02 — Connected shortlist review to roadmap generation
+
+- Added conditional roadmap generation from Step 3, scoped context ranking to shortlisted metrics, and routed remaining shortlisted metrics into the roadmap backlog.
+
 ## 2026-11-02
 
 **User Flow & Onboarding**

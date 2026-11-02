@@ -62,6 +62,12 @@ function renderNextStepsView() {
         clearBtn.disabled = clickedMetrics.length === 0;
     }
 
+    const generateRoadmapBtn = document.getElementById('generate-roadmap-nextsteps');
+    if (generateRoadmapBtn) {
+        generateRoadmapBtn.disabled = clickedMetrics.length === 0;
+        generateRoadmapBtn.style.opacity = clickedMetrics.length > 0 ? '' : '0.5';
+    }
+
     // Update copy-shortlist-link button state — nothing to share with an empty shortlist
     const copyLinkBtn = document.getElementById('copy-shortlist-link-nextsteps');
     if (copyLinkBtn) {
@@ -343,6 +349,7 @@ function buildInsights(allSelected) {
                 if (categoryIds.has(id)) { selectedTopCategories.add(id); break; }
                 id = parentOf[id];
             }
+
         });
 
         const n = selectedTopCategories.size;
@@ -562,6 +569,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (entryPanel)      entryPanel.style.display      = '';
                 if (filtersSection)  filtersSection.style.display  = 'none';
             }
+        });
+    }
+
+    const generateRoadmapBtn = document.getElementById('generate-roadmap-nextsteps');
+    if (generateRoadmapBtn) {
+        generateRoadmapBtn.addEventListener('click', () => {
+            if (typeof startRoadmapFromShortlist === 'function') startRoadmapFromShortlist();
         });
     }
 });
