@@ -83,6 +83,9 @@ let currentColorBy = 'categorization';
 const ROLE = { NEWCOMER: 'newcomer', PRACTITIONER: 'practitioner', RESEARCHER: 'researcher' };
 let currentRole = null;
 
+// Shared creatable owner names used by all roadmap owner fields.
+let uniqueOwners = [];
+
 // Per-role wizard sequence + filter-panel layout.
 // `sequence`      - fixed question order asked right after picking this role (Newcomer only).
 // `quickSequence` - question order asked only if Practitioner/Researcher pick "quick questions".

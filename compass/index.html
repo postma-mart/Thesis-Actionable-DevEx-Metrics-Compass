@@ -33,6 +33,8 @@
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-sunburst.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
     <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" type="text/css" rel="stylesheet">
     <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=20261030-roadmap14">
@@ -176,7 +178,7 @@
                             <div class="explore-entry-card-body">
                                 <div class="explore-entry-card-title">Newcomer</div>
                                 <div class="explore-entry-card-description">I am new to the space and want to explore metrics that fit my context.</div>
-                                <button class="overlay-action-button role-select-btn" data-role="newcomer">Continue as Newcomer</button>
+                                <button class="overlay-action-button role-select-btn" data-role="newcomer">Continue as newcomer</button>
                             </div>
                         </div>
                         <div class="explore-entry-card">
@@ -206,6 +208,33 @@
                     </div>
                     <div class="wizard-nav">
                         <button class="wizard-back-btn" id="skip-wizard-link" type="button">Skip wizard</button>
+                    </div>
+                </div>
+
+                <!-- Step 1 (Newcomer only): how to get started -->
+                <div id="newcomer-choice-step" class="wizard-step hidden">
+                    <div class="controls-title">How would you like to get started?</div>
+                    <p class="filter-description">Newcomer: I am new to the space and want to explore metrics that fit my context.</p>
+                    <div class="explore-entry-cards">
+                        <div class="explore-entry-card">
+                            <div class="explore-entry-card-icon welcome-card-icon--additive">🔽</div>
+                            <div class="explore-entry-card-body">
+                                <div class="explore-entry-card-title">Answer a few questions</div>
+                                <div class="explore-entry-card-description">Answer a couple of quick questions, then progressively add metrics that fit your constraints.</div>
+                                <button class="overlay-action-button newcomer-choice-btn" data-action="additive" type="button">Start with a few questions</button>
+                            </div>
+                        </div>
+                        <div class="explore-entry-card">
+                            <div class="explore-entry-card-icon welcome-card-icon--additive">?</div>
+                            <div class="explore-entry-card-body">
+                                <div class="explore-entry-card-title">Profile my context</div>
+                                <div class="explore-entry-card-description">Answer six questions and rank metrics against your goals, bandwidth, friction, and data preferences.</div>
+                                <button class="overlay-action-button newcomer-choice-btn" data-action="contextProfiling" type="button">Start context profile</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wizard-nav">
+                        <button class="wizard-back-btn go-back-btn" data-target-step="role-select-step" type="button">&larr; Back to role selection</button>
                     </div>
                 </div>
 
@@ -461,7 +490,7 @@
                     </div>
                 </div>
 
-                <!-- Context profiling wizard and ranked results -->
+                <!-- Context profiling wizard -->
                 <div id="context-profiling-step" class="wizard-step hidden">
                     <p class="wizard-step-label" id="context-profiling-progress">Question 1 of 6</p>
                     <div id="context-profiling-question"></div>
@@ -469,15 +498,6 @@
                         <button class="wizard-back-btn" id="context-profiling-back-btn" type="button">&larr; Go back</button>
                         <button class="wizard-back-btn" id="context-profiling-randomize-btn" type="button">Randomize &amp; Skip</button>
                         <button class="overlay-action-button" id="context-profiling-next-btn" type="button">Continue</button>
-                    </div>
-                </div>
-
-                <div id="context-ranking-step" class="wizard-step hidden">
-                    <div class="controls-title">Recommended metrics</div>
-                    <p class="filter-description" id="context-ranking-summary"></p>
-                    <div id="context-ranking-list" class="context-ranking-list"></div>
-                    <div class="wizard-nav">
-                        <button class="overlay-action-button context-ranking-restart-btn" id="context-ranking-restart-btn" type="button">Restart wizard</button>
                     </div>
                 </div>
 

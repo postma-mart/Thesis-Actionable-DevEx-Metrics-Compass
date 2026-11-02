@@ -59,6 +59,7 @@ anychart.onDocumentReady(function() {
         }
 
         restoreShortlistFromUrl();
+        if (typeof reconcileRoadmapShortlist === 'function') reconcileRoadmapShortlist();
         restoreMetricPopupFromUrl();
 
         logEvent(TELEMETRY.PAGE_LOAD, { totalMetrics: originalData.filter(m => m.type).length, shortlistCount: clickedMetrics.length, hasShortlist: clickedMetrics.length > 0, viewport: window.innerWidth < 768 ? 'mobile' : 'desktop', entry: entryInfo.entry, fromSeo: entryInfo.fromSeo, seoPage: entryInfo.seoPage });

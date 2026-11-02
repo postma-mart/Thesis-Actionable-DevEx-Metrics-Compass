@@ -214,7 +214,7 @@ function updateQuestionStepChrome(key) {
         const prevKey = sequence[idx - 1];
         backBtn.dataset.targetStep = prevKey
             ? QUESTION_STEP_ID[prevKey]
-            : (currentRole === ROLE.NEWCOMER ? 'role-select-step' : 'start-choice-step');
+            : (currentRole === ROLE.NEWCOMER ? 'newcomer-choice-step' : 'start-choice-step');
     }
 }
 
@@ -290,7 +290,7 @@ document.querySelectorAll('.role-select-btn').forEach(btn => {
             wizardAnswers.easeOfCollection = 'Easy';
             applySpecificFilter('easeOfCollection', 'Easy', 'easeOfCollection');
             filterData();
-            goToWizardQuestion(ROLE_CONFIG[ROLE.NEWCOMER].sequence[0]);
+            showWizardStep('newcomer-choice-step');
         } else {
             showStartChoiceStep();
         }
@@ -310,6 +310,20 @@ document.getElementById('skip-wizard-link').addEventListener('click', () => {
     showRoleBadge();
     clearAllFilters();
     finishWizard();
+});
+
+// ─── Step 1 (Newcomer only): how to get started ────────────────────────────
+
+document.querySelectorAll('.newcomer-choice-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const action = this.dataset.action;
+        logEvent(TELEMETRY.WIZARD_STARTED, { role: currentRole, action });
+        if (action === 'contextProfiling') {
+            startContextProfiling('newcomer-choice-step');
+        } else if (action === 'additive') {
+            goToWizardQuestion(ROLE_CONFIG[ROLE.NEWCOMER].sequence[0]);
+        }
+    });
 });
 
 // ─── Step 1 (Practitioner/Researcher only): how to get started ──────────────
@@ -588,7 +602,7 @@ function renderContextProfilingQuestion() {
         `Question ${contextProfilingState.questionIndex + 1} of ${CONTEXT_PROFILE_QUESTIONS.length}`;
     document.getElementById('context-profiling-next-btn').textContent =
         contextProfilingState.questionIndex === CONTEXT_PROFILE_QUESTIONS.length - 1
-            ? 'Show ranked metrics'
+            ? 'Generate roadmap'
             : 'Continue';
     document.getElementById('context-profiling-back-btn').disabled = false;
 
@@ -625,6 +639,7 @@ function nextContextProfilingQuestion() {
 
     if (contextProfilingState.questionIndex === CONTEXT_PROFILE_QUESTIONS.length - 1) {
         renderContextRanking();
+        unlockRoadmapFromRanking();
         return;
     }
 
@@ -650,63 +665,35 @@ function randomizeContextProfiling() {
         })
     );
     renderContextRanking();
-    if (typeof unlockRoadmapFromRanking === 'function') unlockRoadmapFromRanking();
+    unlockRoadmapFromRanking();
 }
 
 function renderContextRanking() {
     const rankedMetrics = rankContextMetrics();
     contextRankingResults = rankedMetrics.map(item => ({
-        metric: { ...item.metric, roadmapScore: item.total }
+        metric: { ...item.metric, roadmapScore: item.total },
+        breakdown: item.breakdown,
+        cardsortGroup: item.cardsortGroup,
+        ease: item.ease,
+        collectionType: item.collectionType
     }));
-    const rankingList = document.getElementById('context-ranking-list');
-
-    document.getElementById('context-ranking-summary').textContent =
-        `${rankedMetrics.length} eligible metrics ranked against your answers.`;
-
-    rankingList.innerHTML = rankedMetrics.map((item, index) => `
-        <article class="context-ranking-card">
-            <div class="context-ranking-card-header">
-                <strong>#${index + 1}</strong>
-                <h3>${escapeContextHtml(item.metric.name || 'Unnamed metric')}</h3>
-                <span class="context-ranking-score">${item.total}/100</span>
-            </div>
-            <div class="context-ranking-chips">
-                <span>Goal ${item.breakdown.goal}/35</span>
-                <span>Friction ${item.breakdown.friction}/30</span>
-                <span>Type ${item.breakdown.type}/15</span>
-                <span>Bandwidth ${item.breakdown.bandwidth}/10</span>
-                <span>Consensus ${item.breakdown.consensus}/10</span>
-            </div>
-            <div class="context-ranking-metadata">
-                <span>${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
-                <span>${escapeContextHtml(item.ease || 'Unknown ease')}</span>
-                <span>${escapeContextHtml(contextCollectionLabel(item.collectionType))}</span>
-            </div>
-        </article>
-    `).join('');
-
-    const actions = document.querySelector('.context-ranking-restart-btn')?.parentElement;
-    if (actions && !document.getElementById('generate-roadmap-btn')) {
-        actions.insertAdjacentHTML('afterbegin', '<button class="overlay-action-button roadmap-primary-btn" id="generate-roadmap-btn" type="button">Generate 90-Day Roadmap</button>');
-        document.getElementById('generate-roadmap-btn').addEventListener('click', unlockRoadmapFromRanking);
-    }
-
-    showWizardStep('context-ranking-step');
 }
 
 function restartContextProfiling() {
+    if (typeof resetRoadmapState === 'function') resetRoadmapState();
     contextProfilingState = {
         questionIndex: 0,
         answers: {},
         returnStep: 'role-select-step'
     };
+    switchToStep(STEP.EXPLORE);
+    showExploreStartView();
     showWizardStep('role-select-step');
 }
 
 document.getElementById('context-profiling-next-btn').addEventListener('click', nextContextProfilingQuestion);
 document.getElementById('context-profiling-back-btn').addEventListener('click', previousContextProfilingQuestion);
 document.getElementById('context-profiling-randomize-btn').addEventListener('click', randomizeContextProfiling);
-document.getElementById('context-ranking-restart-btn').addEventListener('click', restartContextProfiling);
 
 // ─── Go-back links (shared across role/start-choice/question/company-list steps) ─
 

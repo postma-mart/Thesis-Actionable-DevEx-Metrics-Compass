@@ -77,7 +77,6 @@ function switchToStep(step) {
         document.querySelector('.right-panel-scroll')?.scrollTo(0, 0);
     }
     if (step === STEP.EXPLORE) {
-        document.getElementById('context-ranking-step')?.classList.add('hidden');
         if (typeof hideExploreStartView === 'function') hideExploreStartView();
     }
 

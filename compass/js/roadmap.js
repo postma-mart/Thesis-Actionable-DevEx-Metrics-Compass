@@ -11,6 +11,84 @@ let roadmapState = null;
 let roadmapUnlocked = false;
 let roadmapDragDropHandled = false;
 let roadmapBacklogFilters = { type: 'all', score: 'all', difficulty: 'all' };
+let roadmapActiveTab = 'backlog';
+let isRoadmapIntroActive = false;
+
+function addRoadmapOwner(value) {
+    const owner = String(value || '').trim();
+    if (owner && !uniqueOwners.includes(owner)) uniqueOwners.push(owner);
+    return owner;
+}
+
+function roadmapOwnerInput(attribute, dataValue, ownerValue, label) {
+    return `<label class="${label === 'Phase Owner' ? 'roadmap-owner' : 'roadmap-card-owner'}">${label}
+            <span class="roadmap-owner-field">
+                <input type="text" data-${attribute}="${dataValue}" value="${escapeContextHtml(ownerValue || '')}" placeholder="Add owner" autocomplete="off">
+                <span class="roadmap-owner-chevron" aria-hidden="true">▼</span>
+                <span class="roadmap-owner-dropdown" role="listbox" hidden></span>
+            </span>
+    </label>`;
+}
+
+function updateRoadmapOwnerState(input) {
+    if (input.dataset.roadmapOwner !== undefined) {
+            roadmapState.owners[Number(input.dataset.roadmapOwner)] = input.value;
+    } else {
+            roadmapState.metricOwners[input.dataset.roadmapMetricOwner] = input.value;
+    }
+}
+
+function renderRoadmapOwnerDropdown(input) {
+    const dropdown = input.closest('.roadmap-owner-field').querySelector('.roadmap-owner-dropdown');
+    const query = input.value.trim().toLowerCase();
+    const matches = uniqueOwners.filter(owner => !query || owner.toLowerCase().includes(query));
+    dropdown.innerHTML = matches.map(owner =>
+            `<button type="button" class="roadmap-owner-option" role="option" data-owner="${escapeContextHtml(owner)}">${escapeContextHtml(owner)}</button>`
+    ).join('');
+    dropdown.hidden = matches.length === 0;
+    input.classList.toggle('roadmap-owner-input--open', !dropdown.hidden);
+}
+
+function closeRoadmapOwnerDropdown(input, commit = true) {
+    if (commit) {
+            const owner = addRoadmapOwner(input.value);
+            input.value = owner;
+            input.setAttribute('value', owner);
+            updateRoadmapOwnerState(input);
+    }
+    const dropdown = input.closest('.roadmap-owner-field').querySelector('.roadmap-owner-dropdown');
+    dropdown.hidden = true;
+    input.classList.remove('roadmap-owner-input--open');
+}
+
+function bindRoadmapOwnerFields() {
+    document.querySelectorAll('[data-roadmap-owner], [data-roadmap-metric-owner]').forEach(input => {
+            input.addEventListener('focus', () => renderRoadmapOwnerDropdown(input));
+            input.addEventListener('click', () => renderRoadmapOwnerDropdown(input));
+            input.addEventListener('input', () => {
+                updateRoadmapOwnerState(input);
+                renderRoadmapOwnerDropdown(input);
+            });
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    closeRoadmapOwnerDropdown(input);
+                    input.blur();
+                } else if (event.key === 'Escape') {
+                    closeRoadmapOwnerDropdown(input, false);
+                }
+            });
+            input.addEventListener('blur', () => setTimeout(() => closeRoadmapOwnerDropdown(input), 120));
+            input.closest('.roadmap-owner-field').querySelector('.roadmap-owner-dropdown').addEventListener('mousedown', event => {
+                const option = event.target.closest('.roadmap-owner-option');
+                if (!option) return;
+                event.preventDefault();
+                input.value = option.dataset.owner;
+                updateRoadmapOwnerState(input);
+                closeRoadmapOwnerDropdown(input, false);
+            });
+    });
+}
 
 function roadmapDifficulty(metric) {
     const ease = String(metric.ease_of_collection || '').toLowerCase();
@@ -40,6 +118,24 @@ function roadmapCanFit(metric, phaseIndex, placements = roadmapState.placements)
     return used + estimate <= budget;
 }
 
+function reconcileRoadmapShortlist() {
+    const activeMetrics = roadmapState
+        ? roadmapState.placements.flatMap(Object.values).filter(Boolean)
+        : [];
+    clickedMetrics = activeMetrics.map(metric => ({ ...metric, collectionStatus: 'planning' }));
+    saveClickedMetricsToLocalStorage();
+    if (typeof updateStepBar === 'function') updateStepBar();
+    if (typeof syncShortlistOptionVisibility === 'function') syncShortlistOptionVisibility();
+}
+
+function resetRoadmapState() {
+    roadmapState = null;
+    roadmapUnlocked = false;
+    roadmapActiveTab = 'backlog';
+    isRoadmapIntroActive = false;
+    reconcileRoadmapShortlist();
+}
+
 function initializeRoadmap() {
     const ranked = Array.isArray(contextRankingResults) ? contextRankingResults.map(item => item.metric) : [];
     const placements = ROADMAP_PHASES.map(() => ({ qualitative: null, quantitative: null }));
@@ -67,6 +163,7 @@ function initializeRoadmap() {
         placements,
         backlog: remaining
     };
+    reconcileRoadmapShortlist();
     renderRoadmap();
 }
 
@@ -82,9 +179,7 @@ function renderRoadmapCard(metric, expectedType = null) {
                 <span class="roadmap-card-time">~${difficulty.estimate}h</span>
             </div>
             ${expectedType ? `<span class="roadmap-card-provenance roadmap-card-provenance--${provenance === 'Suggested' ? 'suggested' : 'manual'}">${provenance}</span>` : ''}
-            ${expectedType ? `<label class="roadmap-card-owner">Metric Owner
-                <input type="text" data-roadmap-metric-owner="${metric.id}" value="${escapeContextHtml(roadmapState.metricOwners[metric.id] || '')}" placeholder="Add owner">
-            </label>` : ''}
+            ${expectedType ? roadmapOwnerInput('roadmap-metric-owner', metric.id, roadmapState.metricOwners[metric.id], 'Metric Owner') : ''}
         </article>
     `;
 }
@@ -128,7 +223,10 @@ function placeRoadmapMetric(metricId, phaseIndex, type) {
         else roadmapState.placements[source.phaseIndex][source.type] = null;
         roadmapState.placements[phaseIndex][type] = metric;
     }
-    if (source.area === 'backlog') roadmapState.provenance[metric.id] = 'manual';
+    if (source.area === 'backlog') {
+        roadmapState.provenance[metric.id] = 'manual';
+        addClickedMetric(metric, 'planning', 'roadmap');
+    }
     roadmapState.backlog.sort(roadmapRankCompare);
     roadmapDragDropHandled = true;
     renderRoadmap();
@@ -145,6 +243,7 @@ function moveRoadmapToBacklog(metricId) {
     const metric = roadmapState.placements[source.phaseIndex][source.type];
     roadmapState.placements[source.phaseIndex][source.type] = null;
     roadmapState.backlog.push(metric);
+    removeClickedMetric(metric.id);
     roadmapState.backlog.sort(roadmapRankCompare);
     roadmapDragDropHandled = true;
     renderRoadmap();
@@ -155,24 +254,29 @@ function renderRoadmap() {
     const panel = document.getElementById('roadmap-panel');
     if (!view || !panel || !roadmapState) return;
     view.innerHTML = `
+        <div class="roadmap-actions" aria-label="Roadmap actions">
+            <span class="roadmap-highlight">Wizard-generated plan</span>
+            <div class="roadmap-action-buttons">
+                <button class="next-step-btn next-step-btn--secondary roadmap-action-btn" id="roadmap-reset-btn" type="button">🔄 Reset Roadmap</button>
+                <button class="next-step-btn next-step-btn--secondary roadmap-action-btn" id="roadmap-restart-ranking" type="button">📝 Restart Wizard</button>
+                <button class="next-step-btn next-step-btn--secondary roadmap-action-btn" id="roadmap-pdf-btn" type="button">📥 Export Roadmap</button>
+            </div>
+        </div>
         <div class="roadmap-header">
             <div>
-                <p class="roadmap-kicker">Wizard-generated plan</p>
+                <p class="roadmap-kicker">DevEx Improvement Initiative</p>
                 <h1>90-Day Roadmap</h1>
-                <p>Balance the highest-ranked qualitative and quantitative metrics across three phases.</p>
+                <p class="roadmap-subtitle">Balance the highest-ranked qualitative and quantitative metrics across three phases.</p>
             </div>
-            <span class="roadmap-budget">${roadmapState.budget}h/mo available per phase</span>
         </div>
         <div class="roadmap-phases">
             ${ROADMAP_PHASES.map((phase, phaseIndex) => `
                 <section class="roadmap-phase">
                     <header class="roadmap-phase-header">
                         <div><h2>${phase.label}</h2><span>${phase.days}</span></div>
-                        <strong>${roadmapState.budget}h/mo</strong>
+                        <strong>${roadmapState.budget} hours/month</strong>
                     </header>
-                    <label class="roadmap-owner">Phase Owner
-                        <input type="text" data-roadmap-owner="${phaseIndex}" value="${escapeContextHtml(roadmapState.owners[phaseIndex])}" placeholder="Add owner">
-                    </label>
+                            ${roadmapOwnerInput('roadmap-owner', phaseIndex, roadmapState.owners[phaseIndex], 'Phase Owner')}
                     <div class="roadmap-slot" data-roadmap-slot="${phaseIndex}:qualitative">
                         <span class="roadmap-slot-label">Qualitative</span>
                         ${roadmapState.placements[phaseIndex].qualitative ? renderRoadmapCard(roadmapState.placements[phaseIndex].qualitative, 'qualitative') : '<span class="roadmap-slot-empty">Drop a qualitative metric</span>'}
@@ -186,46 +290,89 @@ function renderRoadmap() {
         </div>
         <section class="roadmap-statistics" aria-label="Roadmap statistics">
             ${renderRoadmapStatistics()}
-            <button class="next-step-btn next-step-btn--secondary" id="roadmap-reset-btn" type="button">Reset to Suggested Roadmap</button>
         </section>
     `;
+    if (isRoadmapIntroActive) {
+        view.insertAdjacentHTML('beforeend', `
+            <div class="roadmap-intro-backdrop" aria-hidden="true"></div>
+            <section class="roadmap-intro-dialog overlay-content" role="dialog" aria-modal="true" aria-labelledby="roadmap-intro-title">
+                <h2 id="roadmap-intro-title">Your suggested roadmap is ready</h2>
+                <div class="roadmap-intro-copy">
+                    <p>On the right, you see the results of your context ranking.</p>
+                    <p>You can update your context and restart the wizard at any time using the button above the ranking.</p>
+                    <p>To edit your roadmap, you will drag and drop metrics from the Backlog tab.</p>
+                    <p>Keep an eye on the capacity bar—metrics require varying levels of effort, and each phase has a strict budget.</p>
+                </div>
+                <button class="overlay-action-button" id="reveal-roadmap-btn" type="button">Reveal Suggested Roadmap</button>
+            </section>
+        `);
+        view.querySelector('#reveal-roadmap-btn').addEventListener('click', revealSuggestedRoadmap);
+    }
     const filteredBacklog = roadmapState.backlog.filter(roadmapBacklogMatches);
+    const rankedMetrics = Array.isArray(contextRankingResults) ? contextRankingResults : [];
     panel.innerHTML = `
-        <div class="controls-title">Backlog</div>
-        <div class="filter-description">Ranked metrics that did not fit the first six slots.</div>
-        <div class="roadmap-backlog-filters" aria-label="Backlog filters">
-            <label>Type
-                <select data-roadmap-filter="type">
-                    <option value="all">All types</option>
-                    <option value="qualitative">Qualitative</option>
-                    <option value="quantitative">Quantitative</option>
-                </select>
-            </label>
-            <label>Score
-                <select data-roadmap-filter="score">
-                    <option value="all">All scores</option>
-                    <option value="90">90-100</option>
-                    <option value="75">75-89</option>
-                    <option value="50">50-74</option>
-                    <option value="0">0-49</option>
-                </select>
-            </label>
-            <label>Effort
-                <select data-roadmap-filter="difficulty">
-                    <option value="all">All effort</option>
-                    <option value="easy">Easy</option>
-                    <option value="moderate">Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
-            </label>
+        <div class="welcome-provenance-tabs" role="tablist" aria-label="Roadmap metric lists">
+            <span class="welcome-provenance-tab${roadmapActiveTab === 'backlog' ? ' active' : ''}" data-roadmap-tab="backlog" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'backlog'}">Backlog</span>
+            <span class="welcome-provenance-sep">&bull;</span>
+            <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking</span>
         </div>
-        <div class="roadmap-backlog" data-roadmap-backlog>
-            <div class="roadmap-backlog-list">
-                ${filteredBacklog.length ? filteredBacklog.map(metric => renderRoadmapCard(metric)).join('') : '<span class="roadmap-slot-empty">No metrics match these filters.</span>'}
+        <div class="roadmap-backlog${roadmapActiveTab === 'backlog' ? '' : ' hidden'}" data-roadmap-tab-panel="backlog">
+            <div class="controls-title">Backlog</div>
+            <div class="filter-description">Ranked metrics that did not fit the first six slots.</div>
+            <div class="roadmap-backlog-filters" aria-label="Backlog filters">
+                <label>Type
+                    <select data-roadmap-filter="type">
+                        <option value="all">All types</option>
+                        <option value="qualitative">Qualitative</option>
+                        <option value="quantitative">Quantitative</option>
+                    </select>
+                </label>
+                <label>Score
+                    <select data-roadmap-filter="score">
+                        <option value="all">All scores</option>
+                        <option value="90">90-100</option>
+                        <option value="75">75-89</option>
+                        <option value="50">50-74</option>
+                        <option value="0">0-49</option>
+                    </select>
+                </label>
+                <label>Effort
+                    <select data-roadmap-filter="difficulty">
+                        <option value="all">All effort</option>
+                        <option value="easy">Easy</option>
+                        <option value="moderate">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </label>
+            </div>
+            <div class="roadmap-backlog" data-roadmap-backlog>
+                <div class="roadmap-backlog-list">
+                    ${filteredBacklog.length ? filteredBacklog.map(metric => renderRoadmapCard(metric)).join('') : '<span class="roadmap-slot-empty">No metrics match these filters.</span>'}
+                </div>
             </div>
         </div>
-        <button class="next-step-btn next-step-btn--secondary" id="roadmap-back-ranking" type="button">&larr; Back to ranked metrics</button>
+        <div class="roadmap-backlog${roadmapActiveTab === 'ranking' ? '' : ' hidden'}" data-roadmap-tab-panel="ranking">
+            <div class="controls-title">Ranking Results</div>
+            <div class="filter-description">Results of the ranking process.</div>
+            <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers.</p>
+            <div class="context-ranking-list">
+                ${renderContextRankingCards(rankedMetrics)}
+            </div>
+        </div>
     `;
+    panel.querySelectorAll('[data-roadmap-tab]').forEach(tab => {
+        tab.addEventListener('click', () => {
+            roadmapActiveTab = tab.dataset.roadmapTab;
+            renderRoadmap();
+        });
+        tab.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                roadmapActiveTab = tab.dataset.roadmapTab;
+                renderRoadmap();
+            }
+        });
+    });
     panel.querySelectorAll('[data-roadmap-filter]').forEach(select => {
         const key = select.dataset.roadmapFilter;
         select.value = roadmapBacklogFilters[key];
@@ -234,14 +381,9 @@ function renderRoadmap() {
             renderRoadmap();
         });
     });
+    bindRoadmapOwnerFields();
 
-    view.querySelectorAll('[data-roadmap-owner]').forEach(input => {
-        input.addEventListener('input', () => { roadmapState.owners[Number(input.dataset.roadmapOwner)] = input.value; });
-    });
     panel.querySelectorAll('[data-roadmap-metric-owner]').forEach(input => {
-        input.addEventListener('input', () => {
-            roadmapState.metricOwners[input.dataset.roadmapMetricOwner] = input.value;
-        });
         input.addEventListener('click', event => event.stopPropagation());
     });
     document.querySelectorAll('.roadmap-card').forEach(card => {
@@ -281,12 +423,141 @@ function renderRoadmap() {
         backlogTarget.addEventListener('dragover', event => event.preventDefault());
         backlogTarget.addEventListener('drop', handleBacklogDrop);
     });
-    panel.querySelector('#roadmap-back-ranking').addEventListener('click', () => {
-        switchToStep(STEP.EXPLORE);
-        showExploreStartView();
-        showWizardStep('context-ranking-step');
-    });
     view.querySelector('#roadmap-reset-btn').addEventListener('click', initializeRoadmap);
+    view.querySelector('#roadmap-restart-ranking').addEventListener('click', restartContextProfiling);
+    view.querySelector('#roadmap-pdf-btn').addEventListener('click', downloadRoadmapPdf);
+}
+
+async function downloadRoadmapPdf() {
+    const roadmap = document.getElementById('roadmap-view');
+    const button = document.getElementById('roadmap-pdf-btn');
+    const JsPDF = window.jspdf?.jsPDF;
+    if (!roadmap || typeof window.html2canvas !== 'function' || typeof JsPDF !== 'function') {
+        console.error('Roadmap PDF export requires html2canvas and jsPDF to be loaded.');
+        alert('The roadmap PDF export is unavailable because its PDF libraries did not load.');
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Generating PDF…';
+    }
+
+    try {
+        const canvas = await window.html2canvas(roadmap, {
+            backgroundColor: '#f4f1ea',
+            scale: 2,
+            useCORS: true,
+            onclone: clonedDocument => {
+                const clonedRoadmap = clonedDocument.getElementById('roadmap-view');
+                if (!clonedRoadmap) return;
+                clonedRoadmap.style.fontFamily = 'Arial, sans-serif';
+                clonedRoadmap.style.letterSpacing = 'normal';
+                clonedRoadmap.style.textRendering = 'optimizeSpeed';
+                clonedRoadmap.querySelectorAll('.roadmap-actions, .roadmap-intro-backdrop, .roadmap-intro-dialog').forEach(element => element.remove());
+                clonedRoadmap.querySelector('.roadmap-phases')?.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))');
+                clonedRoadmap.querySelectorAll('*').forEach(element => {
+                    element.style.fontFamily = 'Arial, sans-serif';
+                    element.style.letterSpacing = 'normal';
+                    element.style.textRendering = 'optimizeSpeed';
+                });
+                clonedRoadmap.querySelectorAll('.roadmap-card-name').forEach(element => {
+                    element.style.overflow = 'hidden';
+                    element.style.textOverflow = 'ellipsis';
+                    element.style.whiteSpace = 'nowrap';
+                });
+                clonedRoadmap.querySelectorAll('.roadmap-owner input, .roadmap-card-owner input').forEach(input => {
+                    const ownerText = clonedDocument.createElement('div');
+                    const computedStyle = clonedDocument.defaultView.getComputedStyle(input);
+                    [
+                        'background-color',
+                        'border',
+                        'border-radius',
+                        'box-sizing',
+                        'color',
+                        'font-family',
+                        'font-size',
+                        'font-style',
+                        'font-weight',
+                        'height',
+                        'letter-spacing',
+                        'line-height',
+                        'padding',
+                        'text-align',
+                        'width'
+                    ].forEach(property => {
+                        ownerText.style.setProperty(property, computedStyle.getPropertyValue(property));
+                    });
+                    ownerText.className = input.className;
+                    ownerText.textContent = input.value;
+                    ownerText.style.alignItems = 'center';
+                    ownerText.style.display = 'flex';
+                    ownerText.style.overflow = 'hidden';
+                    ownerText.style.textOverflow = 'ellipsis';
+                    ownerText.style.whiteSpace = 'nowrap';
+                    input.replaceWith(ownerText);
+                });
+            }
+        });
+
+        const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const margin = 8;
+        const pageWidth = 297 - margin * 2;
+        const pageHeight = 210 - margin * 2;
+        const imageRatio = canvas.width / canvas.height;
+        let imageWidth = pageWidth;
+        let imageHeight = pageWidth / imageRatio;
+        if (imageHeight > pageHeight) {
+            imageHeight = pageHeight;
+            imageWidth = pageHeight * imageRatio;
+        }
+        pdf.addImage(
+            canvas.toDataURL('image/jpeg', 0.92),
+            'JPEG',
+            margin + (pageWidth - imageWidth) / 2,
+            margin + (pageHeight - imageHeight) / 2,
+            imageWidth,
+            imageHeight,
+            undefined,
+            'FAST'
+        );
+        pdf.save('90-day-roadmap.pdf');
+    } catch (error) {
+        console.error('Could not export roadmap PDF:', error);
+        alert('The roadmap PDF could not be generated. Please try again.');
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = '📥 Export Roadmap';
+        }
+    }
+}
+
+function renderContextRankingCards(rankedMetrics) {
+    return rankedMetrics.map((item, index) => {
+        const metric = item.metric;
+        return `
+            <article class="context-ranking-card">
+                <div class="context-ranking-card-header">
+                    <strong>#${index + 1}</strong>
+                    <h3>${escapeContextHtml(metric.name || 'Unnamed metric')}</h3>
+                    <span class="context-ranking-score">${metric.roadmapScore}/100</span>
+                </div>
+                <div class="context-ranking-chips">
+                    <span>Goal ${item.breakdown.goal}/35</span>
+                    <span>Friction ${item.breakdown.friction}/30</span>
+                    <span>Type ${item.breakdown.type}/15</span>
+                    <span>Bandwidth ${item.breakdown.bandwidth}/10</span>
+                    <span>Consensus ${item.breakdown.consensus}/10</span>
+                </div>
+                <div class="context-ranking-metadata">
+                    <span>${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
+                    <span>${escapeContextHtml(item.ease || 'Unknown ease')}</span>
+                    <span>${escapeContextHtml(contextCollectionLabel(item.collectionType))}</span>
+                </div>
+            </article>
+        `;
+    }).join('');
 }
 
 function renderRoadmapStatistics() {
@@ -355,7 +626,15 @@ function roadmapBacklogMatches(metric) {
 
 function unlockRoadmapFromRanking() {
     roadmapUnlocked = true;
+    roadmapActiveTab = 'ranking';
+    isRoadmapIntroActive = true;
     document.querySelectorAll('.roadmap-step-control').forEach(el => { el.hidden = false; });
     initializeRoadmap();
     switchToStep(STEP.ROADMAP);
+}
+
+function revealSuggestedRoadmap() {
+    isRoadmapIntroActive = false;
+    roadmapActiveTab = 'backlog';
+    renderRoadmap();
 }

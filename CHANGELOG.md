@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-11-02
+
+**User Flow & Onboarding**
+
+* Added a choice for newcomers between guided metric questions and the 6-question context wizard.
+* Streamlined the wizard to generate the roadmap instantly, moving the full ranking list to a new sidebar tab.
+* Added a guided introductory overlay before revealing the generated roadmap.
+
+**Roadmap UI & State Management**
+
+* Relocated all roadmap actions (Export, Reset, Redo) to a unified top bar and refined overall layout spacing.
+* Upgraded phase and metric "Owner" fields to a shared, single-click dropdown that syncs across the roadmap.
+* Reconciled the global shortlist state to strictly mirror active roadmap slots during initial generation, drag-and-drop, and page refreshes.
+
+**PDF Export Enhancements**
+
+* Implemented a dedicated 1-page landscape export for the roadmap view.
+* Fixed canvas rendering bugs: corrected squished text, preserved title ellipses, hid empty placeholders, and used DOM clone-swapping to prevent owner input text from clipping at the baseline.
+
 ## 2026-10-30 — Added wizard-generated 90-day roadmap
 
 - Added a gated fourth step that turns context-profile ranking results into a three-phase roadmap with time budgets, phase owners, fixed qualitative and quantitative slots, backlog handling, and drag-and-drop placement.
