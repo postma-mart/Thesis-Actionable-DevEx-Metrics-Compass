@@ -677,7 +677,18 @@
         "ai_specific_category": "Impact",
         "related_metrics": "155; 162",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Maintain an average satisfaction score of >4.0 (out of 5) on core development workflows and tooling.",
+            "telemetry_sources": ["Google Forms", "Typeform", "Slack/Teams Polls"],
+            "recipe_steps": [
+                "1. Draft a short, focused survey using a 5-point Likert scale asking developers to rate their satisfaction with current tools, processes, and environment.",
+                "2. Include one mandatory open-ended question (e.g., 'What is the biggest friction point in your day-to-day work?').",
+                "3. Distribute the survey anonymously via your team's primary communication channel to encourage honest feedback.",
+                "4. Aggregate the numerical scores to calculate your baseline, and categorize the text feedback to identify the top bottleneck to address this quarter."
+            ]
+        }
     },
     {
         "name": "Velocity Index Benchmark",

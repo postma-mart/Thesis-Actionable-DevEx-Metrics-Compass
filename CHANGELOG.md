@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-04 — Added roadmap implementation playbook export
+
+- Added phase-grouped implementation recipes below the roadmap statistics and included them as readable appendix pages in roadmap PDF exports.
+- Resolved implementation recipes from the canonical metric records when roadmap ranking copies omit recipe data.
+- Matched the playbook styling to the roadmap statistics widget and tightened PDF pagination around metric cards.
+
+## 2026-11-04 — Added tabbed metric detail recipes
+
+- Split metric detail pop-ups into Context & Evidence and Implementation Recipe tabs, with stage-aware defaulting and scrollable recipe content.
+
 ## 2026-11-02 — Added roadmap context profile entry point
 
 - Added a direct context-profile action to the roadmap empty state.

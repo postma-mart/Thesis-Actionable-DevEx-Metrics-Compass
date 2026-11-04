@@ -1261,8 +1261,12 @@ a {
     width: 26%;
     min-width: 420px;
     max-width: 660px;
+    max-height: min(80vh, 720px);
     font-size: 14px;
     text-align: left;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .custom-tooltip.active {
@@ -1276,6 +1280,113 @@ a {
     color: #1B1AFF;
     margin-top: 2px;
     margin-bottom: 16px;
+}
+
+.metric-detail-header {
+    flex: 0 0 auto;
+}
+
+.metric-description {
+    line-height: 1.45;
+}
+
+.metric-tabs {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 4px;
+    margin: 8px -10px 0;
+    padding: 0 10px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.metric-tab {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #64748B;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 12px 8px;
+}
+
+.metric-tab:hover,
+.metric-tab.active {
+    color: #1B1AFF;
+}
+
+.metric-tab.active {
+    border-bottom-color: #1B1AFF;
+}
+
+.metric-tab-panels {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-top: 12px;
+}
+
+.metric-tab-panel {
+    display: none;
+}
+
+.metric-tab-panel.active {
+    display: block;
+}
+
+.implementation-highlights {
+    display: grid;
+    grid-template-columns: minmax(100px, 0.7fr) minmax(180px, 1.3fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.implementation-highlight {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    background: #F1F5FB;
+    border: 1px solid #DBEAFE;
+    border-radius: 8px;
+}
+
+.implementation-highlight strong {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.implementation-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.implementation-pill {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #E8EAFD;
+    border-radius: 40px;
+    color: #1B1AFF;
+    font-size: 12px;
+}
+
+.implementation-steps {
+    margin: 8px 0 18px;
+    padding-left: 24px;
+}
+
+.implementation-steps li {
+    margin-bottom: 10px;
+    padding-left: 3px;
+    line-height: 1.45;
+}
+
+.implementation-empty {
+    color: #64748B;
+    font-style: italic;
 }
 
 .custom-tooltip strong {
@@ -4586,7 +4697,8 @@ a {
     width: 100%;
 }
 
-.roadmap-statistics {
+.roadmap-statistics,
+.roadmap-implementation-appendix {
     background: #fff;
     border: 1px solid #d9d6ce;
     border-radius: 6px;
@@ -4599,6 +4711,104 @@ a {
     padding: 12px 16px;
     width: 100%;
     box-sizing: border-box;
+}
+
+.roadmap-implementation-appendix {
+    border-top: 1px solid #d9d6ce;
+    margin-top: 16px;
+}
+
+.roadmap-implementation-header {
+    border-bottom: 1px solid #e5e2da;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+}
+
+.roadmap-implementation-header h2 {
+    color: #1b1aff;
+    font-size: 16px;
+    margin: 0 0 3px;
+}
+
+.roadmap-implementation-header p:last-child {
+    color: #666;
+    font-size: 12px;
+    margin: 0;
+}
+
+.roadmap-implementation-phase + .roadmap-implementation-phase {
+    border-top: 1px solid #e5e2da;
+    margin-top: 12px;
+    padding-top: 10px;
+}
+
+.roadmap-implementation-phase-header {
+    align-items: baseline;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.roadmap-implementation-phase-header h3 {
+    color: #666;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.roadmap-implementation-phase-header span {
+    color: #666;
+    font-size: 11px;
+}
+
+.roadmap-implementation-card {
+    background: #f8f8fc;
+    border: 1px solid #d0d2f8;
+    border-radius: 5px;
+    break-inside: avoid;
+    margin-top: 6px;
+    padding: 8px 10px;
+}
+
+.roadmap-implementation-card h4 {
+    color: #1b1aff;
+    font-size: 13px;
+    margin: 0 0 5px;
+}
+
+.roadmap-implementation-meta {
+    display: grid;
+    font-size: 12px;
+    gap: 3px 16px;
+    grid-template-columns: minmax(100px, 0.35fr) minmax(220px, 1fr);
+    line-height: 1.35;
+}
+
+.roadmap-implementation-label {
+    color: #555;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 7px;
+    text-transform: uppercase;
+}
+
+.roadmap-implementation-card ol {
+    font-size: 12px;
+    line-height: 1.35;
+    margin: 3px 0 0;
+    padding-left: 20px;
+}
+
+.roadmap-implementation-card li {
+    margin-bottom: 3px;
+}
+
+.roadmap-implementation-pending,
+.roadmap-implementation-empty {
+    color: #777;
+    font-style: italic;
+    margin: 0;
 }
 
 .roadmap-stat {

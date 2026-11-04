@@ -479,15 +479,22 @@ function buildTooltipContent(metricData, excludeId = null) {
         </div>`;
     })();
 
-    let content = `
-        <span class="close-tooltip-button">&times;</span>
-        <div class="metric-name-title">${metricName}</div> `;
+    const implementation = srcMetric && srcMetric.implementation;
+    const implementationContent = implementation ? `
+        <div class="implementation-highlights">
+            <div class="implementation-highlight"><strong>Cadence</strong><span>${implementation.cadence || 'Not specified'}</span></div>
+            <div class="implementation-highlight"><strong>Target goal</strong><span>${implementation.target_goal || 'Not specified'}</span></div>
+        </div>
+        ${Array.isArray(implementation.telemetry_sources) && implementation.telemetry_sources.length > 0 ? `
+            <div class="metric-detail implementation-sources"><strong>Telemetry sources:</strong>
+                <div class="implementation-pills">${implementation.telemetry_sources.map(source => `<span class="implementation-pill">${source}</span>`).join('')}</div>
+            </div>` : ''}
+        ${Array.isArray(implementation.recipe_steps) && implementation.recipe_steps.length > 0 ? `
+            <div class="metric-detail"><strong>Recipe steps:</strong></div>
+            <ol class="implementation-steps">${implementation.recipe_steps.map(step => `<li>${step.replace(/^\d+\.\s*/, '')}</li>`).join('')}</ol>` : ''}
+    ` : '<p class="implementation-empty">Implementation recipe coming soon.</p>';
 
-    content += `${metricDescription || 'No description available'}</div>`;
-
-    content += statusSection;
-
-    content += `
+    const contextContent = `
         <div class="metric-detail"><strong>Number of mentions:</strong> ${metricValue}</div>
         <div class="metric-detail"><strong>Companies:</strong> ${companyUsedByHtml}</div>
         <div class="metric-detail"><strong>Research:</strong> ${researchUsedByHtml}</div>
@@ -500,29 +507,59 @@ function buildTooltipContent(metricData, excludeId = null) {
                 ${companySizes.map(s => `<span class="metric-company-size-tag size-${s.toLowerCase().replace('-', '')}">${{ Enterprise: '🏢', Large: '🏬', 'Mid-size': '🏠', Small: '🏡' }[s] || ''} ${s} Company</span>`).join('')}
                 ${metricOutcomeGoals ? `<span class="metric-outcome-goals-tag outcome-${metricOutcomeGoals.toLowerCase().replace(/\s+/g, '-')}">${{ 'Developer Experience': '🧑‍💻 Developer Experience', 'Product Excellence': '⭐ Product Excellence', 'Organizational Effectiveness': '📈 Organizational Effectiveness' }[metricOutcomeGoals] || metricOutcomeGoals}</span>` : ''}
                 ${metricEaseOfCollection ? `<span class="metric-ease-tag ease-${metricEaseOfCollection.toLowerCase()}">${MATURITY_FULL_LABEL[metricEaseOfCollection] || metricEaseOfCollection}</span>` : ''}
-        </div>`;
-
-    if (metricAlsoKnownAs && metricAlsoKnownAs !== '-') {
-        content += `<hr><div class="metric-detail"><strong>Also known as:</strong> ${metricAlsoKnownAs}</div>`;
-    }
-
-    if (resolvedRelated.length > 0) {
-        content += `
-        <hr>
-        <div class="metric-detail"><strong>Related metrics:</strong> ${resolvedRelated.map(m =>
-            `<span class="related-metric-link" data-related-id="${m.id}">${m.name}</span>`
-        ).join('; ')}</div>`;
-    }
-
-    content += `<div class="metric-detail report-metric-row">
+        </div>
+        ${metricAlsoKnownAs && metricAlsoKnownAs !== '-' ? `<hr><div class="metric-detail"><strong>Also known as:</strong> ${metricAlsoKnownAs}</div>` : ''}
+        ${resolvedRelated.length > 0 ? `
+            <hr>
+            <div class="metric-detail"><strong>Related metrics:</strong> ${resolvedRelated.map(m =>
+                `<span class="related-metric-link" data-related-id="${m.id}">${m.name}</span>`
+            ).join('; ')}</div>` : ''}
+        <div class="metric-detail report-metric-row">
         <button class="report-metric-btn copy-metric-link-btn" data-copy-metric-id="${metricId}">Copy link to this metric</button>
         <button class="report-metric-btn" data-report-metric-id="${metricId}" data-report-metric-name="${metricName.replace(/"/g, '&quot;')}">Report an issue with this metric</button>
-    </div>`;
+        </div>`;
+
+    const urlStep = new URLSearchParams(window.location.search).get('step');
+    const activeStep = urlStep || currentStep;
+    const defaultTab = [STEP.NEXTSTEPS, STEP.ROADMAP, 'step3', 'step4'].includes(activeStep)
+        ? 'implementation'
+        : 'context';
+    const contextActive = defaultTab === 'context';
+    let content = `
+        <span class="close-tooltip-button">&times;</span>
+        <div class="metric-detail-header">
+            <div class="metric-name-title">${metricName}</div>
+            <div class="metric-description">${metricDescription || 'No description available'}</div>
+            ${statusSection}
+        </div>
+        <div class="metric-tabs" role="tablist" aria-label="Metric details">
+            <button class="metric-tab ${contextActive ? 'active' : ''}" id="metric-tab-context" role="tab" aria-selected="${contextActive}" aria-controls="metric-panel-context" data-metric-tab="context">Context &amp; Evidence</button>
+            <button class="metric-tab ${!contextActive ? 'active' : ''}" id="metric-tab-implementation" role="tab" aria-selected="${!contextActive}" aria-controls="metric-panel-implementation" data-metric-tab="implementation">Implementation Recipe</button>
+        </div>
+        <div class="metric-tab-panels">
+            <div class="metric-tab-panel ${contextActive ? 'active' : ''}" id="metric-panel-context" role="tabpanel" aria-labelledby="metric-tab-context">${contextContent}</div>
+            <div class="metric-tab-panel ${!contextActive ? 'active' : ''}" id="metric-panel-implementation" role="tabpanel" aria-labelledby="metric-tab-implementation">${implementationContent}</div>
+        </div>`;
 
     return content;
 }
 
 function wireTooltipListeners(tooltipEl, metricData, onClose) {
+    tooltipEl.querySelectorAll('[data-metric-tab]').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const selectedTab = this.getAttribute('data-metric-tab');
+            tooltipEl.querySelectorAll('[data-metric-tab]').forEach(button => {
+                const isSelected = button === this;
+                button.classList.toggle('active', isSelected);
+                button.setAttribute('aria-selected', String(isSelected));
+            });
+            tooltipEl.querySelectorAll('.metric-tab-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === `metric-panel-${selectedTab}`);
+            });
+        });
+    });
+
     tooltipEl.querySelectorAll('button[data-metric-id]').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -725,4 +762,3 @@ function handleDocumentClick(event) {
         hideCustomTooltip();
     }
 }
-

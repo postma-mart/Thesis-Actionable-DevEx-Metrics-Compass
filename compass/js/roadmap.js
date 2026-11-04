@@ -333,6 +333,14 @@ function renderRoadmap() {
         <section class="roadmap-statistics" aria-label="Roadmap statistics">
             ${renderRoadmapStatistics()}
         </section>
+        <section class="roadmap-implementation-appendix" id="roadmap-implementation-appendix" aria-labelledby="roadmap-implementation-title">
+            <div class="roadmap-implementation-header">
+                <p class="roadmap-kicker">Execution details</p>
+                <h2 id="roadmap-implementation-title">Implementation Playbook</h2>
+                <p>Practical recipes for the metrics placed in each roadmap phase.</p>
+            </div>
+            ${renderRoadmapImplementationAppendix()}
+        </section>
     `;
     if (isRoadmapIntroActive) {
         view.insertAdjacentHTML('beforeend', `
@@ -496,9 +504,10 @@ function renderRoadmapUnavailable() {
 
 async function downloadRoadmapPdf() {
     const roadmap = document.getElementById('roadmap-view');
+    const appendix = document.getElementById('roadmap-implementation-appendix');
     const button = document.getElementById('roadmap-pdf-btn');
     const JsPDF = window.jspdf?.jsPDF;
-    if (!roadmap || typeof window.html2canvas !== 'function' || typeof JsPDF !== 'function') {
+    if (!roadmap || !appendix || typeof window.html2canvas !== 'function' || typeof JsPDF !== 'function') {
         console.error('Roadmap PDF export requires html2canvas and jsPDF to be loaded.');
         alert('The roadmap PDF export is unavailable because its PDF libraries did not load.');
         return;
@@ -520,7 +529,7 @@ async function downloadRoadmapPdf() {
                 clonedRoadmap.style.fontFamily = 'Arial, sans-serif';
                 clonedRoadmap.style.letterSpacing = 'normal';
                 clonedRoadmap.style.textRendering = 'optimizeSpeed';
-                clonedRoadmap.querySelectorAll('.roadmap-actions, .roadmap-intro-backdrop, .roadmap-intro-dialog').forEach(element => element.remove());
+                clonedRoadmap.querySelectorAll('.roadmap-actions, .roadmap-intro-backdrop, .roadmap-intro-dialog, #roadmap-implementation-appendix').forEach(element => element.remove());
                 clonedRoadmap.querySelector('.roadmap-phases')?.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))');
                 clonedRoadmap.querySelectorAll('*').forEach(element => {
                     element.style.fontFamily = 'Arial, sans-serif';
@@ -587,6 +596,67 @@ async function downloadRoadmapPdf() {
             undefined,
             'FAST'
         );
+
+        const appendixCanvas = await window.html2canvas(appendix, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+            onclone: clonedDocument => {
+                const clonedAppendix = clonedDocument.getElementById('roadmap-implementation-appendix');
+                if (!clonedAppendix) return;
+                clonedAppendix.style.fontFamily = 'Arial, sans-serif';
+                clonedAppendix.style.letterSpacing = 'normal';
+                clonedAppendix.style.textRendering = 'optimizeSpeed';
+                clonedAppendix.querySelectorAll('*').forEach(element => {
+                    element.style.fontFamily = 'Arial, sans-serif';
+                    element.style.letterSpacing = 'normal';
+                    element.style.textRendering = 'optimizeSpeed';
+                });
+            }
+        });
+        const appendixWidth = pageWidth;
+        const appendixPixelHeight = Math.floor(appendixCanvas.width * (pageHeight / appendixWidth));
+        const appendixRect = appendix.getBoundingClientRect();
+        const appendixScale = appendixRect.width > 0
+            ? appendixCanvas.width / appendixRect.width
+            : 1;
+        const metricCardBottoms = [...appendix.querySelectorAll('.roadmap-implementation-card')]
+            .map(card => {
+                const cardRect = card.getBoundingClientRect();
+                return (cardRect.bottom - appendixRect.top) * appendixScale;
+            })
+            .filter(bottom => bottom > 0)
+            .sort((a, b) => a - b);
+        let sourceY = 0;
+        while (sourceY < appendixCanvas.height) {
+            const pageLimit = Math.min(sourceY + appendixPixelHeight, appendixCanvas.height);
+            const cardBoundary = metricCardBottoms
+                .filter(bottom => bottom > sourceY && bottom <= pageLimit)
+                .pop();
+            const sliceEnd = cardBoundary || pageLimit;
+            const sliceHeight = sliceEnd - sourceY;
+            const slice = document.createElement('canvas');
+            slice.width = appendixCanvas.width;
+            slice.height = sliceHeight;
+            slice.getContext('2d').drawImage(
+                appendixCanvas,
+                0, sourceY, appendixCanvas.width, sliceHeight,
+                0, 0, slice.width, slice.height
+            );
+            pdf.addPage();
+            const sliceHeightMm = sliceHeight * appendixWidth / appendixCanvas.width;
+            pdf.addImage(
+                slice.toDataURL('image/jpeg', 0.94),
+                'JPEG',
+                margin,
+                margin,
+                appendixWidth,
+                sliceHeightMm,
+                undefined,
+                'FAST'
+            );
+            sourceY = sliceEnd;
+        }
         pdf.save('90-day-roadmap.pdf');
     } catch (error) {
         console.error('Could not export roadmap PDF:', error);
@@ -597,6 +667,54 @@ async function downloadRoadmapPdf() {
             button.textContent = '📥 Export Roadmap';
         }
     }
+}
+
+function renderRoadmapImplementationAppendix() {
+    return ROADMAP_PHASES.map((phase, phaseIndex) => {
+        const metrics = Object.values(roadmapState.placements[phaseIndex]).filter(Boolean);
+        return `
+            <section class="roadmap-implementation-phase">
+                <header class="roadmap-implementation-phase-header">
+                    <h3>${phase.label}</h3>
+                    <span>${phase.days}</span>
+                </header>
+                ${metrics.length > 0
+                    ? metrics.map(renderRoadmapImplementationMetric).join('')
+                    : '<p class="roadmap-implementation-empty">No metrics placed in this phase.</p>'}
+            </section>
+        `;
+    }).join('');
+}
+
+function renderRoadmapImplementationMetric(metric) {
+    // Ranking and shortlist flows may carry a reduced metric copy. Resolve the
+    // recipe from the canonical dataset record so the appendix stays complete.
+    const canonicalMetric = Array.isArray(originalData)
+        ? originalData.find(item => String(item.id) === String(metric.id))
+        : null;
+    const implementation = metric.implementation || canonicalMetric?.implementation;
+    if (!implementation) {
+        return `
+            <article class="roadmap-implementation-card">
+                <h4>${escapeContextHtml(metric.name || 'Unnamed metric')}</h4>
+                <p class="roadmap-implementation-pending">Implementation details pending.</p>
+            </article>
+        `;
+    }
+    const steps = Array.isArray(implementation.recipe_steps) ? implementation.recipe_steps : [];
+    return `
+        <article class="roadmap-implementation-card">
+            <h4>${escapeContextHtml(metric.name || 'Unnamed metric')}</h4>
+            <div class="roadmap-implementation-meta">
+                <span><strong>Cadence:</strong> ${escapeContextHtml(implementation.cadence || 'Not specified')}</span>
+                <span><strong>Target goal:</strong> ${escapeContextHtml(implementation.target_goal || 'Not specified')}</span>
+            </div>
+            ${steps.length > 0 ? `
+                <div class="roadmap-implementation-label">Recipe steps</div>
+                <ol>${steps.map(step => `<li>${escapeContextHtml(String(step).replace(/^\d+\.\s*/, ''))}</li>`).join('')}</ol>
+            ` : '<p class="roadmap-implementation-pending">Recipe steps coming soon.</p>'}
+        </article>
+    `;
 }
 
 function renderContextRankingCards(rankedMetrics) {
