@@ -385,6 +385,10 @@ function buildTooltipContent(metricData, excludeId = null) {
     const metricAISpecificCategory = metricData.ai_specific_category;
     const metricOutcomeGoals = metricData.outcome_goals;
     const metricEaseOfCollection = metricData.ease_of_collection;
+    const benchmark = Array.isArray(window.mockCohortData) && window.mockCohortData.length > 0 &&
+        typeof window.calculateBenchmark === 'function'
+        ? calculateBenchmark(contextProfilingState.answers, metricId, window.mockCohortData)
+        : null;
 
     let typeTagClass = '';
     let typeTagText = '';
@@ -498,6 +502,12 @@ function buildTooltipContent(metricData, excludeId = null) {
         <div class="metric-detail"><strong>Number of mentions:</strong> ${metricValue}</div>
         <div class="metric-detail"><strong>Companies:</strong> ${companyUsedByHtml}</div>
         <div class="metric-detail"><strong>Research:</strong> ${researchUsedByHtml}</div>
+        ${benchmark ? `
+        <div class="metric-detail metric-benchmark-detail">
+            <strong>Adoption benchmark:</strong>
+            <span class="metric-benchmark-badge">🔥 ${benchmark.percentage}%</span>
+            <span class="metric-benchmark-label">${escapeContextHtml(benchmark.label)}</span>
+        </div>` : ''}
         <hr>
         <div class="metric-detail">
             <strong>Tags:</strong>

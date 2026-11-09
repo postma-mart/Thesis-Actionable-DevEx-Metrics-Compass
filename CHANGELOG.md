@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-08 — Added benchmark details to metric pop-ups
+
+- Added the adoption percentage and cohort description to the metric detail pop-up when mock cohort data is available.
+
+## 2026-11-08 — Added adoption benchmark badges
+
+- Loaded mock cohort data during app initialization and added benchmark badges with native tooltips to roadmap metric cards.
+- Added graceful fallback behavior so badges remain hidden when cohort data is unavailable.
+
 ## 2026-11-04 — Added roadmap implementation playbook export
 
 - Added phase-grouped implementation recipes below the roadmap statistics and included them as readable appendix pages in roadmap PDF exports.

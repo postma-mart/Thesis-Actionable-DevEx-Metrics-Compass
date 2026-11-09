@@ -4533,7 +4533,7 @@ a {
     align-items: center;
     display: grid;
     gap: 6px;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
 }
 
 .roadmap-card-name {
@@ -4619,6 +4619,35 @@ a {
 .roadmap-card-badge--e { background: #3c8d40; }
 .roadmap-card-badge--m { background: #b27617; }
 .roadmap-card-badge--h { background: #a23b3b; }
+
+.roadmap-card-benchmark {
+    background: #fff0d9;
+    border-radius: 3px;
+    color: #8a5100;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
+    white-space: nowrap;
+}
+
+.metric-benchmark-detail {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.metric-benchmark-badge {
+    background: #fff0d9;
+    border-radius: 4px;
+    color: #8a5100;
+    font-weight: 700;
+    padding: 3px 6px;
+}
+
+.metric-benchmark-label {
+    color: #666;
+}
 
 .roadmap-backlog {
     width: 100%;

@@ -212,12 +212,20 @@ function startRoadmapFromShortlist() {
 function renderRoadmapCard(metric, expectedType = null) {
     const difficulty = roadmapDifficulty(metric);
     const provenance = roadmapState.provenance[metric.id] === 'manual' ? 'Manually Added' : 'Suggested';
+    const benchmark = Array.isArray(window.mockCohortData) && window.mockCohortData.length > 0 &&
+        typeof window.calculateBenchmark === 'function'
+        ? calculateBenchmark(contextProfilingState.answers, metric.id, window.mockCohortData)
+        : null;
+    const benchmarkBadge = benchmark
+        ? `<span class="roadmap-card-benchmark" title="${escapeContextHtml(benchmark.label)}">🔥 ${benchmark.percentage}%</span>`
+        : '';
     return `
         <article class="roadmap-card" draggable="true" data-roadmap-metric-id="${metric.id}">
             <div class="roadmap-card-heading">
                 <strong class="roadmap-card-name">${escapeContextHtml(metric.name || 'Unnamed metric')}</strong>
                 <span class="roadmap-card-score">(${metric.roadmapScore ?? 0})</span>
                 <span class="roadmap-card-badge roadmap-card-badge--${difficulty.label.toLowerCase()}" title="${escapeContextHtml(difficulty.fullLabel)}">${difficulty.label}</span>
+                ${benchmarkBadge}
                 <span class="roadmap-card-time">~${difficulty.estimate}h</span>
             </div>
             ${expectedType ? `<span class="roadmap-card-provenance roadmap-card-provenance--${provenance === 'Suggested' ? 'suggested' : 'manual'}">${provenance}</span>` : ''}

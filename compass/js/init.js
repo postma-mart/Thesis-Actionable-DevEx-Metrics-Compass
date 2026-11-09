@@ -1,13 +1,24 @@
 // ─── App initialization ───────────────────────────────────────────────────────
 
+window.mockCohortData = [];
+
 anychart.onDocumentReady(function() {
     loadClickedMetricsFromLocalStorage();
 
     Promise.all([
         fetch("data/data.json").then(response => response.json()),
-        fetch("data/source_ids.json").then(response => response.json())
-    ])
-    .then(([data, urls]) => {
+        fetch("data/source_ids.json").then(response => response.json()),
+        fetch("data/mock_cohort_data.json")
+            .then(response => {
+                if (!response.ok) throw new Error(`Mock cohort data request failed: ${response.status}`);
+                return response.json();
+            })
+            .catch(error => {
+                console.warn("Mock cohort data unavailable; benchmark badges will be hidden.", error);
+                return [];
+            })
+    ]).then(([data, urls, mockCohortData]) => {
+        window.mockCohortData = Array.isArray(mockCohortData) ? mockCohortData : [];
         SOURCE_URL_MAPPING = urls.reduce((acc, current) => {
             acc[current.ref_number] = current;
             return acc;

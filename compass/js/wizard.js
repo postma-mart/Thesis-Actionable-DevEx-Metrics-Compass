@@ -390,6 +390,32 @@ const CONTEXT_PROFILE_QUESTIONS = [
         ]
     },
     {
+        key: 'productContext',
+        title: 'What is your primary product and delivery context?',
+        options: [
+            {
+                value: 'B2B SaaS / Web Platform',
+                label: 'B2B SaaS / Web Platform',
+                description: 'Cloud-hosted software, frequent deployments, and continuous web-based delivery.'
+            },
+            {
+                value: 'Consumer Mobile App',
+                label: 'Consumer Mobile App',
+                description: 'App store releases, mobile UX focus, and client-side performance considerations.'
+            },
+            {
+                value: 'Regulated Enterprise / On-Premise',
+                label: 'Regulated / On-Premise',
+                description: 'Strict compliance environments, infrequent releases, and customer-hosted deployments.'
+            },
+            {
+                value: 'Embedded / Hardware',
+                label: 'Embedded / Hardware',
+                description: 'Firmware, IoT, hardware dependencies, and constrained release cycles.'
+            }
+        ]
+    },
+    {
         key: 'bandwidth',
         title: 'How much bandwidth is available each month?',
         options: [
@@ -422,14 +448,32 @@ const CONTEXT_PROFILE_QUESTIONS = [
         ]
     },
     {
+        key: 'techLevel',
+        title: 'What is your team\'s technical capacity for metric tooling?',
+        options: [
+            { value: 'Low', label: 'Low (Basic)', description: 'We need out-of-the-box solutions with zero custom coding or complex infrastructure setup.' },
+            { value: 'Partial', label: 'Partial (Intermediate)', description: 'We can handle basic API wiring and scripts, but prefer off-the-shelf tools where possible.' },
+            { value: 'High', label: 'High (Advanced)', description: 'We can build custom integrations, data pipelines, and maintain dedicated metric dashboards.' }
+        ]
+    },
+    {
+        key: 'teamIntrusion',
+        title: 'How much team participation is acceptable?',
+        options: [
+            { value: 'Passive Only', label: 'Passive Only', description: 'Metrics must be collected automatically in the background without interrupting developer workflows.' },
+            { value: 'Light Participation', label: 'Light Participation', description: 'Occasional short surveys, quick Slack polls, or minor tagging in ticket trackers.' },
+            { value: 'Active Collaboration', label: 'Active Collaboration', description: 'The team is willing to do regular interviews, extensive time logging, or structured self-reporting.' }
+        ]
+    },
+    {
         key: 'collectionPreference',
         title: 'How do you prefer to collect data?',
         options: [
             { value: 'Qualitative', label: 'Qualitative', description: 'Learn through surveys, interviews, focus groups, and self-reported developer experience.' },
             { value: 'Quantitative', label: 'Quantitative', description: 'Use automated signals from repositories, CI/CD, issue trackers, IDEs, and telemetry.' },
             { value: 'Both', label: 'Both', description: 'Combine behavioral data with the context and explanations people provide.' }
-            ]
-            },
+        ]
+    },
     {
         key: 'trackAi',
         title: 'Do you want to track AI tools?',
@@ -440,9 +484,23 @@ const CONTEXT_PROFILE_QUESTIONS = [
     }
 ];
 
+function createContextProfileAnswers() {
+    return {
+        teamScale: '',
+        productContext: '',
+        bandwidth: '',
+        goal: '',
+        friction: [],
+        collectionPreference: '',
+        techLevel: '',
+        teamIntrusion: '',
+        trackAi: ''
+    };
+}
+
 let contextProfilingState = {
     questionIndex: 0,
-    answers: {},
+    answers: createContextProfileAnswers(),
     returnStep: 'start-choice-step',
     shortlistOnly: false
 };
@@ -532,7 +590,7 @@ function scoreContextMetric(metric, answers, parentById) {
     const preference = answers.collectionPreference.toLowerCase();
     const breakdown = {
         goal: outcomeGoal === answers.goal ? 35 : 0,
-        friction: cardsortGroup === answers.friction ? 30 : 0,
+        friction: answers.friction.includes(cardsortGroup) ? 30 : 0,
         type: preference === 'both' || collectionType === 'both' || collectionType === preference ? 15 : 0,
         bandwidth: contextBandwidthScore(answers.bandwidth, ease),
         consensus: Math.min(10, Math.round((Number(metric.value) || 0) / 3))
@@ -589,7 +647,7 @@ function contextCollectionLabel(type) {
 }
 
 function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = false) {
-    contextProfilingState = { questionIndex: 0, answers: {}, returnStep, shortlistOnly };
+    contextProfilingState = { questionIndex: 0, answers: createContextProfileAnswers(), returnStep, shortlistOnly };
     document.getElementById('context-profiling-question').innerHTML = '';
     showWizardStep('context-profiling-step');
     renderContextProfilingQuestion();
@@ -598,6 +656,7 @@ function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = 
 function renderContextProfilingQuestion() {
     const question = CONTEXT_PROFILE_QUESTIONS[contextProfilingState.questionIndex];
     const selected = contextProfilingState.answers[question.key];
+    const selectedValues = question.key === 'friction' ? selected : [selected];
     const questionElement = document.getElementById('context-profiling-question');
 
     document.getElementById('context-profiling-progress').textContent =
@@ -610,13 +669,15 @@ function renderContextProfilingQuestion() {
 
     questionElement.innerHTML = `
         <h2>${escapeContextHtml(question.title)}</h2>
-        <div class="wizard-options">
+        <div class="wizard-options"${question.key === 'friction' ? ' style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));"' : ''}>
             ${question.options.map(option => {
                 const value = typeof option === 'string' ? option : option.value;
                 const label = typeof option === 'string' ? option : option.label;
                 const description = typeof option === 'string' ? '' : option.description;
+                const isSelected = selectedValues.includes(value);
+                const isDisabled = question.key === 'friction' && selected.length === 2 && !isSelected;
                 return `
-                <button type="button" class="wizard-option-btn context-profile-option${selected === value ? ' active' : ''}" data-context-answer="${escapeContextHtml(value)}">
+                <button type="button" class="wizard-option-btn context-profile-option${isSelected ? ' active' : ''}" data-context-answer="${escapeContextHtml(value)}"${isDisabled ? ' disabled style="opacity: 0.5; pointer-events: none;"' : ''}>
                     <span class="context-profile-option-content">
                         <strong>${escapeContextHtml(label)}</strong>
                         ${description ? `<span>${escapeContextHtml(description)}</span>` : ''}
@@ -629,7 +690,15 @@ function renderContextProfilingQuestion() {
 
     questionElement.querySelectorAll('[data-context-answer]').forEach(button => {
         button.addEventListener('click', () => {
-            contextProfilingState.answers[question.key] = button.dataset.contextAnswer;
+            const value = button.dataset.contextAnswer;
+            if (question.key === 'friction') {
+                const friction = contextProfilingState.answers.friction;
+                contextProfilingState.answers.friction = friction.includes(value)
+                    ? friction.filter(item => item !== value)
+                    : friction.length < 2 ? [...friction, value] : friction;
+            } else {
+                contextProfilingState.answers[question.key] = value;
+            }
             renderContextProfilingQuestion();
         });
     });
@@ -637,7 +706,8 @@ function renderContextProfilingQuestion() {
 
 function nextContextProfilingQuestion() {
     const question = CONTEXT_PROFILE_QUESTIONS[contextProfilingState.questionIndex];
-    if (!contextProfilingState.answers[question.key]) return;
+    const answer = contextProfilingState.answers[question.key];
+    if (question.key === 'friction' ? answer.length === 0 : !answer) return;
 
     if (contextProfilingState.questionIndex === CONTEXT_PROFILE_QUESTIONS.length - 1) {
         renderContextRanking();
@@ -668,6 +738,10 @@ function randomizeContextProfiling() {
     contextProfilingState.answers = Object.fromEntries(
         CONTEXT_PROFILE_QUESTIONS.map(question => {
             const option = question.options[Math.floor(Math.random() * question.options.length)];
+            if (question.key === 'friction') {
+                const options = [...question.options].sort(() => Math.random() - 0.5);
+                return [question.key, options.slice(0, 2).map(item => typeof item === 'string' ? item : item.value)];
+            }
             return [question.key, typeof option === 'string' ? option : option.value];
         })
     );
@@ -690,7 +764,7 @@ function restartContextProfiling() {
     if (typeof resetRoadmapState === 'function') resetRoadmapState();
     contextProfilingState = {
         questionIndex: 0,
-        answers: {},
+        answers: createContextProfileAnswers(),
         returnStep: 'role-select-step'
     };
     switchToStep(STEP.EXPLORE);
