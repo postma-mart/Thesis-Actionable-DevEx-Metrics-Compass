@@ -505,8 +505,7 @@ function buildTooltipContent(metricData, excludeId = null) {
         ${benchmark ? `
         <div class="metric-detail metric-benchmark-detail">
             <strong>Adoption benchmark:</strong>
-            <span class="metric-benchmark-badge">🔥 ${benchmark.percentage}%</span>
-            <span class="metric-benchmark-label">${escapeContextHtml(benchmark.label)}</span>
+            <span class="roadmap-card-benchmark" title="${escapeContextHtml(benchmark.label)}">🔥 ${benchmark.percentage}%</span>
         </div>` : ''}
         <hr>
         <div class="metric-detail">

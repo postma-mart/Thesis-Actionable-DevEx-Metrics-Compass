@@ -39,8 +39,8 @@ TEAM_INTRUSION_LEVELS = [
     "Active Collaboration",
 ]
 BANDWIDTH_LEVELS = [
-    "Minimal (~8h)",
-    "Moderate (~24h)",
+    "Minimal (8h)",
+    "Moderate (24h)",
     "Dedicated (40h+)",
 ]
 

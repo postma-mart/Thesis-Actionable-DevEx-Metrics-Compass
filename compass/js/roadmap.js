@@ -178,6 +178,7 @@ function initializeRoadmap() {
 }
 
 function setShortlistRankingResults(metrics) {
+    contextExcludedResults = [];
     contextRankingResults = metrics.map((metric, index) => ({
         metric: { ...metric, roadmapScore: metric.roadmapScore ?? metric.value ?? 0 },
         breakdown: { goal: 0, friction: 0, type: 0, bandwidth: 0, consensus: 0 },
@@ -219,14 +220,18 @@ function renderRoadmapCard(metric, expectedType = null) {
     const benchmarkBadge = benchmark
         ? `<span class="roadmap-card-benchmark" title="${escapeContextHtml(benchmark.label)}">🔥 ${benchmark.percentage}%</span>`
         : '';
+    const difficultyLabel = difficulty.label === 'E' ? 'Easy' : difficulty.label === 'M' ? 'Med' : 'Hard';
+    const fitScore = metric.roadmapScore ?? 0;
     return `
         <article class="roadmap-card" draggable="true" data-roadmap-metric-id="${metric.id}">
             <div class="roadmap-card-heading">
                 <strong class="roadmap-card-name">${escapeContextHtml(metric.name || 'Unnamed metric')}</strong>
-                <span class="roadmap-card-score">(${metric.roadmapScore ?? 0})</span>
-                <span class="roadmap-card-badge roadmap-card-badge--${difficulty.label.toLowerCase()}" title="${escapeContextHtml(difficulty.fullLabel)}">${difficulty.label}</span>
-                ${benchmarkBadge}
-                <span class="roadmap-card-time">~${difficulty.estimate}h</span>
+                <div class="roadmap-card-metadata">
+                    <span class="roadmap-card-score" title="Recommendation Fit: ${fitScore}/100 match based on your profile">🎯 ${fitScore}</span>
+                    <span class="roadmap-card-badge roadmap-card-badge--${difficulty.label.toLowerCase()}" title="Collection Difficulty: ${difficultyLabel} effort to collect and maintain">🛠️ ${difficultyLabel}</span>
+                    ${benchmarkBadge}
+                    <span class="roadmap-card-time" title="Estimated Setup Time: ${difficulty.estimate} hours">⏱️ ${difficulty.estimate}h</span>
+                </div>
             </div>
             ${expectedType ? `<span class="roadmap-card-provenance roadmap-card-provenance--${provenance === 'Suggested' ? 'suggested' : 'manual'}">${provenance}</span>` : ''}
             ${expectedType ? roadmapOwnerInput('roadmap-metric-owner', metric.id, roadmapState.metricOwners[metric.id], 'Metric Owner') : ''}
@@ -369,11 +374,12 @@ function renderRoadmap() {
 
     const filteredBacklog = roadmapState.backlog.filter(roadmapBacklogMatches);
     const rankedMetrics = Array.isArray(contextRankingResults) ? contextRankingResults : [];
+    const excludedMetrics = Array.isArray(contextExcludedResults) ? contextExcludedResults : [];
     panel.innerHTML = `
         <div class="welcome-provenance-tabs" role="tablist" aria-label="Roadmap metric lists">
             <span class="welcome-provenance-tab${roadmapActiveTab === 'backlog' ? ' active' : ''}" data-roadmap-tab="backlog" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'backlog'}">Backlog</span>
             <span class="welcome-provenance-sep">&bull;</span>
-            <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking</span>
+            <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking Results</span>
         </div>
         <div class="roadmap-backlog${roadmapActiveTab === 'backlog' ? '' : ' hidden'}" data-roadmap-tab-panel="backlog">
             <div class="controls-title">Backlog</div>
@@ -413,9 +419,10 @@ function renderRoadmap() {
         <div class="roadmap-backlog${roadmapActiveTab === 'ranking' ? '' : ' hidden'}" data-roadmap-tab-panel="ranking">
             <div class="controls-title">Ranking Results</div>
             <div class="filter-description">Results of the ranking process.</div>
-            <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers.</p>
+            <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers; ${excludedMetrics.length} excluded from recommendations.</p>
             <div class="context-ranking-list">
                 ${renderContextRankingCards(rankedMetrics)}
+                ${renderExcludedContextRankingCards(excludedMetrics, rankedMetrics.length)}
             </div>
         </div>
     `;
@@ -444,6 +451,22 @@ function renderRoadmap() {
 
     panel.querySelectorAll('[data-roadmap-metric-owner]').forEach(input => {
         input.addEventListener('click', event => event.stopPropagation());
+    });
+    panel.querySelectorAll('.context-ranking-card[data-ranking-metric-id], .context-ranking-card[data-excluded-metric-id]').forEach(card => {
+        const openRankingMetric = event => {
+            const metricId = card.dataset.rankingMetricId || card.dataset.excludedMetricId;
+            const metric = [...rankedMetrics, ...excludedMetrics].find(item =>
+                String(item.metric.id) === String(metricId)
+            )?.metric;
+            if (metric && typeof showCustomTooltip === 'function') showCustomTooltip(metric, event);
+        };
+        card.addEventListener('click', openRankingMetric);
+        card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openRankingMetric(event);
+            }
+        });
     });
     document.querySelectorAll('.roadmap-card').forEach(card => {
         card.addEventListener('click', event => {
@@ -728,25 +751,60 @@ function renderRoadmapImplementationMetric(metric) {
 function renderContextRankingCards(rankedMetrics) {
     return rankedMetrics.map((item, index) => {
         const metric = item.metric;
+        const difficulty = String(item.ease || '').toLowerCase();
+        const difficultyLabel = difficulty === 'easy'
+            ? 'Easy'
+            : difficulty === 'moderate'
+                ? 'Med'
+                : difficulty === 'complex' || difficulty === 'hard'
+                    ? 'Hard'
+                    : 'Unknown';
+        const collectionType = String(item.collectionType || '').toLowerCase();
+        const collectionTypeClass = collectionType === 'quantitative'
+            ? 'context-ranking-chip--quantitative'
+            : collectionType === 'qualitative'
+                ? 'context-ranking-chip--qualitative'
+                : 'context-ranking-chip--neutral';
+        const scoreChip = (label, points, maximum) =>
+            `<span class="context-ranking-chip ${points > 0 ? 'context-ranking-chip--active' : 'context-ranking-chip--muted'}">${label} ${points}/${maximum}</span>`;
         return `
-            <article class="context-ranking-card">
+            <article class="context-ranking-card" data-ranking-metric-id="${escapeContextHtml(metric.id)}" tabindex="0" role="button" aria-label="View details for ${escapeContextHtml(metric.name || 'Unnamed metric')}">
                 <div class="context-ranking-card-header">
-                    <strong>#${index + 1}</strong>
+                    <strong class="context-ranking-rank">#${index + 1}</strong>
                     <h3>${escapeContextHtml(metric.name || 'Unnamed metric')}</h3>
                     <span class="context-ranking-score">${metric.roadmapScore}/100</span>
                 </div>
                 <div class="context-ranking-chips">
-                    <span>Goal ${item.breakdown.goal}/35</span>
-                    <span>Friction ${item.breakdown.friction}/30</span>
-                    <span>Type ${item.breakdown.type}/15</span>
-                    <span>Bandwidth ${item.breakdown.bandwidth}/10</span>
-                    <span>Consensus ${item.breakdown.consensus}/10</span>
+                    ${scoreChip('Goal', item.breakdown.goal, 35)}
+                    ${scoreChip('Friction', item.breakdown.friction, 30)}
+                    ${scoreChip('Type', item.breakdown.type, 15)}
+                    ${scoreChip('Bandwidth', item.breakdown.bandwidth, 10)}
+                    ${scoreChip('Consensus', item.breakdown.consensus, 10)}
                 </div>
                 <div class="context-ranking-metadata">
-                    <span>${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
-                    <span>${escapeContextHtml(item.ease || 'Unknown ease')}</span>
-                    <span>${escapeContextHtml(contextCollectionLabel(item.collectionType))}</span>
+                    <span class="context-ranking-chip context-ranking-chip--neutral">${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
+                    <span class="context-ranking-chip context-ranking-chip--difficulty context-ranking-chip--difficulty-${difficulty || 'unknown'}">🛠️ ${difficultyLabel}</span>
+                    <span class="context-ranking-chip ${collectionTypeClass}">${escapeContextHtml(contextCollectionLabel(item.collectionType))}</span>
                 </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderExcludedContextRankingCards(excludedMetrics, rankedCount) {
+    return excludedMetrics.map((item, index) => {
+        const metric = item.metric;
+        const reasonLabel = escapeContextHtml(item.reason || 'Excluded');
+        const reasonDetail = escapeContextHtml(item.reasonDetail || item.reason || 'Excluded from recommendations');
+
+        return `
+            <article class="context-ranking-card context-ranking-card--excluded" data-excluded-metric-id="${escapeContextHtml(metric.id)}" tabindex="0" role="button" aria-label="View details for ${escapeContextHtml(metric.name || 'Unnamed metric')}">
+                <div class="context-ranking-card-header">
+                    <strong>#${rankedCount + index + 1}</strong>
+                    <h3>${escapeContextHtml(metric.name || 'Unnamed metric')}</h3>
+                    <span class="context-ranking-status">Excluded</span>
+                </div>
+                <div class="context-ranking-explanation">💡 <strong>${reasonLabel}:</strong> ${reasonDetail}</div>
             </article>
         `;
     }).join('');

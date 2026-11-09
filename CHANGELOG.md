@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-11-09 -- UX Work on Roadmap and Wizard Screens
+Enabled excluded metric details
+
+    Made excluded Ranking Results cards open the metric detail pop-up while keeping them outside the editable backlog and roadmap.
+
+Clarified ranking exclusions and score semantics
+
+    Made exclusion explanations visible in Ranking Results and added distinct semantic colors for difficulty, collection type, category, and active or zero subscores.
+
+Harmonized ranking results interactions
+
+    Renamed the roadmap ranking tab to Ranking Results, made ranked metric cards open their details, and aligned ranking pills with the roadmap chip design.
+
+Added excluded metrics to ranking transparency
+
+    Added muted Ranking tab entries for metrics excluded by tracking preferences, missing tracking metadata, or zero contextual match without adding them to the editable roadmap backlog.
+
+Harmonized adoption benchmark styling
+
+    Matched the metric details modal adoption benchmark pill to roadmap cards and moved cohort context into its hover tooltip.
+
+Improved roadmap cards and profiling flow
+
+    Reworked roadmap card metadata into readable recommendation, collection difficulty, adoption, and time-estimate pills with explanatory tooltips.
+
+    Removed title truncation from roadmap cards and made single-select profiling questions advance automatically while retaining the friction multi-select step.
+
 ## 2026-11-08 — Added benchmark details to metric pop-ups
 
 - Added the adoption percentage and cohort description to the metric detail pop-up when mock cohort data is available.

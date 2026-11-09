@@ -259,6 +259,30 @@ body {
     font-size: 13px;
 }
 
+.context-profile-options--friction {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 10px;
+    margin-top: 8px;
+}
+
+.context-profile-options--friction .context-profile-option {
+    gap: 8px;
+    min-height: 0;
+    padding: 8px 12px;
+}
+
+.context-profile-options--friction .context-profile-option-content {
+    gap: 2px;
+    line-height: 1.2;
+}
+
+.context-profile-options--friction .context-profile-option-content span {
+    font-size: 11px;
+    line-height: 1.2;
+}
+
 #context-profiling-randomize-btn {
     margin-left: auto;
 }
@@ -280,9 +304,26 @@ body {
     background: #fff;
     border: 1px solid #d0d2f8;
     border-radius: 8px;
+    cursor: pointer;
     padding: 14px;
     width: 100%;
     box-sizing: border-box;
+}
+
+.context-ranking-card:hover,
+.context-ranking-card:focus-visible {
+    border-color: #9c9bf2;
+    box-shadow: 0 2px 8px rgba(27, 26, 255, 0.12);
+    outline: none;
+}
+
+.context-ranking-card--excluded {
+    cursor: pointer;
+}
+
+.context-ranking-card--excluded:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.12);
 }
 
 .context-ranking-card-header {
@@ -293,7 +334,14 @@ body {
 }
 
 .context-ranking-card-header > strong {
-    color: #777;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
+    text-align: center;
 }
 
 .context-ranking-card h3 {
@@ -304,12 +352,36 @@ body {
 
 .context-ranking-score {
     background: #1B1AFF;
-    border-radius: 4px;
+    border: 1px solid #1B1AFF;
+    border-radius: 3px;
     color: #fff;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 6px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
     white-space: nowrap;
+}
+
+.context-ranking-card--excluded {
+    border-color: #e5e7eb;
+    filter: grayscale(80%);
+    opacity: 0.55;
+}
+
+.context-ranking-status {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
+    white-space: nowrap;
+}
+
+.context-ranking-explanation {
+    color: #64748b;
+    font-size: 0.8rem;
+    margin-top: 6px;
 }
 
 .context-ranking-chips,
@@ -322,15 +394,60 @@ body {
 
 .context-ranking-chips span,
 .context-ranking-metadata span {
-    background: #f4f5ff;
-    border-radius: 4px;
-    color: #555;
-    font-size: 11px;
-    padding: 4px 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
 }
 
-.context-ranking-metadata span {
-    background: #f0f0f0;
+.context-ranking-chip--active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.context-ranking-chip--muted {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+}
+
+.context-ranking-chip--neutral {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.context-ranking-chip--difficulty-easy {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+}
+
+.context-ranking-chip--difficulty-moderate {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #b45309;
+}
+
+.context-ranking-chip--difficulty-complex,
+.context-ranking-chip--difficulty-hard {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #be123c;
+}
+
+.context-ranking-chip--quantitative {
+    background: #f0f9ff;
+    border-color: #bae6fd;
+    color: #0369a1;
+}
+
+.context-ranking-chip--qualitative {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+    color: #6d28d9;
 }
 
 .option-num {
@@ -4530,18 +4647,15 @@ a {
 }
 
 .roadmap-card-heading {
-    align-items: center;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
 }
 
 .roadmap-card-name {
     font-size: 12px;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
 }
 
 .roadmap-card-owner {
@@ -4572,9 +4686,31 @@ a {
 
 .roadmap-card-score,
 .roadmap-card-time {
-    color: #555;
-    font-size: 11px;
+    border: 1px solid;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
     white-space: nowrap;
+}
+
+.roadmap-card-score {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    color: #3730a3;
+}
+
+.roadmap-card-time {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.roadmap-card-metadata {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .roadmap-card-warning {
@@ -4592,8 +4728,10 @@ a {
 }
 
 .roadmap-card-provenance {
+    border-radius: 3px;
     display: inline-block;
     font-size: 10px;
+    font-weight: 700;
     margin-top: 6px;
     padding: 3px 5px;
 }
@@ -4609,21 +4747,20 @@ a {
 }
 
 .roadmap-card-badge {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
     border-radius: 3px;
-    color: #fff;
+    color: #065f46;
     font-size: 10px;
     font-weight: 700;
     padding: 3px 5px;
 }
 
-.roadmap-card-badge--e { background: #3c8d40; }
-.roadmap-card-badge--m { background: #b27617; }
-.roadmap-card-badge--h { background: #a23b3b; }
-
 .roadmap-card-benchmark {
-    background: #fff0d9;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
     border-radius: 3px;
-    color: #8a5100;
+    color: #9a3412;
     font-size: 10px;
     font-weight: 700;
     padding: 3px 5px;
@@ -4637,17 +4774,6 @@ a {
     gap: 7px;
 }
 
-.metric-benchmark-badge {
-    background: #fff0d9;
-    border-radius: 4px;
-    color: #8a5100;
-    font-weight: 700;
-    padding: 3px 6px;
-}
-
-.metric-benchmark-label {
-    color: #666;
-}
 
 .roadmap-backlog {
     width: 100%;
