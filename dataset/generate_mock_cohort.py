@@ -43,6 +43,65 @@ BANDWIDTH_LEVELS = [
     "Moderate (24h)",
     "Dedicated (40h+)",
 ]
+POPULARITY_SEED = 20261115
+SEGMENT_BOOST = 20.0
+
+
+def build_metric_popularity_weights() -> dict[int, float]:
+    metric_ids = list(range(METRIC_ID_MIN, METRIC_ID_MAX + 1))
+    random.Random(POPULARITY_SEED).shuffle(metric_ids)
+    return {
+        metric_id: 1 / (rank ** 1.3)
+        for rank, metric_id in enumerate(metric_ids, start=1)
+    }
+
+
+METRIC_POPULARITY_WEIGHTS = build_metric_popularity_weights()
+METRIC_SELECTION_RNG = random.Random(POPULARITY_SEED + 2)
+
+
+def build_segment_metric_boosts() -> dict[tuple[str, str], set[int]]:
+    rng = random.Random(POPULARITY_SEED + 1)
+    metric_ids = [
+        metric_id
+        for metric_id, _ in sorted(
+            METRIC_POPULARITY_WEIGHTS.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )[8:]
+    ]
+    return {
+        (goal, product_context): set(rng.sample(metric_ids, 3))
+        for goal in GOALS
+        for product_context in PRODUCT_CONTEXTS
+    }
+
+
+SEGMENT_METRIC_BOOSTS = build_segment_metric_boosts()
+
+
+def weighted_sample_metric_ids(
+    metric_count: int,
+    goal: str,
+    product_context: str,
+) -> list[int]:
+    boosted_ids = SEGMENT_METRIC_BOOSTS[(goal, product_context)]
+    weighted_ids = [
+        (
+            metric_id,
+            METRIC_POPULARITY_WEIGHTS[metric_id]
+            * (SEGMENT_BOOST if metric_id in boosted_ids else 1),
+        )
+        for metric_id in METRIC_POPULARITY_WEIGHTS
+    ]
+    # Efraimidis-Spirakis weighted sampling without replacement. Each metric
+    # receives one random key, then the largest keys determine the sample.
+    ranked = sorted(
+        weighted_ids,
+        key=lambda item: METRIC_SELECTION_RNG.random() ** (1 / item[1]),
+        reverse=True,
+    )
+    return sorted(metric_id for metric_id, _ in ranked[:metric_count])
 
 
 def create_record(index: int, profile: dict | None = None) -> dict:
@@ -58,12 +117,14 @@ def create_record(index: int, profile: dict | None = None) -> dict:
         "cohort_techLevel": random.choice(TECH_LEVELS),
         "cohort_teamIntrusion": random.choice(TEAM_INTRUSION_LEVELS),
         "cohort_bandwidth": random.choice(BANDWIDTH_LEVELS),
-        "selected_metric_ids": sorted(
-            random.sample(range(METRIC_ID_MIN, METRIC_ID_MAX + 1), metric_count)
-        ),
     }
     if profile:
         record.update(profile)
+    record["selected_metric_ids"] = weighted_sample_metric_ids(
+        metric_count,
+        record["cohort_goal"],
+        record["cohort_productContext"],
+    )
     return record
 
 
@@ -149,10 +210,18 @@ def main() -> None:
     validate_tiered_records(records)
     output_path = Path(__file__).resolve().parent.parent / "compass" / "data" / "mock_cohort_data.json"
     output_path.write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
+    metric_counts = {
+        metric_id: sum(metric_id in record["selected_metric_ids"] for record in records)
+        for metric_id in range(METRIC_ID_MIN, METRIC_ID_MAX + 1)
+    }
+    top_metrics = sorted(metric_counts.items(), key=lambda item: (-item[1], item[0]))[:10]
     print(
         f"Wrote {len(records)} mock cohort records to {output_path} "
         f"(Tier 1: {TIER_1_COUNT}, Tier 2: {TIER_2_COUNT}, Tier 3: {TIER_3_COUNT})"
     )
+    print("Top 10 selected metrics:")
+    for metric_id, count in top_metrics:
+        print(f"  Metric {metric_id}: {count / len(records) * 100:.1f}% adoption")
 
 
 if __name__ == "__main__":

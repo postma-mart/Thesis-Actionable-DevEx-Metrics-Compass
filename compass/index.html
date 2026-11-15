@@ -666,17 +666,20 @@
                 <div class="controls-title">Compare two sets of DevEx metrics</div>
                 <div class="filter-description">Mix any dimensions — frameworks, companies, maturity levels, or outcome goals. Data is based on publicly reported sources and may be incomplete.<br /><a href="#" class="compare-report-link" onclick="event.preventDefault(); window.openReportMetricOverlay('missing_metric', null)">Report something missing</a></div>
 
-                <div class="filter-group-label compare-section-title">Quick comparisons</div>
-                <div class="compare-presets">
+                <button id="benchmark-clear-filters" class="compare-preset-btn benchmark-clear-filters-btn" type="button">Clear all filters</button>
+
+                <div id="comparison-controls">
+                    <div class="filter-group-label compare-section-title">Quick comparisons</div>
+                    <div class="compare-presets">
                     <button class="compare-preset-btn" data-left-type="shortlist" data-left-value="shortlist" data-right-type="company" data-right-value="GitHub">My Shortlist vs GitHub</button>
                     <button class="compare-preset-btn" data-left-type="company" data-left-value="Google" data-right-type="company" data-right-value="Microsoft">Google vs Microsoft</button>
                     <button class="compare-preset-btn" data-left-type="framework" data-left-value="SPACE Framework" data-right-type="framework" data-right-value="DORA Framework">SPACE vs DORA</button>
                     <button class="compare-preset-btn" data-left-type="framework" data-left-value="SPACE Framework" data-right-type="framework" data-right-value="DX Core 4 Framework">SPACE vs DX Core 4</button>
                     <button class="compare-preset-btn" data-left-type="framework" data-left-value="SPACE Framework" data-right-type="company" data-right-value="Microsoft">SPACE vs Microsoft</button>
                     <button class="compare-preset-btn" data-left-type="framework" data-left-value="DORA Framework" data-right-type="company" data-right-value="Google">DORA vs Google</button>
-                </div>
+                    </div>
 
-                <div class="filter-group">
+                    <div class="filter-group">
                     <label>Custom comparison</label>
                     <div class="compare-row-dropdowns">
                         <select id="compare-left-type" class="company-dropdown">
@@ -690,7 +693,7 @@
                         <select id="compare-left-value" class="company-dropdown">
                             <option value="all">Select...</option>
                         </select>
-                    </div>
+                        </div>
                     <div class="compare-row-dropdowns">
                         <select id="compare-right-type" class="company-dropdown">
                             <option value="company">Company</option>
@@ -704,6 +707,43 @@
                             <option value="all">Select...</option>
                         </select>
                     </div>
+                    </div>
+                </div>
+
+                <div class="filter-group benchmark-comparison-section">
+                    <div class="filter-group-label compare-section-title">Benchmark Comparison</div>
+                    <div class="filter-description benchmark-description">Filter peer profiles to see which metrics they select most often.</div>
+                    <div class="benchmark-filters" id="benchmark-filters">
+                        <label class="benchmark-filter">
+                            <span>Organization size</span>
+                            <select id="benchmark-orgSize" class="company-dropdown" data-cohort-filter="orgSize"></select>
+                        </label>
+                        <label class="benchmark-filter">
+                            <span>Product context</span>
+                            <select id="benchmark-productContext" class="company-dropdown" data-cohort-filter="productContext"></select>
+                        </label>
+                        <label class="benchmark-filter">
+                            <span>Goal</span>
+                            <select id="benchmark-goal" class="company-dropdown" data-cohort-filter="goal"></select>
+                        </label>
+                        <label class="benchmark-filter">
+                            <span>Technical capacity</span>
+                            <select id="benchmark-techLevel" class="company-dropdown" data-cohort-filter="techLevel"></select>
+                        </label>
+                        <label class="benchmark-filter">
+                            <span>Team participation</span>
+                            <select id="benchmark-teamIntrusion" class="company-dropdown" data-cohort-filter="teamIntrusion"></select>
+                        </label>
+                        <label class="benchmark-filter">
+                            <span>Monthly bandwidth</span>
+                            <select id="benchmark-bandwidth" class="company-dropdown" data-cohort-filter="bandwidth"></select>
+                        </label>
+                        <label class="benchmark-filter benchmark-filter--friction">
+                            <span>Friction area</span>
+                            <select id="benchmark-friction" class="company-dropdown" data-cohort-filter="friction"></select>
+                        </label>
+                    </div>
+                    <div id="benchmark-match-count" class="benchmark-match-count"></div>
                 </div>
 
                 <div id="compare-summary" class="compare-summary"></div>

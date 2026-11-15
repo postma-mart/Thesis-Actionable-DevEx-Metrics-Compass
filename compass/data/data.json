@@ -785,6 +785,22 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly (or end of milestone)",
+            "target_goal": "Net positive score >= 75% (or average rating >= 4.0 / 5.0)",
+            "telemetry_sources": [
+                "Slack Polly",
+                "Google Forms",
+                "Culture Amp",
+                "Officevibe"
+            ],
+            "recipe_steps": [
+                "Deploy a 3-question pulse survey asking: \"How satisfied are you with our development tooling, workflows, and inner-loop speed?\" (1–5 scale).",
+                "Collect responses anonymously across a 5-day survey window to encourage candid feedback.",
+                "Calculate the percentage of positive respondents (rating 4 or 5) and segment results by squad to isolate tooling bottlenecks.",
+                "Review open-text blocker comments alongside score trends to prioritize platform improvements for the next cycle."
+            ]
         }
     },
     {

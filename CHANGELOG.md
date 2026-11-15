@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-15 -- Added Benchmark Comparison to Step 2
+
+- Added cohort filters (org size, product context, goal, tech capacity, team participation, bandwidth, friction) with peer metric frequency rankings in Compare Metrics.
+- Prefilled filters from completed profiling-wizard answers via a shared wizard-to-cohort field mapping; added a single "Any" friction option and one-click filter reset.
+- Made Benchmark Comparison and Quick/Custom comparisons mutually exclusive, with reliable state clearing when switching between modes.
+- Fixed Quick comparison deselection and full-cohort matching after clearing all filters.
+- Highlighted metrics already in the user's shortlist within benchmark results.
+- Reworked mock cohort data generation to use stable weighted (long-tail) metric popularity with goal/product-context boosts, plus a generator sanity summary of top adoption rates.
+- Improved results readability: adoption bars, tracking tiers (highly/commonly/rarely tracked) with a collapsed rarely-tracked section, widened layout, and increased row/bar sizing.
+
 ## 2026-11-09 -- UX Work on Roadmap and Wizard Screens
 Enabled excluded metric details
 
