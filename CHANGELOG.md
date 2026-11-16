@@ -1,5 +1,68 @@
 # Changelog
 
+## 2026-11-16 -- Benchmarking Feature Improvements
+- Added an explicit “Use my context” action to apply completed Step 0 profile answers to Benchmark Comparison filters without changing their default “Any” state.
+- Clarified adoption percentages as figures from the DevEx Compass dataset rather than claims about engineering teams generally.
+- Kept “Use my context” clickable before profiling and added an inline explanation when no completed context profile exists.
+- Reset Compare Metrics to a consistent empty state on every Step 2 entry and kept benchmark controls synchronized with that state.
+- Made “Clear all filters” restore usable Quick and Custom comparison controls instead of forcing benchmark mode.
+
+## 2026-11-15 -- Added Benchmark Comparison to Step 2
+
+- Added cohort filters (org size, product context, goal, tech capacity, team participation, bandwidth, friction) with peer metric frequency rankings in Compare Metrics.
+- Prefilled filters from completed profiling-wizard answers via a shared wizard-to-cohort field mapping; added a single "Any" friction option and one-click filter reset.
+- Made Benchmark Comparison and Quick/Custom comparisons mutually exclusive, with reliable state clearing when switching between modes.
+- Fixed Quick comparison deselection and full-cohort matching after clearing all filters.
+- Highlighted metrics already in the user's shortlist within benchmark results.
+- Reworked mock cohort data generation to use stable weighted (long-tail) metric popularity with goal/product-context boosts, plus a generator sanity summary of top adoption rates.
+- Improved results readability: adoption bars, tracking tiers (highly/commonly/rarely tracked) with a collapsed rarely-tracked section, widened layout, and increased row/bar sizing.
+
+## 2026-11-09 -- UX Work on Roadmap and Wizard Screens
+Enabled excluded metric details
+
+    Made excluded Ranking Results cards open the metric detail pop-up while keeping them outside the editable backlog and roadmap.
+
+Clarified ranking exclusions and score semantics
+
+    Made exclusion explanations visible in Ranking Results and added distinct semantic colors for difficulty, collection type, category, and active or zero subscores.
+
+Harmonized ranking results interactions
+
+    Renamed the roadmap ranking tab to Ranking Results, made ranked metric cards open their details, and aligned ranking pills with the roadmap chip design.
+
+Added excluded metrics to ranking transparency
+
+    Added muted Ranking tab entries for metrics excluded by tracking preferences, missing tracking metadata, or zero contextual match without adding them to the editable roadmap backlog.
+
+Harmonized adoption benchmark styling
+
+    Matched the metric details modal adoption benchmark pill to roadmap cards and moved cohort context into its hover tooltip.
+
+Improved roadmap cards and profiling flow
+
+    Reworked roadmap card metadata into readable recommendation, collection difficulty, adoption, and time-estimate pills with explanatory tooltips.
+
+    Removed title truncation from roadmap cards and made single-select profiling questions advance automatically while retaining the friction multi-select step.
+
+## 2026-11-08 — Added benchmark details to metric pop-ups
+
+- Added the adoption percentage and cohort description to the metric detail pop-up when mock cohort data is available.
+
+## 2026-11-08 — Added adoption benchmark badges
+
+- Loaded mock cohort data during app initialization and added benchmark badges with native tooltips to roadmap metric cards.
+- Added graceful fallback behavior so badges remain hidden when cohort data is unavailable.
+
+## 2026-11-04 — Added roadmap implementation playbook export
+
+- Added phase-grouped implementation recipes below the roadmap statistics and included them as readable appendix pages in roadmap PDF exports.
+- Resolved implementation recipes from the canonical metric records when roadmap ranking copies omit recipe data.
+- Matched the playbook styling to the roadmap statistics widget and tightened PDF pagination around metric cards.
+
+## 2026-11-04 — Added tabbed metric detail recipes
+
+- Split metric detail pop-ups into Context & Evidence and Implementation Recipe tabs, with stage-aware defaulting and scrollable recipe content.
+
 ## 2026-11-02 — Added roadmap context profile entry point
 
 - Added a direct context-profile action to the roadmap empty state.

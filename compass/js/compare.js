@@ -82,6 +82,7 @@ function getOptionsForDimension(type) {
 
 function populateValueDropdown(selectEl, type, currentValue) {
     if (type === 'shortlist') {
+        selectEl.innerHTML = '<option value="shortlist">My metrics shortlist</option>';
         selectEl.style.display = 'none';
         selectEl.value = 'shortlist';
         return;
@@ -147,18 +148,307 @@ function getTopCategoryForMetric(metric) {
     return category ? category.name : 'Other';
 }
 
+// ─── Cohort benchmark comparison ────────────────────────────────────────────
+
+const BENCHMARK_FILTER_KEYS = ['orgSize', 'productContext', 'goal', 'techLevel', 'teamIntrusion', 'bandwidth', 'friction'];
+const BENCHMARK_FILTER_LABELS = {
+    orgSize: 'Organization size',
+    productContext: 'Product context',
+    goal: 'Goal',
+    techLevel: 'Technical capacity',
+    teamIntrusion: 'Team participation',
+    bandwidth: 'Monthly bandwidth',
+    friction: 'Friction areas'
+};
+let benchmarkFilters = {
+    orgSize: '',
+    productContext: '',
+    goal: '',
+    techLevel: '',
+    teamIntrusion: '',
+    bandwidth: '',
+    friction: ''
+};
+let compareMode = 'none';
+
+function updateCompareControlVisibility() {
+    const comparisonControls = document.getElementById('comparison-controls');
+    const benchmarkControls = document.querySelector('.benchmark-comparison-section');
+    if (comparisonControls) comparisonControls.style.display = compareMode === 'benchmark' ? 'none' : '';
+    if (benchmarkControls) benchmarkControls.style.display = compareMode === 'comparison' ? 'none' : '';
+    if (compareMode === 'none') {
+        document.querySelectorAll('.compare-presets .compare-preset-btn')
+            .forEach(button => button.classList.remove('compare-preset-btn--active'));
+    }
+}
+
+function resetBenchmarkFilters() {
+    BENCHMARK_FILTER_KEYS.forEach(key => {
+        benchmarkFilters[key] = '';
+    });
+}
+
+function activateComparisonMode() {
+    compareMode = 'comparison';
+    resetBenchmarkFilters();
+    updateCompareControlVisibility();
+    refreshBenchmarkControls();
+}
+
+function activateBenchmarkMode() {
+    compareMode = 'benchmark';
+    resetCustomComparison();
+    document.querySelectorAll('.compare-presets .compare-preset-btn').forEach(button => button.classList.remove('compare-preset-btn--active'));
+    updateCompareControlVisibility();
+}
+
+function resetCompareModes() {
+    compareMode = 'none';
+    resetBenchmarkFilters();
+    resetCustomComparison();
+    document.querySelectorAll('.compare-presets .compare-preset-btn').forEach(button => button.classList.remove('compare-preset-btn--active'));
+    updateCompareControlVisibility();
+    refreshBenchmarkControls();
+}
+
+function resetCompareToEmpty() {
+    compareMode = 'none';
+    resetBenchmarkFilters();
+    resetCustomComparison();
+    syncShortlistOptionVisibility();
+    updateCompareControlVisibility();
+    refreshBenchmarkControls();
+}
+
+function hasCompletedContextProfile() {
+    const answers = completedContextProfileAnswers || (
+        typeof contextProfilingState !== 'undefined' ? contextProfilingState.answers : null
+    );
+    return typeof CONTEXT_PROFILE_QUESTIONS !== 'undefined' &&
+        answers &&
+        CONTEXT_PROFILE_QUESTIONS.every(question => {
+            const answer = answers[question.key];
+            return Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+        });
+}
+
+function updateBenchmarkContextButton() {
+    const button = document.getElementById('benchmark-use-context');
+    if (!button) return;
+    const hasProfile = hasCompletedContextProfile();
+    const message = 'Complete the context profile in Step 0 to use this.';
+    button.classList.toggle('is-disabled', !hasProfile);
+    button.setAttribute('aria-disabled', String(!hasProfile));
+    button.title = hasProfile
+        ? 'Set benchmark filters to your completed context profile.'
+        : message;
+    if (!hasProfile) button.dataset.tooltip = message;
+    else delete button.dataset.tooltip;
+}
+
+function getBenchmarkFilterOptions(key) {
+    const cohortKey = getCohortFieldKey(key);
+    const values = new Set();
+    (window.mockCohortData || []).forEach(profile => {
+        const value = profile[cohortKey];
+        if (key === 'friction') {
+            (Array.isArray(value) ? value : []).forEach(item => values.add(item));
+        } else if (value) {
+            values.add(value);
+        }
+    });
+    return [...values].sort((a, b) => {
+        if (key === 'orgSize') {
+            const lowerBound = value => Number.parseInt(value, 10);
+            return lowerBound(a) - lowerBound(b);
+        }
+        return a.localeCompare(b);
+    });
+}
+
+function applyBenchmarkContext() {
+    if (!hasCompletedContextProfile()) return;
+    const profileAnswers = completedContextProfileAnswers || contextProfilingState.answers;
+    const mapped = mapProfileToCohortFields(profileAnswers);
+    BENCHMARK_FILTER_KEYS.forEach(key => {
+        const value = mapped[`cohort_${key}`];
+        if (value === undefined) return;
+        benchmarkFilters[key] = Array.isArray(value) ? value[0] || '' : value;
+    });
+    activateBenchmarkMode();
+    refreshBenchmarkControls();
+    renderDiffView();
+}
+
+function refreshBenchmarkControls() {
+    updateBenchmarkContextButton();
+    BENCHMARK_FILTER_KEYS.forEach(key => {
+        const select = document.getElementById(`benchmark-${key}`);
+        if (!select) return;
+        const selected = [benchmarkFilters[key]];
+        select.innerHTML = '';
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = 'Any';
+        blank.selected = selected.includes('');
+        select.appendChild(blank);
+        getBenchmarkFilterOptions(key).forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            option.selected = selected.includes(value);
+            select.appendChild(option);
+        });
+    });
+    const countEl = document.getElementById('benchmark-match-count');
+    if (countEl) {
+        const count = getMatchingBenchmarkProfiles().length;
+        countEl.textContent = `${count} matching peer${count === 1 ? '' : 's'}`;
+    }
+}
+
+function benchmarkFiltersActive() {
+    return BENCHMARK_FILTER_KEYS.some(key => Boolean(benchmarkFilters[key]));
+}
+
+function getMatchingBenchmarkProfiles() {
+    return (window.mockCohortData || []).filter(profile =>
+        BENCHMARK_FILTER_KEYS.every(key => {
+            const cohortValue = profile[getCohortFieldKey(key)];
+            if (key === 'friction') {
+                return !benchmarkFilters.friction ||
+                    (Array.isArray(cohortValue) && cohortValue.includes(benchmarkFilters.friction));
+            }
+            return !benchmarkFilters[key] || cohortValue === benchmarkFilters[key];
+        })
+    );
+}
+
+function renderBenchmarkResults() {
+    const diffView = document.getElementById('diff-view');
+    if (!diffView) return;
+    const profiles = getMatchingBenchmarkProfiles();
+    const filterSummary = BENCHMARK_FILTER_KEYS
+        .filter(key => benchmarkFilters[key])
+        .map(key => `${BENCHMARK_FILTER_LABELS[key]}: ${benchmarkFilters[key]}`)
+        .join(' · ');
+
+    if (!profiles.length) {
+        diffView.innerHTML = `<div class="benchmark-results">
+            <div class="centered-message">No peers match these filters. Try removing a filter or choosing another value.</div>
+        </div>`;
+        return;
+    }
+
+    const counts = new Map();
+    profiles.forEach(profile => {
+        new Set(Array.isArray(profile.selected_metric_ids) ? profile.selected_metric_ids : []).forEach(id => {
+            counts.set(id, (counts.get(id) || 0) + 1);
+        });
+    });
+    const ranked = [...counts.entries()]
+        .map(([id, count]) => ({ metric: originalData.find(item => item.type && item.id === id), count }))
+        .filter(item => item.metric)
+        .sort((a, b) => b.count - a.count || a.metric.name.localeCompare(b.metric.name));
+
+    const renderMetricRow = ({ metric, count }) => {
+        const percentage = Math.round(count / profiles.length * 100);
+        const shortlisted = clickedMetrics.some(item => item.id === metric.id);
+        return `<div class="diff-metric-row benchmark-metric-row" data-metric-id="${metric.id}" role="button" tabindex="0">
+            <span class="benchmark-adoption benchmark-adoption--${percentage >= 50 ? 'high' : percentage >= 20 ? 'medium' : 'low'}"
+                  role="img" aria-label="${percentage}% adoption in the DevEx Compass dataset">
+                <span class="benchmark-adoption-track">
+                    <span class="benchmark-adoption-fill" style="width: ${percentage}%"></span>
+                </span>
+                <span class="benchmark-adoption-value">${percentage}%</span>
+            </span>
+            <span class="diff-metric-name">${escapeContextHtml(metric.name)}</span>
+            <span class="benchmark-metric-frequency">${percentage}% of matching peers in the DevEx Compass dataset track this metric</span>
+            ${shortlisted ? '<span class="metric-status-badge benchmark-shortlist-badge">In shortlist</span>' : ''}
+        </div>`;
+    };
+
+    const tiers = [
+        { key: 'high', label: 'Highly tracked (≥50%)', items: [] },
+        { key: 'medium', label: 'Commonly tracked (20-49%)', items: [] },
+        { key: 'low', label: 'Rarely tracked (<20%)', items: [] },
+    ];
+    ranked.forEach(item => {
+        const percentage = Math.round(item.count / profiles.length * 100);
+        tiers[percentage >= 50 ? 0 : percentage >= 20 ? 1 : 2].items.push(item);
+    });
+
+    const tierMarkup = tiers.map(tier => {
+        if (!tier.items.length) return '';
+        const collapsed = tier.key === 'low';
+        return `<section class="benchmark-tier benchmark-tier--${tier.key}"${collapsed ? ' hidden' : ''}>
+            <h3 class="benchmark-tier-title">${tier.label}</h3>
+            <div class="diff-metrics">${tier.items.map(renderMetricRow).join('')}</div>
+        </section>`;
+    }).join('');
+    const rareTier = tiers.find(tier => tier.key === 'low');
+    const rareToggle = rareTier.items.length
+        ? `<button type="button" class="benchmark-tier-toggle" aria-expanded="false">
+            Show ${rareTier.items.length} more metric${rareTier.items.length === 1 ? '' : 's'}
+        </button>`
+        : '';
+
+    diffView.innerHTML = `<div class="benchmark-results">
+        <div class="benchmark-results-header">
+            <strong>${profiles.length} matching peer${profiles.length === 1 ? '' : 's'}</strong>
+            ${filterSummary ? `<span>${escapeContextHtml(filterSummary)}</span>` : ''}
+        </div>
+        ${tierMarkup || '<div class="centered-message">Matching peers have not selected any catalog metrics.</div>'}
+        ${rareToggle}
+    </div>`;
+
+    diffView.querySelectorAll('.benchmark-metric-row').forEach(row => {
+        row.addEventListener('click', event => {
+            const metric = originalData.find(item => item.id === parseInt(row.dataset.metricId, 10));
+            if (metric && typeof showCustomTooltip === 'function') showCustomTooltip(metric, event);
+        });
+    });
+    const rareSection = diffView.querySelector('.benchmark-tier--low');
+    const tierToggle = diffView.querySelector('.benchmark-tier-toggle');
+    if (rareSection && tierToggle) {
+        tierToggle.addEventListener('click', () => {
+            const expanded = tierToggle.getAttribute('aria-expanded') === 'true';
+            rareSection.hidden = expanded;
+            tierToggle.setAttribute('aria-expanded', String(!expanded));
+            tierToggle.textContent = expanded
+                ? `Show ${rareTier.items.length} more metric${rareTier.items.length === 1 ? '' : 's'}`
+                : 'Hide rarely tracked metrics';
+        });
+    }
+}
+
 // ─── Diff view renderer ───────────────────────────────────────────────────────
 
 function renderDiffView() {
     const diffView = document.getElementById('diff-view');
     if (!diffView) return;
 
-    const { leftType, leftValue, rightType, rightValue } = compareState;
-    const bothSelected = leftValue !== 'all' && rightValue !== 'all';
+    const { leftValue, rightValue } = compareState;
+    if (compareMode === 'none' && leftValue !== 'all' && rightValue !== 'all') {
+        compareMode = 'comparison';
+    }
 
     const sortWrapper = document.getElementById('compare-sort-group-wrapper');
-    if (!bothSelected) {
-        diffView.innerHTML = '<div class="centered-message">Choose what you want to compare →</div>';
+    if (compareMode === 'benchmark') {
+        updateCompareControlVisibility();
+        refreshBenchmarkControls();
+        renderBenchmarkResults();
+        updateCompareSummary(null);
+        if (sortWrapper) sortWrapper.style.display = 'none';
+        updateSaveButton();
+        return;
+    }
+
+    const { leftType, rightType } = compareState;
+    const bothSelected = leftValue !== 'all' && rightValue !== 'all';
+    if (compareMode !== 'comparison' || !bothSelected) {
+        updateCompareControlVisibility();
+        document.getElementById('diff-view').innerHTML = '<div class="centered-message">Choose what you want to compare →</div>';
         updateCompareSummary(null);
         if (sortWrapper) sortWrapper.style.display = 'none';
         updateSaveButton();
@@ -166,6 +456,7 @@ function renderDiffView() {
     }
 
     if (sortWrapper) sortWrapper.style.display = '';
+    updateCompareControlVisibility();
 
     const leftMetrics  = filterMetricsByDimension(leftType,  leftValue);
     const rightMetrics = filterMetricsByDimension(rightType, rightValue);
@@ -570,7 +861,7 @@ function syncShortlistOptionVisibility() {
     if (leftOpt)  leftOpt.hidden  = !shortlistAllowed || compareState.rightType === 'shortlist';
     if (rightOpt) rightOpt.hidden = !shortlistAllowed || compareState.leftType  === 'shortlist';
 
-    document.querySelectorAll('.compare-preset-btn').forEach(btn => {
+    document.querySelectorAll('.compare-presets .compare-preset-btn').forEach(btn => {
         if (btn.dataset.leftType === 'shortlist' || btn.dataset.rightType === 'shortlist') {
             btn.hidden = !shortlistAllowed;
         }
@@ -600,10 +891,11 @@ function initCompareControls() {
     }
 
     function clearPresetHighlight() {
-        document.querySelectorAll('.compare-preset-btn').forEach(b => b.classList.remove('compare-preset-btn--active'));
+        document.querySelectorAll('.compare-presets .compare-preset-btn').forEach(b => b.classList.remove('compare-preset-btn--active'));
     }
 
     function onTypeChange(typeEl, valueEl, side) {
+        activateComparisonMode();
         compareState[side + 'Type'] = typeEl.value;
         populateValueDropdown(valueEl, typeEl.value, 'all');
         if (typeEl.value === 'shortlist') {
@@ -626,6 +918,7 @@ function initCompareControls() {
     }
 
     function onValueChange(valueEl, side) {
+        activateComparisonMode();
         compareState[side + 'Value'] = valueEl.value;
         clearPresetHighlight();
         renderDiffView();
@@ -643,12 +936,64 @@ function initCompareControls() {
     const saveBtn = document.getElementById('btn-save-comparison');
     if (saveBtn) saveBtn.addEventListener('click', saveCurrentComparison);
 
+    BENCHMARK_FILTER_KEYS.forEach(key => {
+        const select = document.getElementById(`benchmark-${key}`);
+        if (!select) return;
+        select.addEventListener('change', () => {
+            benchmarkFilters[key] = select.value;
+            activateBenchmarkMode();
+            renderDiffView();
+        });
+    });
+
+    const clearBenchmarkFilters = document.getElementById('benchmark-clear-filters');
+    if (clearBenchmarkFilters) {
+        clearBenchmarkFilters.addEventListener('click', () => {
+            resetCompareModes();
+            renderDiffView();
+        });
+    }
+
+    const useBenchmarkContext = document.getElementById('benchmark-use-context');
+    if (useBenchmarkContext) {
+        useBenchmarkContext.addEventListener('click', () => {
+            if (useBenchmarkContext.getAttribute('aria-disabled') === 'true') return;
+            applyBenchmarkContext();
+        });
+    }
+
     // Populate initial value dropdowns
     populateValueDropdown(leftValue,  leftType.value,  compareState.leftValue);
     populateValueDropdown(rightValue, rightType.value, compareState.rightValue);
+    refreshBenchmarkControls();
     updateLogoPreview('left');
     updateLogoPreview('right');
 
+}
+
+function resetCustomComparison() {
+    const ltEl = document.getElementById('compare-left-type');
+    const lvEl = document.getElementById('compare-left-value');
+    const rtEl = document.getElementById('compare-right-type');
+    const rvEl = document.getElementById('compare-right-value');
+    if (!ltEl || !lvEl || !rtEl || !rvEl) return;
+
+    const firstVisibleOption = select => [...select.options].find(option => !option.hidden);
+    const leftType = firstVisibleOption(ltEl)?.value || 'shortlist';
+    const rightType = firstVisibleOption(rtEl)?.value || 'company';
+    ltEl.value = leftType;
+    rtEl.value = rightType;
+    compareState.leftType = leftType;
+    compareState.rightType = rightType;
+    compareState.leftValue = leftType === 'shortlist' ? 'shortlist' : 'all';
+    compareState.rightValue = rightType === 'shortlist' ? 'shortlist' : 'all';
+    populateValueDropdown(lvEl, leftType, compareState.leftValue);
+    populateValueDropdown(rvEl, rightType, compareState.rightValue);
+    syncShortlistOptionVisibility();
+    ['left', 'right'].forEach(side => {
+        const valueEl = document.getElementById(`compare-${side}-value`);
+        if (valueEl) applyLogoBg(valueEl, compareState[side + 'Type'], compareState[side + 'Value'], side);
+    });
 }
 
 // Wire preset buttons
@@ -659,6 +1004,19 @@ function applyComparePreset(leftType, leftValue, rightType, rightValue) {
     const rvEl = document.getElementById('compare-right-value');
     if (!ltEl || !lvEl || !rtEl || !rvEl) return;
 
+    const isActive = compareState.leftType === leftType &&
+        compareState.leftValue === leftValue &&
+        compareState.rightType === rightType &&
+        compareState.rightValue === rightValue;
+    if (isActive) {
+        resetCompareModes();
+        renderDiffView();
+        updateSaveButton();
+        if (typeof updateStepBar === 'function') updateStepBar();
+        if (typeof scheduleUrlSync === 'function') scheduleUrlSync();
+        return;
+    }
+
     ltEl.value = leftType;
     rtEl.value = rightType;
     compareState.leftType  = leftType;
@@ -667,10 +1025,11 @@ function applyComparePreset(leftType, leftValue, rightType, rightValue) {
     populateValueDropdown(rvEl, rightType, rightValue);
     compareState.leftValue  = leftValue;
     compareState.rightValue = rightValue;
+    activateComparisonMode();
 
     // Highlight active preset
-    document.querySelectorAll('.compare-preset-btn').forEach(b => b.classList.remove('compare-preset-btn--active'));
-    const active = [...document.querySelectorAll('.compare-preset-btn')].find(
+    document.querySelectorAll('.compare-presets .compare-preset-btn').forEach(b => b.classList.remove('compare-preset-btn--active'));
+    const active = [...document.querySelectorAll('.compare-presets .compare-preset-btn')].find(
         b => b.dataset.leftType === leftType && b.dataset.leftValue === leftValue &&
              b.dataset.rightType === rightType && b.dataset.rightValue === rightValue
     );
@@ -688,7 +1047,7 @@ function applyComparePreset(leftType, leftValue, rightType, rightValue) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.compare-preset-btn').forEach(btn => {
+    document.querySelectorAll('.compare-presets .compare-preset-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             applyComparePreset(btn.dataset.leftType, btn.dataset.leftValue, btn.dataset.rightType, btn.dataset.rightValue);
         });
@@ -709,6 +1068,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Called once on DOMContentLoaded — wires events but can't populate data-driven dropdowns yet
 document.addEventListener('DOMContentLoaded', initCompareControls);
+
+window.addEventListener('compass:data-loaded', refreshBenchmarkControls);
 
 // Called from filterData() after originalData is populated — populates value dropdowns
 function refreshCompareValueDropdowns() {

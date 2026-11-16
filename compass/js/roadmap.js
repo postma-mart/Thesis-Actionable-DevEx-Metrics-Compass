@@ -178,6 +178,7 @@ function initializeRoadmap() {
 }
 
 function setShortlistRankingResults(metrics) {
+    contextExcludedResults = [];
     contextRankingResults = metrics.map((metric, index) => ({
         metric: { ...metric, roadmapScore: metric.roadmapScore ?? metric.value ?? 0 },
         breakdown: { goal: 0, friction: 0, type: 0, bandwidth: 0, consensus: 0 },
@@ -212,13 +213,25 @@ function startRoadmapFromShortlist() {
 function renderRoadmapCard(metric, expectedType = null) {
     const difficulty = roadmapDifficulty(metric);
     const provenance = roadmapState.provenance[metric.id] === 'manual' ? 'Manually Added' : 'Suggested';
+    const benchmark = Array.isArray(window.mockCohortData) && window.mockCohortData.length > 0 &&
+        typeof window.calculateBenchmark === 'function'
+        ? calculateBenchmark(contextProfilingState.answers, metric.id, window.mockCohortData)
+        : null;
+    const benchmarkBadge = benchmark
+        ? `<span class="roadmap-card-benchmark" title="${escapeContextHtml(benchmark.label)}">🔥 ${benchmark.percentage}%</span>`
+        : '';
+    const difficultyLabel = difficulty.label === 'E' ? 'Easy' : difficulty.label === 'M' ? 'Med' : 'Hard';
+    const fitScore = metric.roadmapScore ?? 0;
     return `
         <article class="roadmap-card" draggable="true" data-roadmap-metric-id="${metric.id}">
             <div class="roadmap-card-heading">
                 <strong class="roadmap-card-name">${escapeContextHtml(metric.name || 'Unnamed metric')}</strong>
-                <span class="roadmap-card-score">(${metric.roadmapScore ?? 0})</span>
-                <span class="roadmap-card-badge roadmap-card-badge--${difficulty.label.toLowerCase()}" title="${escapeContextHtml(difficulty.fullLabel)}">${difficulty.label}</span>
-                <span class="roadmap-card-time">~${difficulty.estimate}h</span>
+                <div class="roadmap-card-metadata">
+                    <span class="roadmap-card-score" title="Recommendation Fit: ${fitScore}/100 match based on your profile">🎯 ${fitScore}</span>
+                    <span class="roadmap-card-badge roadmap-card-badge--${difficulty.label.toLowerCase()}" title="Collection Difficulty: ${difficultyLabel} effort to collect and maintain">🛠️ ${difficultyLabel}</span>
+                    ${benchmarkBadge}
+                    <span class="roadmap-card-time" title="Estimated Setup Time: ${difficulty.estimate} hours">⏱️ ${difficulty.estimate}h</span>
+                </div>
             </div>
             ${expectedType ? `<span class="roadmap-card-provenance roadmap-card-provenance--${provenance === 'Suggested' ? 'suggested' : 'manual'}">${provenance}</span>` : ''}
             ${expectedType ? roadmapOwnerInput('roadmap-metric-owner', metric.id, roadmapState.metricOwners[metric.id], 'Metric Owner') : ''}
@@ -333,6 +346,14 @@ function renderRoadmap() {
         <section class="roadmap-statistics" aria-label="Roadmap statistics">
             ${renderRoadmapStatistics()}
         </section>
+        <section class="roadmap-implementation-appendix" id="roadmap-implementation-appendix" aria-labelledby="roadmap-implementation-title">
+            <div class="roadmap-implementation-header">
+                <p class="roadmap-kicker">Execution details</p>
+                <h2 id="roadmap-implementation-title">Implementation Playbook</h2>
+                <p>Practical recipes for the metrics placed in each roadmap phase.</p>
+            </div>
+            ${renderRoadmapImplementationAppendix()}
+        </section>
     `;
     if (isRoadmapIntroActive) {
         view.insertAdjacentHTML('beforeend', `
@@ -353,11 +374,12 @@ function renderRoadmap() {
 
     const filteredBacklog = roadmapState.backlog.filter(roadmapBacklogMatches);
     const rankedMetrics = Array.isArray(contextRankingResults) ? contextRankingResults : [];
+    const excludedMetrics = Array.isArray(contextExcludedResults) ? contextExcludedResults : [];
     panel.innerHTML = `
         <div class="welcome-provenance-tabs" role="tablist" aria-label="Roadmap metric lists">
             <span class="welcome-provenance-tab${roadmapActiveTab === 'backlog' ? ' active' : ''}" data-roadmap-tab="backlog" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'backlog'}">Backlog</span>
             <span class="welcome-provenance-sep">&bull;</span>
-            <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking</span>
+            <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking Results</span>
         </div>
         <div class="roadmap-backlog${roadmapActiveTab === 'backlog' ? '' : ' hidden'}" data-roadmap-tab-panel="backlog">
             <div class="controls-title">Backlog</div>
@@ -397,9 +419,10 @@ function renderRoadmap() {
         <div class="roadmap-backlog${roadmapActiveTab === 'ranking' ? '' : ' hidden'}" data-roadmap-tab-panel="ranking">
             <div class="controls-title">Ranking Results</div>
             <div class="filter-description">Results of the ranking process.</div>
-            <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers.</p>
+            <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers; ${excludedMetrics.length} excluded from recommendations.</p>
             <div class="context-ranking-list">
                 ${renderContextRankingCards(rankedMetrics)}
+                ${renderExcludedContextRankingCards(excludedMetrics, rankedMetrics.length)}
             </div>
         </div>
     `;
@@ -428,6 +451,22 @@ function renderRoadmap() {
 
     panel.querySelectorAll('[data-roadmap-metric-owner]').forEach(input => {
         input.addEventListener('click', event => event.stopPropagation());
+    });
+    panel.querySelectorAll('.context-ranking-card[data-ranking-metric-id], .context-ranking-card[data-excluded-metric-id]').forEach(card => {
+        const openRankingMetric = event => {
+            const metricId = card.dataset.rankingMetricId || card.dataset.excludedMetricId;
+            const metric = [...rankedMetrics, ...excludedMetrics].find(item =>
+                String(item.metric.id) === String(metricId)
+            )?.metric;
+            if (metric && typeof showCustomTooltip === 'function') showCustomTooltip(metric, event);
+        };
+        card.addEventListener('click', openRankingMetric);
+        card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openRankingMetric(event);
+            }
+        });
     });
     document.querySelectorAll('.roadmap-card').forEach(card => {
         card.addEventListener('click', event => {
@@ -496,9 +535,10 @@ function renderRoadmapUnavailable() {
 
 async function downloadRoadmapPdf() {
     const roadmap = document.getElementById('roadmap-view');
+    const appendix = document.getElementById('roadmap-implementation-appendix');
     const button = document.getElementById('roadmap-pdf-btn');
     const JsPDF = window.jspdf?.jsPDF;
-    if (!roadmap || typeof window.html2canvas !== 'function' || typeof JsPDF !== 'function') {
+    if (!roadmap || !appendix || typeof window.html2canvas !== 'function' || typeof JsPDF !== 'function') {
         console.error('Roadmap PDF export requires html2canvas and jsPDF to be loaded.');
         alert('The roadmap PDF export is unavailable because its PDF libraries did not load.');
         return;
@@ -520,7 +560,7 @@ async function downloadRoadmapPdf() {
                 clonedRoadmap.style.fontFamily = 'Arial, sans-serif';
                 clonedRoadmap.style.letterSpacing = 'normal';
                 clonedRoadmap.style.textRendering = 'optimizeSpeed';
-                clonedRoadmap.querySelectorAll('.roadmap-actions, .roadmap-intro-backdrop, .roadmap-intro-dialog').forEach(element => element.remove());
+                clonedRoadmap.querySelectorAll('.roadmap-actions, .roadmap-intro-backdrop, .roadmap-intro-dialog, #roadmap-implementation-appendix').forEach(element => element.remove());
                 clonedRoadmap.querySelector('.roadmap-phases')?.style.setProperty('grid-template-columns', 'repeat(3, minmax(0, 1fr))');
                 clonedRoadmap.querySelectorAll('*').forEach(element => {
                     element.style.fontFamily = 'Arial, sans-serif';
@@ -587,6 +627,67 @@ async function downloadRoadmapPdf() {
             undefined,
             'FAST'
         );
+
+        const appendixCanvas = await window.html2canvas(appendix, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+            onclone: clonedDocument => {
+                const clonedAppendix = clonedDocument.getElementById('roadmap-implementation-appendix');
+                if (!clonedAppendix) return;
+                clonedAppendix.style.fontFamily = 'Arial, sans-serif';
+                clonedAppendix.style.letterSpacing = 'normal';
+                clonedAppendix.style.textRendering = 'optimizeSpeed';
+                clonedAppendix.querySelectorAll('*').forEach(element => {
+                    element.style.fontFamily = 'Arial, sans-serif';
+                    element.style.letterSpacing = 'normal';
+                    element.style.textRendering = 'optimizeSpeed';
+                });
+            }
+        });
+        const appendixWidth = pageWidth;
+        const appendixPixelHeight = Math.floor(appendixCanvas.width * (pageHeight / appendixWidth));
+        const appendixRect = appendix.getBoundingClientRect();
+        const appendixScale = appendixRect.width > 0
+            ? appendixCanvas.width / appendixRect.width
+            : 1;
+        const metricCardBottoms = [...appendix.querySelectorAll('.roadmap-implementation-card')]
+            .map(card => {
+                const cardRect = card.getBoundingClientRect();
+                return (cardRect.bottom - appendixRect.top) * appendixScale;
+            })
+            .filter(bottom => bottom > 0)
+            .sort((a, b) => a - b);
+        let sourceY = 0;
+        while (sourceY < appendixCanvas.height) {
+            const pageLimit = Math.min(sourceY + appendixPixelHeight, appendixCanvas.height);
+            const cardBoundary = metricCardBottoms
+                .filter(bottom => bottom > sourceY && bottom <= pageLimit)
+                .pop();
+            const sliceEnd = cardBoundary || pageLimit;
+            const sliceHeight = sliceEnd - sourceY;
+            const slice = document.createElement('canvas');
+            slice.width = appendixCanvas.width;
+            slice.height = sliceHeight;
+            slice.getContext('2d').drawImage(
+                appendixCanvas,
+                0, sourceY, appendixCanvas.width, sliceHeight,
+                0, 0, slice.width, slice.height
+            );
+            pdf.addPage();
+            const sliceHeightMm = sliceHeight * appendixWidth / appendixCanvas.width;
+            pdf.addImage(
+                slice.toDataURL('image/jpeg', 0.94),
+                'JPEG',
+                margin,
+                margin,
+                appendixWidth,
+                sliceHeightMm,
+                undefined,
+                'FAST'
+            );
+            sourceY = sliceEnd;
+        }
         pdf.save('90-day-roadmap.pdf');
     } catch (error) {
         console.error('Could not export roadmap PDF:', error);
@@ -599,28 +700,111 @@ async function downloadRoadmapPdf() {
     }
 }
 
+function renderRoadmapImplementationAppendix() {
+    return ROADMAP_PHASES.map((phase, phaseIndex) => {
+        const metrics = Object.values(roadmapState.placements[phaseIndex]).filter(Boolean);
+        return `
+            <section class="roadmap-implementation-phase">
+                <header class="roadmap-implementation-phase-header">
+                    <h3>${phase.label}</h3>
+                    <span>${phase.days}</span>
+                </header>
+                ${metrics.length > 0
+                    ? metrics.map(renderRoadmapImplementationMetric).join('')
+                    : '<p class="roadmap-implementation-empty">No metrics placed in this phase.</p>'}
+            </section>
+        `;
+    }).join('');
+}
+
+function renderRoadmapImplementationMetric(metric) {
+    // Ranking and shortlist flows may carry a reduced metric copy. Resolve the
+    // recipe from the canonical dataset record so the appendix stays complete.
+    const canonicalMetric = Array.isArray(originalData)
+        ? originalData.find(item => String(item.id) === String(metric.id))
+        : null;
+    const implementation = metric.implementation || canonicalMetric?.implementation;
+    if (!implementation) {
+        return `
+            <article class="roadmap-implementation-card">
+                <h4>${escapeContextHtml(metric.name || 'Unnamed metric')}</h4>
+                <p class="roadmap-implementation-pending">Implementation details pending.</p>
+            </article>
+        `;
+    }
+    const steps = Array.isArray(implementation.recipe_steps) ? implementation.recipe_steps : [];
+    return `
+        <article class="roadmap-implementation-card">
+            <h4>${escapeContextHtml(metric.name || 'Unnamed metric')}</h4>
+            <div class="roadmap-implementation-meta">
+                <span><strong>Cadence:</strong> ${escapeContextHtml(implementation.cadence || 'Not specified')}</span>
+                <span><strong>Target goal:</strong> ${escapeContextHtml(implementation.target_goal || 'Not specified')}</span>
+            </div>
+            ${steps.length > 0 ? `
+                <div class="roadmap-implementation-label">Recipe steps</div>
+                <ol>${steps.map(step => `<li>${escapeContextHtml(String(step).replace(/^\d+\.\s*/, ''))}</li>`).join('')}</ol>
+            ` : '<p class="roadmap-implementation-pending">Recipe steps coming soon.</p>'}
+        </article>
+    `;
+}
+
 function renderContextRankingCards(rankedMetrics) {
     return rankedMetrics.map((item, index) => {
         const metric = item.metric;
+        const difficulty = String(item.ease || '').toLowerCase();
+        const difficultyLabel = difficulty === 'easy'
+            ? 'Easy'
+            : difficulty === 'moderate'
+                ? 'Med'
+                : difficulty === 'complex' || difficulty === 'hard'
+                    ? 'Hard'
+                    : 'Unknown';
+        const collectionType = String(item.collectionType || '').toLowerCase();
+        const collectionTypeClass = collectionType === 'quantitative'
+            ? 'context-ranking-chip--quantitative'
+            : collectionType === 'qualitative'
+                ? 'context-ranking-chip--qualitative'
+                : 'context-ranking-chip--neutral';
+        const scoreChip = (label, points, maximum) =>
+            `<span class="context-ranking-chip ${points > 0 ? 'context-ranking-chip--active' : 'context-ranking-chip--muted'}">${label} ${points}/${maximum}</span>`;
         return `
-            <article class="context-ranking-card">
+            <article class="context-ranking-card" data-ranking-metric-id="${escapeContextHtml(metric.id)}" tabindex="0" role="button" aria-label="View details for ${escapeContextHtml(metric.name || 'Unnamed metric')}">
                 <div class="context-ranking-card-header">
-                    <strong>#${index + 1}</strong>
+                    <strong class="context-ranking-rank">#${index + 1}</strong>
                     <h3>${escapeContextHtml(metric.name || 'Unnamed metric')}</h3>
                     <span class="context-ranking-score">${metric.roadmapScore}/100</span>
                 </div>
                 <div class="context-ranking-chips">
-                    <span>Goal ${item.breakdown.goal}/35</span>
-                    <span>Friction ${item.breakdown.friction}/30</span>
-                    <span>Type ${item.breakdown.type}/15</span>
-                    <span>Bandwidth ${item.breakdown.bandwidth}/10</span>
-                    <span>Consensus ${item.breakdown.consensus}/10</span>
+                    ${scoreChip('Goal', item.breakdown.goal, 35)}
+                    ${scoreChip('Friction', item.breakdown.friction, 30)}
+                    ${scoreChip('Type', item.breakdown.type, 15)}
+                    ${scoreChip('Bandwidth', item.breakdown.bandwidth, 10)}
+                    ${scoreChip('Consensus', item.breakdown.consensus, 10)}
                 </div>
                 <div class="context-ranking-metadata">
-                    <span>${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
-                    <span>${escapeContextHtml(item.ease || 'Unknown ease')}</span>
-                    <span>${escapeContextHtml(contextCollectionLabel(item.collectionType))}</span>
+                    <span class="context-ranking-chip context-ranking-chip--neutral">${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
+                    <span class="context-ranking-chip context-ranking-chip--difficulty context-ranking-chip--difficulty-${difficulty || 'unknown'}">🛠️ ${difficultyLabel}</span>
+                    <span class="context-ranking-chip ${collectionTypeClass}">${escapeContextHtml(contextCollectionLabel(item.collectionType))}</span>
                 </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderExcludedContextRankingCards(excludedMetrics, rankedCount) {
+    return excludedMetrics.map((item, index) => {
+        const metric = item.metric;
+        const reasonLabel = escapeContextHtml(item.reason || 'Excluded');
+        const reasonDetail = escapeContextHtml(item.reasonDetail || item.reason || 'Excluded from recommendations');
+
+        return `
+            <article class="context-ranking-card context-ranking-card--excluded" data-excluded-metric-id="${escapeContextHtml(metric.id)}" tabindex="0" role="button" aria-label="View details for ${escapeContextHtml(metric.name || 'Unnamed metric')}">
+                <div class="context-ranking-card-header">
+                    <strong>#${rankedCount + index + 1}</strong>
+                    <h3>${escapeContextHtml(metric.name || 'Unnamed metric')}</h3>
+                    <span class="context-ranking-status">Excluded</span>
+                </div>
+                <div class="context-ranking-explanation">💡 <strong>${reasonLabel}:</strong> ${reasonDetail}</div>
             </article>
         `;
     }).join('');

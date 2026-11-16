@@ -390,12 +390,38 @@ const CONTEXT_PROFILE_QUESTIONS = [
         ]
     },
     {
+        key: 'productContext',
+        title: 'What is your primary product and delivery context?',
+        options: [
+            {
+                value: 'B2B SaaS / Web Platform',
+                label: 'B2B SaaS / Web Platform',
+                description: 'Cloud-hosted software, frequent deployments, and continuous web-based delivery.'
+            },
+            {
+                value: 'Consumer Mobile App',
+                label: 'Consumer Mobile App',
+                description: 'App store releases, mobile UX focus, and client-side performance considerations.'
+            },
+            {
+                value: 'Regulated Enterprise / On-Premise',
+                label: 'Regulated / On-Premise',
+                description: 'Strict compliance environments, infrequent releases, and customer-hosted deployments.'
+            },
+            {
+                value: 'Embedded / Hardware',
+                label: 'Embedded / Hardware',
+                description: 'Firmware, IoT, hardware dependencies, and constrained release cycles.'
+            }
+        ]
+    },
+    {
         key: 'bandwidth',
         title: 'How much bandwidth is available each month?',
         options: [
-            { value: 'Minimal', label: 'Minimal (~8h/mo)', description: 'Prefer metrics that can be collected quickly with little setup or maintenance.' },
-            { value: 'Moderate', label: 'Moderate (15-30h/mo)', description: 'Some capacity is available for combining sources, configuring tools, or running structured surveys.' },
-            { value: 'Dedicated', label: 'Dedicated (40+h/mo)', description: 'A team can invest in custom instrumentation, integrations, and ongoing research.' }
+            { value: 'Minimal', label: 'Minimal (8h/month)', description: 'Prefer metrics that can be collected quickly with little setup or maintenance.' },
+            { value: 'Moderate', label: 'Moderate (16h/month)', description: 'Some capacity is available for combining sources, configuring tools, or running structured surveys.' },
+            { value: 'Dedicated', label: 'Dedicated (40+h/month)', description: 'A team can invest in custom instrumentation, integrations, and ongoing research.' }
         ]
     },
     {
@@ -422,14 +448,32 @@ const CONTEXT_PROFILE_QUESTIONS = [
         ]
     },
     {
+        key: 'techLevel',
+        title: 'What is your team\'s technical capacity for metric tooling?',
+        options: [
+            { value: 'Low', label: 'Low (Basic)', description: 'We need out-of-the-box solutions with zero custom coding or complex infrastructure setup.' },
+            { value: 'Partial', label: 'Partial (Intermediate)', description: 'We can handle basic API wiring and scripts, but prefer off-the-shelf tools where possible.' },
+            { value: 'High', label: 'High (Advanced)', description: 'We can build custom integrations, data pipelines, and maintain dedicated metric dashboards.' }
+        ]
+    },
+    {
+        key: 'teamIntrusion',
+        title: 'How much team participation is acceptable?',
+        options: [
+            { value: 'Passive Only', label: 'Passive Only', description: 'Metrics must be collected automatically in the background without interrupting developer workflows.' },
+            { value: 'Light Participation', label: 'Light Participation', description: 'Occasional short surveys, quick Slack polls, or minor tagging in ticket trackers.' },
+            { value: 'Active Collaboration', label: 'Active Collaboration', description: 'The team is willing to do regular interviews, extensive time logging, or structured self-reporting.' }
+        ]
+    },
+    {
         key: 'collectionPreference',
         title: 'How do you prefer to collect data?',
         options: [
             { value: 'Qualitative', label: 'Qualitative', description: 'Learn through surveys, interviews, focus groups, and self-reported developer experience.' },
             { value: 'Quantitative', label: 'Quantitative', description: 'Use automated signals from repositories, CI/CD, issue trackers, IDEs, and telemetry.' },
             { value: 'Both', label: 'Both', description: 'Combine behavioral data with the context and explanations people provide.' }
-            ]
-            },
+        ]
+    },
     {
         key: 'trackAi',
         title: 'Do you want to track AI tools?',
@@ -440,13 +484,39 @@ const CONTEXT_PROFILE_QUESTIONS = [
     }
 ];
 
+function createContextProfileAnswers() {
+    return {
+        teamScale: '',
+        productContext: '',
+        bandwidth: '',
+        goal: '',
+        friction: '',
+        collectionPreference: '',
+        techLevel: '',
+        teamIntrusion: '',
+        trackAi: ''
+    };
+}
+
 let contextProfilingState = {
     questionIndex: 0,
-    answers: {},
+    answers: createContextProfileAnswers(),
     returnStep: 'start-choice-step',
     shortlistOnly: false
 };
+let completedContextProfileAnswers = null;
+
+function saveCompletedContextProfile() {
+    completedContextProfileAnswers = Object.fromEntries(
+        Object.entries(contextProfilingState.answers).map(([key, value]) => [
+            key,
+            Array.isArray(value) ? [...value] : value
+        ])
+    );
+    if (typeof updateBenchmarkContextButton === 'function') updateBenchmarkContextButton();
+}
 let contextRankingResults = [];
+let contextExcludedResults = [];
 
 function contextMetricField(metric, ...keys) {
     for (const key of keys) {
@@ -532,7 +602,7 @@ function scoreContextMetric(metric, answers, parentById) {
     const preference = answers.collectionPreference.toLowerCase();
     const breakdown = {
         goal: outcomeGoal === answers.goal ? 35 : 0,
-        friction: cardsortGroup === answers.friction ? 30 : 0,
+        friction: answers.friction === cardsortGroup ? 30 : 0,
         type: preference === 'both' || collectionType === 'both' || collectionType === preference ? 15 : 0,
         bandwidth: contextBandwidthScore(answers.bandwidth, ease),
         consensus: Math.min(10, Math.round((Number(metric.value) || 0) / 3))
@@ -548,10 +618,25 @@ function scoreContextMetric(metric, answers, parentById) {
     };
 }
 
+function getContextMetricCandidates() {
+    const source = contextProfilingState.shortlistOnly ? clickedMetrics : originalData;
+    return source.filter(metric =>
+        Boolean(contextMetricField(
+            metric,
+            'dataCollectionType',
+            'Data Collection Type',
+            'data_collection_type',
+            'type'
+        )) ||
+        metric.description ||
+        metric.value !== undefined
+    );
+}
+
 function rankContextMetrics() {
     const answers = contextProfilingState.answers;
     const parentById = new Map(originalData.map(item => [String(item.id), item]));
-    const candidates = contextProfilingState.shortlistOnly ? clickedMetrics : originalData;
+    const candidates = getContextMetricCandidates();
 
     return candidates
         .filter(metric => contextMetricField(
@@ -563,11 +648,69 @@ function rankContextMetrics() {
         ))
         .filter(metric => answers.trackAi === 'Yes' || !isContextAiMetric(metric))
         .map(metric => scoreContextMetric(metric, answers, parentById))
+        .filter(item => item.total > 0)
         .sort((left, right) =>
             right.total - left.total ||
             (Number(right.metric.value) || 0) - (Number(left.metric.value) || 0) ||
             String(left.metric.name).localeCompare(String(right.metric.name))
         );
+}
+
+function getContextExcludedMetrics() {
+    const answers = contextProfilingState.answers;
+    const parentById = new Map(originalData.map(item => [String(item.id), item]));
+    const candidates = getContextMetricCandidates();
+
+    return candidates
+        .map(metric => {
+            const hasCollectionType = Boolean(contextMetricField(
+                metric,
+                'dataCollectionType',
+                'Data Collection Type',
+                'data_collection_type',
+                'type'
+            ));
+            if (!hasCollectionType) {
+                return {
+                    metric,
+                    reason: 'Unclassified',
+                    reasonDetail: 'Missing qualitative/quantitative classification in catalog.'
+                };
+            }
+
+            if (answers.trackAi !== 'Yes' && isContextAiMetric(metric)) {
+                return {
+                    metric,
+                    reason: 'AI Tools Inactive',
+                    reasonDetail: 'Excluded because AI tracking was opted out in your profile.'
+                };
+            }
+
+            const scored = scoreContextMetric(metric, answers, parentById);
+            if (scored.total > 0) return null;
+
+            // Granular contextual breakdown
+            let reason = 'Low Profile Fit';
+            let reasonDetail = 'Does not align with your selected goal, friction, or tooling constraints.';
+
+            if (answers.qualQuantPreference && answers.qualQuantPreference !== 'Balanced') {
+                const metricType = contextMetricField(metric, 'dataCollectionType', 'type');
+                if (metricType && metricType !== answers.qualQuantPreference) {
+                    reason = `${metricType} Filtered`;
+                    reasonDetail = `Filtered out because your preference is set to ${answers.qualQuantPreference} metrics.`;
+                }
+            } else if (answers.friction && scored.breakdown?.friction === 0) {
+                reason = 'Friction Mismatch';
+                reasonDetail = `Does not target your primary friction focus (${answers.friction}).`;
+            }
+
+            return {
+                ...scored,
+                reason,
+                reasonDetail
+            };
+        })
+        .filter(Boolean);
 }
 
 function escapeContextHtml(value) {
@@ -589,7 +732,8 @@ function contextCollectionLabel(type) {
 }
 
 function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = false) {
-    contextProfilingState = { questionIndex: 0, answers: {}, returnStep, shortlistOnly };
+    completedContextProfileAnswers = null;
+    contextProfilingState = { questionIndex: 0, answers: createContextProfileAnswers(), returnStep, shortlistOnly };
     document.getElementById('context-profiling-question').innerHTML = '';
     showWizardStep('context-profiling-step');
     renderContextProfilingQuestion();
@@ -598,25 +742,24 @@ function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = 
 function renderContextProfilingQuestion() {
     const question = CONTEXT_PROFILE_QUESTIONS[contextProfilingState.questionIndex];
     const selected = contextProfilingState.answers[question.key];
+    const selectedValues = [selected];
     const questionElement = document.getElementById('context-profiling-question');
 
     document.getElementById('context-profiling-progress').textContent =
         `Question ${contextProfilingState.questionIndex + 1} of ${CONTEXT_PROFILE_QUESTIONS.length}`;
-    document.getElementById('context-profiling-next-btn').textContent =
-        contextProfilingState.questionIndex === CONTEXT_PROFILE_QUESTIONS.length - 1
-            ? 'Generate roadmap'
-            : 'Continue';
+    document.getElementById('context-profiling-next-btn').style.display = 'none';
     document.getElementById('context-profiling-back-btn').disabled = false;
 
     questionElement.innerHTML = `
         <h2>${escapeContextHtml(question.title)}</h2>
-        <div class="wizard-options">
+        <div class="wizard-options${question.key === 'friction' ? ' context-profile-options--friction' : ''}">
             ${question.options.map(option => {
                 const value = typeof option === 'string' ? option : option.value;
                 const label = typeof option === 'string' ? option : option.label;
                 const description = typeof option === 'string' ? '' : option.description;
+                const isSelected = selectedValues.includes(value);
                 return `
-                <button type="button" class="wizard-option-btn context-profile-option${selected === value ? ' active' : ''}" data-context-answer="${escapeContextHtml(value)}">
+                <button type="button" class="wizard-option-btn context-profile-option${isSelected ? ' active' : ''}" data-context-answer="${escapeContextHtml(value)}">
                     <span class="context-profile-option-content">
                         <strong>${escapeContextHtml(label)}</strong>
                         ${description ? `<span>${escapeContextHtml(description)}</span>` : ''}
@@ -629,17 +772,21 @@ function renderContextProfilingQuestion() {
 
     questionElement.querySelectorAll('[data-context-answer]').forEach(button => {
         button.addEventListener('click', () => {
-            contextProfilingState.answers[question.key] = button.dataset.contextAnswer;
-            renderContextProfilingQuestion();
+            const value = button.dataset.contextAnswer;
+            contextProfilingState.answers[question.key] = value;
+            button.classList.add('active');
+            nextContextProfilingQuestion();
         });
     });
 }
 
 function nextContextProfilingQuestion() {
     const question = CONTEXT_PROFILE_QUESTIONS[contextProfilingState.questionIndex];
-    if (!contextProfilingState.answers[question.key]) return;
+    const answer = contextProfilingState.answers[question.key];
+    if (!answer) return;
 
     if (contextProfilingState.questionIndex === CONTEXT_PROFILE_QUESTIONS.length - 1) {
+        saveCompletedContextProfile();
         renderContextRanking();
         unlockRoadmapFromRanking();
         return;
@@ -671,12 +818,14 @@ function randomizeContextProfiling() {
             return [question.key, typeof option === 'string' ? option : option.value];
         })
     );
+    saveCompletedContextProfile();
     renderContextRanking();
     unlockRoadmapFromRanking();
 }
 
 function renderContextRanking() {
     const rankedMetrics = rankContextMetrics();
+    contextExcludedResults = getContextExcludedMetrics();
     contextRankingResults = rankedMetrics.map(item => ({
         metric: { ...item.metric, roadmapScore: item.total },
         breakdown: item.breakdown,
@@ -688,9 +837,10 @@ function renderContextRanking() {
 
 function restartContextProfiling() {
     if (typeof resetRoadmapState === 'function') resetRoadmapState();
+    completedContextProfileAnswers = null;
     contextProfilingState = {
         questionIndex: 0,
-        answers: {},
+        answers: createContextProfileAnswers(),
         returnStep: 'role-select-step'
     };
     switchToStep(STEP.EXPLORE);

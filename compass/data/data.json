@@ -209,7 +209,11 @@
         "ai_specific_category": "",
         "related_metrics": "140",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Application Startup Duration",
@@ -227,7 +231,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Branch Lifetime",
@@ -245,7 +253,11 @@
         "ai_specific_category": "",
         "related_metrics": "87",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Burnout Risk Score",
@@ -263,7 +275,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Business Objective Advancement",
@@ -281,7 +297,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Change Failure Rate",
@@ -299,7 +319,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "31",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "CI Determinism",
@@ -317,7 +341,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "CI Pipeline Failure Rate",
@@ -335,7 +363,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "CI Build Time",
@@ -353,7 +385,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Code Churn",
@@ -371,7 +407,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Code Reviewer Response Time",
@@ -389,7 +429,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Code Rework Rate",
@@ -407,7 +451,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Produced Code",
@@ -425,7 +473,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Cognitive Load Score",
@@ -443,7 +495,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "CI/CD Health Score",
@@ -461,7 +517,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Contribution Volume",
@@ -479,7 +539,11 @@
         "ai_specific_category": "",
         "related_metrics": "134",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Cost Savings",
@@ -497,7 +561,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Customer Satisfaction Score",
@@ -515,7 +583,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Number of Customer-Reported Defects",
@@ -533,7 +605,11 @@
         "ai_specific_category": "",
         "related_metrics": "80; 29; 42; 133",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Cycle Time",
@@ -551,7 +627,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Number of Defects",
@@ -569,7 +649,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Deployment Frequency",
@@ -587,7 +671,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "94; 79",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Deployment Success Rate",
@@ -605,7 +693,11 @@
         "ai_specific_category": "",
         "related_metrics": "12",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Number of Deploys per Service",
@@ -623,7 +715,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Design",
@@ -641,7 +737,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Local Build Time",
@@ -659,7 +759,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Developer Satisfaction",
@@ -677,7 +781,27 @@
         "ai_specific_category": "Impact",
         "related_metrics": "155; 162",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly (or end of milestone)",
+            "target_goal": "Net positive score >= 75% (or average rating >= 4.0 / 5.0)",
+            "telemetry_sources": [
+                "Slack Polly",
+                "Google Forms",
+                "Culture Amp",
+                "Officevibe"
+            ],
+            "recipe_steps": [
+                "Deploy a 3-question pulse survey asking: \"How satisfied are you with our development tooling, workflows, and inner-loop speed?\" (1–5 scale).",
+                "Collect responses anonymously across a 5-day survey window to encourage candid feedback.",
+                "Calculate the percentage of positive respondents (rating 4 or 5) and segment results by squad to isolate tooling bottlenecks.",
+                "Review open-text blocker comments alongside score trends to prioritize platform improvements for the next cycle."
+            ]
+        }
     },
     {
         "name": "Velocity Index Benchmark",
@@ -695,7 +819,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Diff Authoring Time",
@@ -713,7 +841,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Discoverability of Documentation and Expertise",
@@ -731,7 +863,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Ease of Delivery",
@@ -749,7 +885,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Engineer Engagement",
@@ -767,7 +907,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Error Rates",
@@ -785,7 +929,11 @@
         "ai_specific_category": "",
         "related_metrics": "26; 29; 70; 133",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Experience of New Members",
@@ -803,7 +951,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Experiment Velocity",
@@ -821,7 +973,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Failed Deployment Recovery Time",
@@ -839,7 +995,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Feedback Latency",
@@ -857,7 +1017,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Focus Time",
@@ -875,7 +1039,11 @@
         "ai_specific_category": "",
         "related_metrics": "59; 157",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Impact",
@@ -893,7 +1061,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Initiative Progress and ROI",
@@ -911,7 +1083,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Inner / Outer Loop Time Spent",
@@ -929,7 +1105,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "157",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Number of Interruptions",
@@ -947,7 +1127,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "50",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Change Lead Time",
@@ -965,7 +1149,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Line Coverage",
@@ -983,7 +1171,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Linting Duration",
@@ -1001,7 +1193,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Mean Time to Recover",
@@ -1019,7 +1215,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Communication Network Density",
@@ -1037,7 +1237,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Number of Deployments",
@@ -1055,7 +1259,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Number of Escaped Bugs",
@@ -1073,7 +1281,11 @@
         "ai_specific_category": "",
         "related_metrics": "26; 29; 42; 133",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Number of Handoffs",
@@ -1091,7 +1303,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Time for Onboarding New Hires",
@@ -1109,7 +1325,11 @@
         "ai_specific_category": "",
         "related_metrics": "124",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Operational Activity",
@@ -1127,7 +1347,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Service Readiness Score",
@@ -1145,7 +1369,11 @@
         "ai_specific_category": "",
         "related_metrics": "95",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Perceived Productivity",
@@ -1163,7 +1391,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Perceived Rate of Delivery",
@@ -1181,7 +1413,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Perceived Software Quality",
@@ -1199,7 +1435,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Regrettable Attrition Rate",
@@ -1217,7 +1457,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Percentage of Time Spent on New Capabilities",
@@ -1235,7 +1479,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "124",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Pull Request Cycle Time",
@@ -1253,7 +1501,11 @@
         "ai_specific_category": "",
         "related_metrics": "9",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Post-Submission Edit Ratio",
@@ -1271,7 +1523,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Pull Request Size",
@@ -1289,7 +1545,11 @@
         "ai_specific_category": "AI Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Custom Quality Metric",
@@ -1307,7 +1567,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Quality of Documentation",
@@ -1325,7 +1589,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Quality of Code Reviews",
@@ -1343,7 +1611,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "R&D as Percentage of Revenue",
@@ -1361,7 +1633,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Release Frequency",
@@ -1379,7 +1655,11 @@
         "ai_specific_category": "",
         "related_metrics": "30; 79",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Reliability Score",
@@ -1397,7 +1677,11 @@
         "ai_specific_category": "",
         "related_metrics": "75; 109",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Response Time",
@@ -1415,7 +1699,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Employee Retention Rate",
@@ -1433,7 +1721,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Revenue Growth Rate",
@@ -1451,7 +1743,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Revenue per Engineer",
@@ -1469,7 +1765,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Dependency Update Automation Rate",
@@ -1487,7 +1787,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Tool Sentiment Score",
@@ -1505,7 +1809,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Speed",
@@ -1523,7 +1831,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Velocity",
@@ -1541,7 +1853,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Service Uptime Percentage",
@@ -1559,7 +1875,11 @@
         "ai_specific_category": "",
         "related_metrics": "95; 65",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Talent Capability Score",
@@ -1577,7 +1897,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "113",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Upskilling Rate",
@@ -1595,7 +1919,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "112",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Task Completion Rate",
@@ -1613,7 +1941,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Team Collaboration Effectiveness",
@@ -1631,7 +1963,11 @@
         "ai_specific_category": "",
         "related_metrics": "17; 121",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Technical Debt Ratio",
@@ -1649,7 +1985,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Test Coverage",
@@ -1667,7 +2007,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Test Runner Duration",
@@ -1685,7 +2029,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Value-Added Time vs. Wait Time",
@@ -1703,7 +2051,11 @@
         "ai_specific_category": "",
         "related_metrics": "62",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Time Spent in Code Review",
@@ -1721,7 +2073,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Time to Market for New Features",
@@ -1739,7 +2095,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "83",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Time to Nth Pull Request",
@@ -1757,7 +2117,11 @@
         "ai_specific_category": "",
         "related_metrics": "72",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Deployments per Developer",
@@ -1775,7 +2139,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Code Reviews per Developer",
@@ -1793,7 +2161,11 @@
         "ai_specific_category": "",
         "related_metrics": "17; 121; 92; 129; 154",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Design Docs per Developer",
@@ -1811,7 +2183,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Throughput",
@@ -1829,7 +2205,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Time Loss",
@@ -1847,7 +2227,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Defect Resolution Time",
@@ -1865,7 +2249,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "26; 29; 42; 70; 134",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Bug Fixing Contribution Percentage",
@@ -1883,7 +2271,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "23; 70; 26; 29; 42; 133",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Career Development Opportunities",
@@ -1901,7 +2293,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Complexity",
@@ -1919,7 +2315,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Cost per Function Point",
@@ -1937,7 +2337,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Test Failure Rate",
@@ -1955,7 +2359,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "DAU/WAU/MAU for AI tools",
@@ -1973,7 +2381,11 @@
         "ai_specific_category": "Utilization",
         "related_metrics": "2",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "AI-Assisted PR Rate",
@@ -1991,7 +2403,11 @@
         "ai_specific_category": "Utilization",
         "related_metrics": "129",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "AI-Written Code Share",
@@ -2009,7 +2425,11 @@
         "ai_specific_category": "Utilization",
         "related_metrics": "19",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "AI Suggestion Acceptance Rate",
@@ -2027,7 +2447,11 @@
         "ai_specific_category": "Utilization",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "AI Power Users",
@@ -2045,7 +2469,11 @@
         "ai_specific_category": "Cost",
         "related_metrics": "2",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Number of Unused AI Licenses",
@@ -2063,7 +2491,11 @@
         "ai_specific_category": "Cost",
         "related_metrics": "2",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "AI Spend",
@@ -2081,7 +2513,11 @@
         "ai_specific_category": "Cost",
         "related_metrics": "138",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "AI Product Adoption Rate",
@@ -2099,7 +2535,11 @@
         "ai_specific_category": "Utilization",
         "related_metrics": "2",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "AI Time Savings",
@@ -2117,7 +2557,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "24",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Change Confidence Score",
@@ -2135,7 +2579,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "109",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Developer Friction Score",
@@ -2153,7 +2601,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "40; 46; 59",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Tasks assigned to AI agents",
@@ -2171,7 +2623,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Degree of Self-sufficiency",
@@ -2189,7 +2645,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "-",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Code Ownership",
@@ -2207,7 +2667,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "149",
         "outcome_goals": "Product Excellence",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Ease of Code Review",
@@ -2225,7 +2689,11 @@
         "ai_specific_category": "Impact",
         "related_metrics": "38",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Developer Experience Index",
@@ -2243,7 +2711,11 @@
         "ai_specific_category": "",
         "related_metrics": "36",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Diff Risk Score",
@@ -2261,7 +2733,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Complex"
+        "ease_of_collection": "Complex",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Time spent Coding",
@@ -2279,7 +2755,11 @@
         "ai_specific_category": "",
         "related_metrics": "58",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Deployment Rework Rate",
@@ -2297,7 +2777,11 @@
         "ai_specific_category": "",
         "related_metrics": "-",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Pickup time",
@@ -2315,7 +2799,11 @@
         "ai_specific_category": "",
         "related_metrics": "27; 38; 121",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Easy"
+        "ease_of_collection": "Easy",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     },
     {
         "name": "Planning accuracy",
@@ -2333,7 +2821,11 @@
         "ai_specific_category": "",
         "related_metrics": "113; 160",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        }
     },
     {
         "name": "Capacity accuracy",
@@ -2351,7 +2843,11 @@
         "ai_specific_category": "",
         "related_metrics": "114; 159",
         "outcome_goals": "Organizational Effectiveness",
-        "ease_of_collection": "Moderate"
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "High",
+            "team_intrusion": "Passive Only"
+        }
     },
     {
         "name": "Bad Developer Days",
@@ -2369,6 +2865,10 @@
         "ai_specific_category": "",
         "related_metrics": "36; 10",
         "outcome_goals": "Developer Experience",
-        "ease_of_collection": "Hard"
+        "ease_of_collection": "Hard",
+        "prerequisites": {
+            "tech_level": "Partial",
+            "team_intrusion": "Light Participation"
+        }
     }
 ]
