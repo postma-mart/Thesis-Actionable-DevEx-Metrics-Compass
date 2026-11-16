@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-16 -- Benchmarking Feature Improvements
+- Added an explicit “Use my context” action to apply completed Step 0 profile answers to Benchmark Comparison filters without changing their default “Any” state.
+- Clarified adoption percentages as figures from the DevEx Compass dataset rather than claims about engineering teams generally.
+- Kept “Use my context” clickable before profiling and added an inline explanation when no completed context profile exists.
+- Reset Compare Metrics to a consistent empty state on every Step 2 entry and kept benchmark controls synchronized with that state.
+- Made “Clear all filters” restore usable Quick and Custom comparison controls instead of forcing benchmark mode.
+
 ## 2026-11-15 -- Added Benchmark Comparison to Step 2
 
 - Added cohort filters (org size, product context, goal, tech capacity, team participation, bandwidth, friction) with peer metric frequency rankings in Compare Metrics.

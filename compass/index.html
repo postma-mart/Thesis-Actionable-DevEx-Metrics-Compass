@@ -666,10 +666,10 @@
                 <div class="controls-title">Compare two sets of DevEx metrics</div>
                 <div class="filter-description">Mix any dimensions — frameworks, companies, maturity levels, or outcome goals. Data is based on publicly reported sources and may be incomplete.<br /><a href="#" class="compare-report-link" onclick="event.preventDefault(); window.openReportMetricOverlay('missing_metric', null)">Report something missing</a></div>
 
-                <button id="benchmark-clear-filters" class="compare-preset-btn benchmark-clear-filters-btn" type="button">Clear all filters</button>
+                <button id="benchmark-clear-filters" class="next-step-btn next-step-btn--secondary roadmap-action-btn benchmark-clear-filters-btn" type="button"><span aria-hidden="true">🔄</span> Clear all filters</button>
 
                 <div id="comparison-controls">
-                    <div class="filter-group-label compare-section-title">Quick comparisons</div>
+                    <div class="filter-group-label compare-section-title">Quick Comparisons</div>
                     <div class="compare-presets">
                     <button class="compare-preset-btn" data-left-type="shortlist" data-left-value="shortlist" data-right-type="company" data-right-value="GitHub">My Shortlist vs GitHub</button>
                     <button class="compare-preset-btn" data-left-type="company" data-left-value="Google" data-right-type="company" data-right-value="Microsoft">Google vs Microsoft</button>
@@ -680,7 +680,7 @@
                     </div>
 
                     <div class="filter-group">
-                    <label>Custom comparison</label>
+                    <label>Custom Comparison</label>
                     <div class="compare-row-dropdowns">
                         <select id="compare-left-type" class="company-dropdown">
                             <option value="shortlist">My metrics shortlist</option>
@@ -712,7 +712,8 @@
 
                 <div class="filter-group benchmark-comparison-section">
                     <div class="filter-group-label compare-section-title">Benchmark Comparison</div>
-                    <div class="filter-description benchmark-description">Filter peer profiles to see which metrics they select most often.</div>
+                    <div class="filter-description benchmark-description">Filter peer profiles in the DevEx Compass dataset to see which metrics they select most often.</div>
+                    <button id="benchmark-use-context" class="next-step-btn next-step-btn--secondary roadmap-action-btn benchmark-context-btn is-disabled" type="button" aria-disabled="true" title="Complete the context profile in Step 0 to use this."><span aria-hidden="true">🧭</span> Use my context</button>
                     <div class="benchmark-filters" id="benchmark-filters">
                         <label class="benchmark-filter">
                             <span>Organization size</span>

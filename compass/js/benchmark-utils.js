@@ -15,8 +15,11 @@ const COHORT_VALUE_MAP = Object.freeze({
         Enterprise: '251-500'
     },
     cohort_bandwidth: {
-        'Minimal (8h/month)': 'Minimal (~8h)',
-        'Moderate (16h/month)': 'Moderate (~24h)',
+        Minimal: 'Minimal (8h)',
+        Moderate: 'Moderate (24h)',
+        Dedicated: 'Dedicated (40h+)',
+        'Minimal (8h/month)': 'Minimal (8h)',
+        'Moderate (16h/month)': 'Moderate (24h)',
         'Dedicated (40+h/month)': 'Dedicated (40h+)'
     }
 });
@@ -68,7 +71,7 @@ function calculateBenchmark(userProfile, metricId, mockData) {
         return {
             percentage,
             tier: 1,
-            label: `Tracked by ${percentage}% of ${profile[orgSizeField]} ${profile[productContextField]} teams focused on ${profile[goalField]}`
+            label: `Tracked by ${percentage}% of matching profiles in the DevEx Compass dataset (${profile[orgSizeField]} ${profile[productContextField]} teams focused on ${profile[goalField]})`
         };
     }
 
@@ -83,7 +86,7 @@ function calculateBenchmark(userProfile, metricId, mockData) {
         return {
             percentage,
             tier: 2,
-            label: `Tracked by ${percentage}% of ${profile[productContextField]} teams`
+            label: `Tracked by ${percentage}% of matching profiles in the DevEx Compass dataset (${profile[productContextField]} teams)`
         };
     }
 
@@ -96,7 +99,7 @@ function calculateBenchmark(userProfile, metricId, mockData) {
     return {
         percentage: percentageGlobal,
         tier: 3,
-        label: `Tracked by ${percentageGlobal}% of all engineering teams`
+        label: `Tracked by ${percentageGlobal}% of all profiles in the DevEx Compass dataset`
     };
 }
 

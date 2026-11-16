@@ -23,6 +23,10 @@ function switchToStep(step) {
         return;
     }
     const prevStep = currentStep;
+    if (step === STEP.COMPARE &&
+        typeof resetCompareToEmpty === 'function') {
+        resetCompareToEmpty();
+    }
     currentStep = step;
     logEvent(TELEMETRY.STEP_CHANGE, { from: prevStep, to: step, shortlistCount: clickedMetrics.length });
 

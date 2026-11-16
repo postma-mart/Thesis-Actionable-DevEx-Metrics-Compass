@@ -504,6 +504,17 @@ let contextProfilingState = {
     returnStep: 'start-choice-step',
     shortlistOnly: false
 };
+let completedContextProfileAnswers = null;
+
+function saveCompletedContextProfile() {
+    completedContextProfileAnswers = Object.fromEntries(
+        Object.entries(contextProfilingState.answers).map(([key, value]) => [
+            key,
+            Array.isArray(value) ? [...value] : value
+        ])
+    );
+    if (typeof updateBenchmarkContextButton === 'function') updateBenchmarkContextButton();
+}
 let contextRankingResults = [];
 let contextExcludedResults = [];
 
@@ -721,6 +732,7 @@ function contextCollectionLabel(type) {
 }
 
 function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = false) {
+    completedContextProfileAnswers = null;
     contextProfilingState = { questionIndex: 0, answers: createContextProfileAnswers(), returnStep, shortlistOnly };
     document.getElementById('context-profiling-question').innerHTML = '';
     showWizardStep('context-profiling-step');
@@ -774,6 +786,7 @@ function nextContextProfilingQuestion() {
     if (!answer) return;
 
     if (contextProfilingState.questionIndex === CONTEXT_PROFILE_QUESTIONS.length - 1) {
+        saveCompletedContextProfile();
         renderContextRanking();
         unlockRoadmapFromRanking();
         return;
@@ -805,6 +818,7 @@ function randomizeContextProfiling() {
             return [question.key, typeof option === 'string' ? option : option.value];
         })
     );
+    saveCompletedContextProfile();
     renderContextRanking();
     unlockRoadmapFromRanking();
 }
@@ -823,6 +837,7 @@ function renderContextRanking() {
 
 function restartContextProfiling() {
     if (typeof resetRoadmapState === 'function') resetRoadmapState();
+    completedContextProfileAnswers = null;
     contextProfilingState = {
         questionIndex: 0,
         answers: createContextProfileAnswers(),
