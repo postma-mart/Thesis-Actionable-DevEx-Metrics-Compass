@@ -10,6 +10,25 @@ function bumpPill(el) {
     el.classList.add('shortlist-pill--bump');
 }
 
+function updateRoadmapProfilingTransition() {
+    const transition = document.getElementById('roadmap-profiling-transition');
+    if (!transition) return;
+    const title = transition.querySelector('h2');
+    const body = transition.querySelector('p');
+    const shortlistCount = clickedMetrics.length;
+    const hasShortlist = shortlistCount > 0;
+    if (title) {
+        title.textContent = hasShortlist
+            ? 'Building your roadmap from your shortlist...'
+            : 'Building your roadmap from the metric catalogue...';
+    }
+    if (body) {
+        body.textContent = hasShortlist
+            ? `The roadmap has limited room for metrics, so we'll rank your ${shortlistCount} shortlisted metric${shortlistCount === 1 ? '' : 's'} against your goals, friction and available time. Answer a few short questions to get started. Anything that doesn't make the roadmap stays in your backlog, and we'll flag any that don't fit your constraints.`
+            : "Answer a few short questions and we'll rank the catalogue against your goals, friction and available time, then fill the roadmap with the best fits. Everything else stays in your backlog, and we'll flag what doesn't suit your constraints.";
+    }
+}
+
 function switchToStep(step) {
     if (step === STEP.ROADMAP && !roadmapUnlocked && !isRoadmapProfilingActive &&
         (clickedMetrics.length > 0 || contextRankingResults.length > 0)) {
@@ -53,6 +72,7 @@ function switchToStep(step) {
     const roadmapProfilingTransition = document.getElementById('roadmap-profiling-transition');
 
     const showingRoadmapProfiling = step === STEP.ROADMAP && isRoadmapProfilingActive;
+    if (showingRoadmapProfiling) updateRoadmapProfilingTransition();
     if (sunburst)     sunburst.style.display     = step === STEP.EXPLORE && !showingRoadmapProfiling ? '' : 'none';
     if (diffView)     diffView.style.display     = step === STEP.COMPARE   ? 'flex' : 'none';
     if (nextstepsView) nextstepsView.style.display = step === STEP.NEXTSTEPS ? 'flex' : 'none';

@@ -242,8 +242,6 @@ function updateBenchmarkContextButton() {
     button.title = hasProfile
         ? 'Set benchmark filters to your completed context profile.'
         : message;
-    if (!hasProfile) button.dataset.tooltip = message;
-    else delete button.dataset.tooltip;
 }
 
 function getBenchmarkFilterOptions(key) {

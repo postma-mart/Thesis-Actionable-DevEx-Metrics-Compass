@@ -418,11 +418,11 @@ const CONTEXT_PROFILE_QUESTIONS = [
     {
         key: 'bandwidth',
         title: 'How much bandwidth is available each month?',
-        options: [
-            { value: 'Minimal', label: 'Minimal (8h/month)', description: 'Prefer metrics that can be collected quickly with little setup or maintenance.' },
-            { value: 'Moderate', label: 'Moderate (16h/month)', description: 'Some capacity is available for combining sources, configuring tools, or running structured surveys.' },
-            { value: 'Dedicated', label: 'Dedicated (40+h/month)', description: 'A team can invest in custom instrumentation, integrations, and ongoing research.' }
-        ]
+        options: BANDWIDTH_TIERS.map(({ key, label, description }) => ({
+            value: key,
+            label,
+            description
+        }))
     },
     {
         key: 'goal',
@@ -732,6 +732,10 @@ function contextCollectionLabel(type) {
 }
 
 function startContextProfiling(returnStep = 'role-select-step', shortlistOnly = false) {
+    if (!isRoadmapProfilingActive) {
+        isRoadmapProfilingActive = true;
+        switchToStep(STEP.ROADMAP);
+    }
     completedContextProfileAnswers = null;
     contextProfilingState = { questionIndex: 0, answers: createContextProfileAnswers(), returnStep, shortlistOnly };
     document.getElementById('context-profiling-question').innerHTML = '';
@@ -802,6 +806,11 @@ function previousContextProfilingQuestion() {
             isRoadmapProfilingActive = false;
             switchToStep(STEP.NEXTSTEPS);
         } else {
+            if (isRoadmapProfilingActive) {
+                isRoadmapProfilingActive = false;
+                switchToStep(STEP.EXPLORE);
+                showExploreStartView();
+            }
             showWizardStep(contextProfilingState.returnStep);
         }
         return;

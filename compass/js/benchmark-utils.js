@@ -1,3 +1,27 @@
+const BANDWIDTH_TIERS = Object.freeze([
+    Object.freeze({
+        key: 'Minimal',
+        hours: 8,
+        label: 'Minimal (8h/month)',
+        cohortKey: 'Minimal (8h)',
+        description: 'Prefer metrics that can be collected quickly with little setup or maintenance.'
+    }),
+    Object.freeze({
+        key: 'Moderate',
+        hours: 24,
+        label: 'Moderate (24h/month)',
+        cohortKey: 'Moderate (24h)',
+        description: 'Some capacity is available for combining sources, configuring tools, or running structured surveys.'
+    }),
+    Object.freeze({
+        key: 'Dedicated',
+        hours: 40,
+        label: 'Dedicated (40+h/month)',
+        cohortKey: 'Dedicated (40h+)',
+        description: 'A team can invest in custom instrumentation, integrations, and ongoing research.'
+    })
+]);
+
 const COHORT_FIELD_MAP = Object.freeze({
     teamScale: 'cohort_orgSize',
     productContext: 'cohort_productContext',
@@ -15,12 +39,10 @@ const COHORT_VALUE_MAP = Object.freeze({
         Enterprise: '251-500'
     },
     cohort_bandwidth: {
-        Minimal: 'Minimal (8h)',
-        Moderate: 'Moderate (24h)',
-        Dedicated: 'Dedicated (40h+)',
-        'Minimal (8h/month)': 'Minimal (8h)',
-        'Moderate (16h/month)': 'Moderate (24h)',
-        'Dedicated (40+h/month)': 'Dedicated (40h+)'
+        ...Object.fromEntries(BANDWIDTH_TIERS.flatMap(tier => [
+            [tier.key, tier.cohortKey],
+            [tier.label, tier.cohortKey]
+        ]))
     }
 });
 
@@ -42,6 +64,7 @@ function getCohortFieldKey(key) {
 
 window.COHORT_FIELD_MAP = COHORT_FIELD_MAP;
 window.COHORT_VALUE_MAP = COHORT_VALUE_MAP;
+window.BANDWIDTH_TIERS = BANDWIDTH_TIERS;
 window.getCohortFieldKey = getCohortFieldKey;
 window.mapProfileToCohortFields = mapProfileToCohortFields;
 

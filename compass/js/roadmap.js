@@ -6,7 +6,9 @@ const ROADMAP_PHASES = [
     { label: 'Phase 3', days: 'Days 61-90' }
 ];
 const ROADMAP_ESTIMATES = { easy: 2, moderate: 8, complex: 20, hard: 20 };
-const ROADMAP_BUDGETS = { Minimal: 8, Moderate: 24, Dedicated: 40 };
+const ROADMAP_BUDGETS = Object.freeze(
+    Object.fromEntries(BANDWIDTH_TIERS.map(tier => [tier.key, tier.hours]))
+);
 let roadmapState = null;
 let roadmapUnlocked = false;
 let roadmapDragDropHandled = false;
@@ -292,6 +294,37 @@ function roadmapRankCompare(left, right) {
         String(left.name || '').localeCompare(String(right.name || ''));
 }
 
+function renderContextProfileAnswers() {
+    const profileAnswers = completedContextProfileAnswers || contextProfilingState.answers;
+    return CONTEXT_PROFILE_QUESTIONS.map((question, index) => {
+        const answer = profileAnswers[question.key];
+        const selectedValue = Array.isArray(answer) ? answer[0] : answer;
+        const selectedOption = question.options.find(item =>
+            (typeof item === 'string' ? item : item.value) === selectedValue
+        );
+        const selectedLabel = selectedOption
+            ? (typeof selectedOption === 'string' ? selectedOption : selectedOption.label)
+            : selectedValue;
+        const selectedDescription = selectedOption && typeof selectedOption !== 'string'
+            ? selectedOption.description
+            : '';
+        return `
+            <section class="wizard-step">
+                <p class="wizard-step-label">Question ${index + 1} of ${CONTEXT_PROFILE_QUESTIONS.length}</p>
+                <h2>${escapeContextHtml(question.title)}</h2>
+                <div class="wizard-options">
+                    <div class="wizard-option-btn context-profile-option active">
+                        <span class="context-profile-option-content">
+                            <strong>${escapeContextHtml(selectedLabel)}</strong>
+                            ${selectedDescription ? `<span>${escapeContextHtml(selectedDescription)}</span>` : ''}
+                        </span>
+                    </div>
+                </div>
+            </section>
+        `;
+    }).join('');
+}
+
 function moveRoadmapToBacklog(metricId) {
     const source = roadmapLocation(metricId);
     if (!source || source.area !== 'slot') return;
@@ -375,11 +408,17 @@ function renderRoadmap() {
     const filteredBacklog = roadmapState.backlog.filter(roadmapBacklogMatches);
     const rankedMetrics = Array.isArray(contextRankingResults) ? contextRankingResults : [];
     const excludedMetrics = Array.isArray(contextExcludedResults) ? contextExcludedResults : [];
+    const hasContextProfile = hasCompletedContextProfile();
+    if (!hasContextProfile && roadmapActiveTab === 'answers') roadmapActiveTab = 'backlog';
     panel.innerHTML = `
         <div class="welcome-provenance-tabs" role="tablist" aria-label="Roadmap metric lists">
             <span class="welcome-provenance-tab${roadmapActiveTab === 'backlog' ? ' active' : ''}" data-roadmap-tab="backlog" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'backlog'}">Backlog</span>
             <span class="welcome-provenance-sep">&bull;</span>
             <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking Results</span>
+            ${hasContextProfile ? `
+                <span class="welcome-provenance-sep">&bull;</span>
+                <span class="welcome-provenance-tab${roadmapActiveTab === 'answers' ? ' active' : ''}" data-roadmap-tab="answers" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'answers'}">My Answers</span>
+            ` : ''}
         </div>
         <div class="roadmap-backlog${roadmapActiveTab === 'backlog' ? '' : ' hidden'}" data-roadmap-tab-panel="backlog">
             <div class="controls-title">Backlog</div>
@@ -425,6 +464,15 @@ function renderRoadmap() {
                 ${renderExcludedContextRankingCards(excludedMetrics, rankedMetrics.length)}
             </div>
         </div>
+        ${hasContextProfile ? `
+            <div class="roadmap-backlog${roadmapActiveTab === 'answers' ? '' : ' hidden'}" data-roadmap-tab-panel="answers">
+                <div class="controls-title">My Answers</div>
+                <div class="filter-description">Context profile answers used for your ranking.</div>
+                <div class="context-ranking-list">
+                    ${renderContextProfileAnswers()}
+                </div>
+            </div>
+        ` : ''}
     `;
     panel.querySelectorAll('[data-roadmap-tab]').forEach(tab => {
         tab.addEventListener('click', () => {

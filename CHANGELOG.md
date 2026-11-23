@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-23 -- Added My Answers tab and fixed roadmap profiling inconsistencies
+
+- Added a read-only "My Answers" tab to Step 4 so completed context-profile answers can be reviewed without restarting the wizard, styled to match the profiling wizard and sized for the narrow side panel.
+- Removed the duplicate custom tooltip on the disabled "Use my context" button, leaving only the native browser tooltip.
+- Standardized Moderate bandwidth to 24h/month across the wizard, roadmap capacity and cohort matching, via a shared bandwidth-tier definition.
+- Added distinct roadmap-profiling interstitial copy for the shortlist-based and catalogue-based flows, using the live shortlist count.
+
 ## 2026-11-16 -- Benchmarking Feature Improvements
 - Added an explicit “Use my context” action to apply completed Step 0 profile answers to Benchmark Comparison filters without changing their default “Any” state.
 - Clarified adoption percentages as figures from the DevEx Compass dataset rather than claims about engineering teams generally.
