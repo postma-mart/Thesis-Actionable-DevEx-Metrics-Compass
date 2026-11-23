@@ -484,7 +484,23 @@ function buildTooltipContent(metricData, excludeId = null) {
     })();
 
     const implementation = srcMetric && srcMetric.implementation;
+    const provenanceLabels = {
+        'human-written': {
+            label: 'Human-written',
+            title: 'This recipe was written by a human.'
+        },
+        'ai-human-reviewed': {
+            label: 'AI-generated, human-reviewed',
+            title: 'This recipe was drafted by a language model and checked by a human.'
+        },
+        'ai-generated': {
+            label: 'AI-generated, not yet reviewed',
+            title: 'This recipe was drafted by a language model and has not yet been checked by a human.'
+        }
+    };
+    const provenance = implementation && provenanceLabels[implementation.provenance];
     const implementationContent = implementation ? `
+        ${provenance ? `<span class="implementation-provenance${implementation.provenance === 'ai-generated' ? ' implementation-provenance--unreviewed' : ''}" title="${provenance.title}">${provenance.label}</span>` : ''}
         <div class="implementation-highlights">
             <div class="implementation-highlight"><strong>Cadence</strong><span>${implementation.cadence || 'Not specified'}</span></div>
             <div class="implementation-highlight"><strong>Target goal</strong><span>${implementation.target_goal || 'Not specified'}</span></div>
@@ -496,7 +512,7 @@ function buildTooltipContent(metricData, excludeId = null) {
         ${Array.isArray(implementation.recipe_steps) && implementation.recipe_steps.length > 0 ? `
             <div class="metric-detail"><strong>Recipe steps:</strong></div>
             <ol class="implementation-steps">${implementation.recipe_steps.map(step => `<li>${step.replace(/^\d+\.\s*/, '')}</li>`).join('')}</ol>` : ''}
-    ` : '<p class="implementation-empty">Implementation recipe coming soon.</p>';
+    ` : '<p class="implementation-empty">No implementation recipe yet for this metric.</p>';
 
     const contextContent = `
         <div class="metric-detail"><strong>Number of mentions:</strong> ${metricValue}</div>

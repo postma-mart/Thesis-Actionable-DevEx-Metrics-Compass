@@ -6,6 +6,10 @@
 - Removed the duplicate custom tooltip on the disabled "Use my context" button, leaving only the native browser tooltip.
 - Standardized Moderate bandwidth to 24h/month across the wizard, roadmap capacity and cohort matching, via a shared bandwidth-tier definition.
 - Added distinct roadmap-profiling interstitial copy for the shortlist-based and catalogue-based flows, using the live shortlist count.
+- Updated the dataset parser to emit nested implementation recipes from the Excel implementation columns.
+- Added implementation provenance validation and warnings for incomplete recipe fields.
+- Added provenance badges to Implementation Recipe tabs, with a warmer warning style for unreviewed AI-generated recipes.
+- Added an explicit empty state for metrics without an implementation recipe.
 
 ## 2026-11-16 -- Benchmarking Feature Improvements
 - Added an explicit “Use my context” action to apply completed Step 0 profile answers to Benchmark Comparison filters without changing their default “Any” state.

@@ -1,11 +1,80 @@
 import pandas as pd
-from math import isnan
 import json
 
 # set names of excel and sheets
 metrics_excel = "DevEx_Metrics.xlsx"
 sheet_with_metrics = "metrics"
 sheet_with_sources = "urls"
+IMPLEMENTATION_COLUMNS = [
+    'Implementation Cadence',
+    'Implementation Target Goal',
+    'Implementation Telemetry Sources',
+    'Implementation Recipe Steps',
+    'Implementation Provenance',
+]
+IMPLEMENTATION_PROVENANCE_VALUES = {
+    'ai-generated',
+    'ai-human-reviewed',
+    'human-written',
+}
+
+
+def cell_text(value):
+    return '' if pd.isna(value) else str(value).strip()
+
+
+def split_pipe_values(value):
+    return [item.strip() for item in cell_text(value).split('|') if item.strip()]
+
+
+def parse_implementation(series):
+    cadence = cell_text(series.get('Implementation Cadence', ''))
+    target_goal = cell_text(series.get('Implementation Target Goal', ''))
+    telemetry_sources = split_pipe_values(series.get('Implementation Telemetry Sources', ''))
+    recipe_steps = split_pipe_values(series.get('Implementation Recipe Steps', ''))
+    provenance = cell_text(series.get('Implementation Provenance', ''))
+    metric_id = series['id']
+
+    if provenance and provenance not in IMPLEMENTATION_PROVENANCE_VALUES:
+        print(
+            f"Warning: metric {metric_id} has invalid implementation provenance "
+            f"{provenance!r}; omitting provenance."
+        )
+        provenance = ''
+
+    if not cadence and not recipe_steps:
+        return None
+
+    implementation = {}
+    if cadence:
+        implementation['cadence'] = cadence
+    if target_goal:
+        implementation['target_goal'] = target_goal
+    if telemetry_sources:
+        implementation['telemetry_sources'] = telemetry_sources
+    if recipe_steps:
+        implementation['recipe_steps'] = recipe_steps
+    if provenance:
+        implementation['provenance'] = provenance
+
+    missing_fields = []
+    if not cadence:
+        missing_fields.append('cadence')
+    if not target_goal:
+        missing_fields.append('target_goal')
+    if not telemetry_sources:
+        missing_fields.append('telemetry_sources')
+    if not recipe_steps:
+        missing_fields.append('recipe_steps')
+    if not provenance:
+        missing_fields.append('provenance')
+    if missing_fields:
+        print(
+            f"Warning: metric {metric_id} implementation is missing "
+            f"{', '.join(missing_fields)}."
+        )
+
+    return implementation
 
 # import sheet with metrics from file
 df = pd.read_excel(metrics_excel, sheet_name=sheet_with_metrics, engine="openpyxl")
@@ -20,6 +89,7 @@ for optional_col in [
     'Ease of Collection',
     'Tech Level',
     'Team Intrusion',
+    *IMPLEMENTATION_COLUMNS,
 ]:
     if optional_col in df.columns:
         df[optional_col] = df[optional_col].fillna('')
@@ -87,7 +157,7 @@ for idx, series in df.iterrows():
     alsoknownas = ("; ").join(synonyms_sorted)
 
     # create entry for every metric
-    metrics_list_of_dicts.append({
+    metric = {
         "name": series["Name"],
         "id": series["id"],
         "parent": series["Cardsort Subgroup ID"],
@@ -108,7 +178,11 @@ for idx, series in df.iterrows():
             "tech_level": str(series["Tech Level"]).strip() if "Tech Level" in df.columns else "",
             "team_intrusion": str(series["Team Intrusion"]).strip() if "Team Intrusion" in df.columns else ""
         }
-    })
+    }
+    implementation = parse_implementation(series)
+    if implementation:
+        metric["implementation"] = implementation
+    metrics_list_of_dicts.append(metric)
 
 # combine all entries into one list
 json_list = master_list_of_dicts + cardsort_group_list_of_dicts + cardsort_sub_group_list_of_dicts + metrics_list_of_dicts

@@ -213,6 +213,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly, for the first two quarters after a tool or platform launches",
+            "target_goal": "70% or more of the eligible population active in a given week, within 90 days of launch",
+            "telemetry_sources": [
+                "Tool admin analytics",
+                "Amplitude",
+                "PostHog",
+                "Mixpanel",
+                "Okta or Entra ID sign-in logs"
+            ],
+            "recipe_steps": [
+                "Define the eligible population explicitly: which teams or roles are actually expected to use this tool. Adoption against the whole company is misleading.",
+                "Pull weekly active users from the tool's own admin analytics, or from SSO sign-in logs where the tool has no reporting of its own.",
+                "Divide active users by the eligible population, and report weekly active rather than any-time-used.",
+                "Segment by team to find where adoption has stalled rather than treating the organisation as one number.",
+                "Talk to two or three non-adopting teams each month. The reason for non-adoption is the actionable part, not the percentage."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -323,6 +342,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly, reported as a rolling 4-week average",
+            "target_goal": "Under 15% of production deployments require a hotfix or rollback",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jira",
+                "PagerDuty",
+                "Datadog"
+            ],
+            "recipe_steps": [
+                "Agree a written definition of a failed change with the team: a deployment that triggers a rollback, a hotfix within 24 hours, or a Sev1/Sev2 incident.",
+                "Tag each production deployment in your CI/CD tool or deployment log so deployments can be counted reliably.",
+                "Link incidents and hotfix PRs back to the deployment that caused them, by release tag or commit SHA.",
+                "Divide failed deployments by total deployments for the period and track the rolling 4-week average rather than single weeks.",
+                "Review spikes in the retro and look for a cause in test coverage, deployment size or review depth before setting a target."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -477,6 +515,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly, as background context only",
+            "target_goal": "No target. This is a diagnostic signal, never a goal",
+            "telemetry_sources": [
+                "git log --numstat",
+                "GitHub REST API",
+                "GitLab API",
+                "CodeScene"
+            ],
+            "recipe_steps": [
+                "xtract added and deleted lines per repository with git log --numstat over the reporting period.",
+                "Exclude generated code, vendored dependencies, lockfiles and bulk reformatting commits, or the figure will be dominated by noise.",
+                "Aggregate at repository or team level only. Lines of code per developer is a well-documented anti-pattern and invites gaming.",
+                "Use the figure solely as context for other metrics, for example explaining a change in review load or cycle time.",
+                "Set no target and do not report it to leadership in isolation."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -631,6 +687,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 2 working days from first commit to production",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "Jira",
+                "LinearB",
+                "Swarmia"
+            ],
+            "recipe_steps": [
+                "Fix the start and end points: first commit on the branch, and the deployment that carries that commit to production.",
+                "Extract both timestamps and join them on commit SHA present in the deployment metadata.",
+                "Report the median and the 85th percentile. The mean is distorted by a handful of long-running changes.",
+                "Break the total into coding, review wait, review and deploy wait, so the longest stage is visible.",
+                "Act on the longest stage only. Review wait is usually the largest and the cheapest to improve."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -675,6 +750,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "At least one production deployment per service per week; daily or more for teams targeting the DORA elite band",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jenkins",
+                "Argo CD",
+                "Spinnaker"
+            ],
+            "recipe_steps": [
+                "Write down what counts as a deployment: a change reaching the production environment, whether or not it is visible to users behind a flag.",
+                "Count deployment events from your CD pipeline rather than from release tickets, which are often created late or in batches.",
+                "Report per service as well as per team. A single team average hides one busy service carrying several dormant ones.",
+                "Track rollbacks separately so they do not inflate the count.",
+                "Compare against the published DORA bands to decide whether the current rate is worth acting on."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -785,6 +879,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly (or end of milestone)",
+            "target_goal": "Net positive score >= 75% (or average rating >= 4.0 / 5.0)",
+            "telemetry_sources": [
+                "Slack Polly",
+                "Google Forms",
+                "Culture Amp",
+                "Officevibe"
+            ],
+            "recipe_steps": [
+                "Deploy a 3-question pulse survey asking: \"\"How satisfied are you with our development tooling, workflows, and inner-loop speed?\"\" (1-5 scale).",
+                "Collect responses anonymously across a 5-day survey window to encourage candid feedback.",
+                "Calculate the percentage of positive respondents (rating 4 or 5) and segment results by squad to isolate tooling bottlenecks.",
+                "Review open-text blocker comments alongside score trends to prioritize platform improvements for the next cycle."
+            ],
+            "provenance": "ai-human-reviewed"
         }
     },
     {
@@ -829,6 +940,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Median under one working day from first commit to review-ready",
+            "telemetry_sources": [
+                "GitHub API",
+                "Gerrit",
+                "Phabricator",
+                "WakaTime",
+                "LinearB"
+            ],
+            "recipe_steps": [
+                "Approximate authoring time as first commit on the branch to the pull request leaving draft state. True active keyboard time needs IDE telemetry that most teams should not deploy.",
+                "Exclude branches that sit in draft for days without commits, which represent abandoned or parked work rather than slow authoring.",
+                "Report aggregates only, never per developer, and say so when publishing. This metric reads as surveillance if attributed individually.",
+                "Segment by change size, since a large refactor and a one-line fix are not comparable.",
+                "State the measurement limitation alongside the number so readers do not treat the proxy as exact."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -873,6 +1003,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly, in the same week each quarter",
+            "target_goal": "Mean of 4.0 or higher on a 5-point scale, or 75% agreement or better",
+            "telemetry_sources": [
+                "Google Forms",
+                "Culture Amp",
+                "Lattice",
+                "Slack Polly",
+                "DX"
+            ],
+            "recipe_steps": [
+                "Ask one anchor question: \"\"How easy was it to deliver your work over the past quarter?\"\" on a 1 to 5 scale.",
+                "Follow it with one open text question: \"\"What slowed you down most?\"\" The free text is where the actionable content is.",
+                "Run it in the same week each quarter so the trend is comparable and the survey becomes predictable rather than disruptive.",
+                "Segment by team and tenure. New joiners and long-tenured developers routinely report very different experiences.",
+                "Read the score next to Cycle Time. Where perception and measured delivery speed disagree, the gap is the thing worth investigating."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1027,6 +1176,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly, reviewed monthly",
+            "target_goal": "At least two uninterrupted blocks of 2 hours or more per developer per day",
+            "telemetry_sources": [
+                "Google Calendar API",
+                "Microsoft Graph",
+                "Clockwise",
+                "Reclaim.ai",
+                "Quarterly pulse survey"
+            ],
+            "recipe_steps": [
+                "Define a focus block explicitly, for example 2 hours or more with no scheduled meeting, during working hours.",
+                "Pull calendar data through the Calendar or Graph API and compute blocks per developer per week.",
+                "Report team aggregates only. Per-developer calendar analysis is intrusive and will cost you the trust the metric depends on.",
+                "Add one self-report question each quarter asking whether people felt able to focus. Calendar data shows availability, not whether focus actually happened.",
+                "Act on meeting clustering rather than meeting count. Three meetings in a block leaves far more usable time than three meetings scattered across a day."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1137,6 +1305,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Under 1 day for the DORA elite band; under 1 week for the high band",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jenkins",
+                "LinearB",
+                "Sleuth"
+            ],
+            "recipe_steps": [
+                "Use the DORA definition: first commit of a change to that change running in production. If you also track Cycle Time, agree in writing how the two differ or they will be reported interchangeably.",
+                "Capture the commit SHA in deployment metadata so commits and deployments can be joined automatically.",
+                "Report the median per week, and the 85th percentile alongside it to expose the slow tail.",
+                "Split by change type. Hotfixes travel fast by design and will flatter the overall figure.",
+                "Compare against the DORA bands rather than an internally invented target."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1203,6 +1390,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Per incident, reviewed monthly",
+            "target_goal": "Median under 1 hour for Sev1 and Sev2 incidents",
+            "telemetry_sources": [
+                "PagerDuty",
+                "Opsgenie",
+                "incident.io",
+                "Jira Service Management",
+                "Datadog"
+            ],
+            "recipe_steps": [
+                "Define the clock precisely: start at detection, or at customer impact if you can establish it, and stop when service is restored rather than when the postmortem closes.",
+                "Record both timestamps in the incident tool for every incident, not just the large ones. Inconsistent logging is the usual reason this metric is unusable.",
+                "Report the median by severity. A single multi-day outage will dominate the mean and hide the normal case.",
+                "Separate time to detect from time to fix. They have completely different remedies.",
+                "Review the figure in postmortems rather than on a dashboard, where it rarely prompts action."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1555,6 +1761,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Define once, then review monthly and redefine each quarter",
+            "target_goal": "Set locally when the metric is defined. There is no transferable target for this metric",
+            "telemetry_sources": [
+                "Team definition workshop",
+                "SonarQube",
+                "CodeScene",
+                "Jira"
+            ],
+            "recipe_steps": [
+                "Run a short workshop to agree what quality means for this codebase and this product. This metric is company-specific by definition and cannot be adopted off the shelf.",
+                "Pick two or three observable signals that stand in for that definition, for example escaped defects, change failure rate or a maintainability index.",
+                "Write down what each signal does not capture, so the gap is explicit rather than discovered later.",
+                "Establish a baseline over four weeks before setting any target.",
+                "Revisit the definition each quarter. A custom quality metric that outlives the problem it was created for is the clearest candidate for retirement."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1929,6 +2153,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Per sprint or per two-week period",
+            "target_goal": "80 to 90% of committed work completed. Consistently hitting 100% suggests under-committing",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "Azure DevOps",
+                "Shortcut"
+            ],
+            "recipe_steps": [
+                "Choose one unit: story points, issues or requirements. Points are the most gameable, so issues are usually the safer choice for a small team.",
+                "Snapshot the committed scope at sprint start. Without a snapshot, scope added mid-sprint makes the figure meaningless.",
+                "Count completed items against that snapshot at sprint end, and record items added after the snapshot separately.",
+                "Review carry-over reasons in the retro rather than the percentage itself. The reasons are the actionable part.",
+                "Do not drive this towards 100%. A team that always completes everything is committing to less than it could."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2193,6 +2435,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly, reviewed monthly with the team",
+            "target_goal": "A stable or gently rising 4-week rolling average; no fixed per-developer target",
+            "telemetry_sources": [
+                "GitHub",
+                "GitLab",
+                "Jira",
+                "Linear",
+                "Azure DevOps"
+            ],
+            "recipe_steps": [
+                "Choose one unit and stick to it: merged pull requests, closed issues or completed stories. Mixing units makes the trend meaningless.",
+                "Export the completed items per week from your issue tracker or VCS API.",
+                "Aggregate at team level. Do not report per-developer figures: throughput is sensitive to work splitting and will be gamed if used for individual assessment.",
+                "Plot a 4-week rolling average and annotate it with known context such as holidays, incidents and onboarding.",
+                "Pair the trend with a quality metric such as Change Failure Rate so rising throughput at the cost of stability is visible."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2369,6 +2630,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly, with a monthly stickiness review",
+            "target_goal": "WAU divided by MAU of 0.6 or higher among developers holding a licence",
+            "telemetry_sources": [
+                "GitHub Copilot admin API",
+                "Cursor admin dashboard",
+                "JetBrains AI usage reports",
+                "Okta or Entra ID sign-in logs"
+            ],
+            "recipe_steps": [
+                "Pull both assigned seats and active users. The gap between them is usually the most interesting number.",
+                "Compute daily, weekly and monthly active users against licence holders, not against all engineers.",
+                "Calculate stickiness as WAU divided by MAU to distinguish habitual use from occasional trials.",
+                "Segment by team and seniority to find where the tool has and has not landed.",
+                "Pair this with an outcome metric. Usage shows that AI is being used, not that it is helping, and reporting it alone invites the wrong conclusion."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {

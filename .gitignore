@@ -1,2 +1,4 @@
 # Runtime logs written by compass/api/*.php (feedback, telemetry, reports)
 compass/api/logs/*.log
+.DS_Store
+~$*
