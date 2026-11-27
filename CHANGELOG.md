@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-27 -- Prevented metrics from being dropped for optional blanks
+
+- Added AI-generated Implementation Recipes to each metric for testing.
+- Preserved metrics with empty synonyms and limited row filtering to required fields in both Excel sheets.
+- Added per-row drop details and an implementation/provenance summary to parser output.
+
 ## 2026-11-23 -- Added My Answers tab and fixed roadmap profiling inconsistencies
 
 - Added a read-only "My Answers" tab to Step 4 so completed context-profile answers can be reviewed without restarting the wizard, styled to match the profiling wizard and sized for the narrow side panel.

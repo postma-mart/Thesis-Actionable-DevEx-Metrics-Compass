@@ -254,6 +254,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly, from an automated benchmark run",
+            "target_goal": "Median cold start under 30 seconds on a reference developer machine",
+            "telemetry_sources": [
+                "hyperfine",
+                "Gradle build scans",
+                "Vite or Webpack dev server logs",
+                "Custom timing wrapper in the start script"
+            ],
+            "recipe_steps": [
+                "Define cold start and warm start separately and measure only one of them. Mixing the two produces a number nobody can act on.",
+                "Wrap the local start command in a timing script that logs duration, environment and machine type to a shared location.",
+                "Collect from developer machines over a week, or run a scheduled benchmark on reference hardware if collection from laptops is too intrusive.",
+                "Report the median and the 85th percentile. Startup time is heavily affected by caches and hardware, so the spread matters more than the average.",
+                "Record the hardware profile alongside the figure. A change in the fleet will move this metric without anything in the codebase changing."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -276,6 +294,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 2 days; no active branch older than 5 days",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "Bitbucket API",
+                "git for-each-ref",
+                "LinearB"
+            ],
+            "recipe_steps": [
+                "Extract branch creation and merge timestamps from the VCS API, or from git reflog where the API does not expose creation time.",
+                "Exclude long-lived release, integration and vendor branches, which are intentionally long and will distort the median.",
+                "Report the median lifetime alongside a count of branches currently open for more than 5 days. The count is the more actionable of the two.",
+                "Review the oldest open branches with the team each week and decide explicitly whether to merge, split or close each one.",
+                "Treat a rising median as a signal about change size and review latency rather than about individual developers."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -298,6 +335,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No team scoring in the at-risk band; treat any movement as a trigger for a conversation, never as a performance target",
+            "telemetry_sources": [
+                "Culture Amp",
+                "Officevibe",
+                "Peakon",
+                "Google Forms"
+            ],
+            "recipe_steps": [
+                "Use an established short workplace wellbeing scale rather than inventing questions. Workload, recovery, autonomy and support are the usual dimensions.",
+                "Run it anonymously and report only at team level, with a minimum of five responses per team, so no individual can be identified from the aggregate.",
+                "State in writing before the first run that scores will never be used in performance review, promotion or individual feedback. Without that commitment the responses will not be honest.",
+                "Read the score alongside objective workload signals such as after-hours commit activity, on-call frequency and unplanned work share.",
+                "Agree in advance who acts on a poor result and what they are empowered to change. This is an indicator of working conditions, not a clinical assessment, and the action belongs with whoever controls workload and staffing."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -320,6 +375,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly, reviewed with product and business stakeholders",
+            "target_goal": "70% or more of completed engineering work traceable to a stated objective; set the threshold locally in the first quarter",
+            "telemetry_sources": [
+                "Jira with epic to OKR links",
+                "Linear initiatives",
+                "Productboard",
+                "Asana Goals"
+            ],
+            "recipe_steps": [
+                "Require every epic or initiative to carry a link to a stated company or product objective. Without that link at the point of planning, nothing can be traced afterwards.",
+                "Measure the share of completed work that carries such a link, and track unlinked work separately rather than discarding it.",
+                "Report the distribution of effort across objectives, not a claim of value delivered. This metric shows where effort went, which is alignment, not impact.",
+                "Review the distribution with product each quarter and ask whether it matches stated priorities. The mismatch is the finding, not the percentage itself.",
+                "State the limitation explicitly when reporting: causally linking engineering work to business outcomes remains unsolved, and this metric deliberately does not attempt it."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -383,6 +456,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "99% or more of test runs deterministic, i.e. a flake rate under 1%",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "Buildkite",
+                "Datadog CI Visibility",
+                "Gradle Develocity",
+                "pytest-rerunfailures"
+            ],
+            "recipe_steps": [
+                "Detect flakes automatically by re-running failed tests against the same commit. A test that passes on retry without a code change is flaky by definition.",
+                "Record each flaky occurrence against the test name so repeat offenders are visible, rather than only counting failures in aggregate.",
+                "Calculate determinism as one minus flaky runs divided by total runs, and report it weekly alongside the count of distinct flaky tests.",
+                "Quarantine the worst offenders so they stop blocking merges, but cap how long a test may stay quarantined. An unbounded quarantine list becomes permanent.",
+                "Fix or delete quarantined tests rather than relying on automatic retries. Retries hide the problem and slowly increase pipeline time."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -405,6 +497,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Under 15% of runs failing overall, and under 2% failing for infrastructure reasons",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jenkins",
+                "CircleCI",
+                "Buildkite"
+            ],
+            "recipe_steps": [
+                "Export run outcomes from the CI provider's API rather than counting red badges by hand.",
+                "Classify each failure by cause: test failure, compilation error, infrastructure or timeout, and dependency resolution. A single blended percentage is not actionable.",
+                "Report the breakdown by cause, not the headline rate. A pipeline failing because tests catch real bugs is working correctly.",
+                "Treat infrastructure and dependency failures as the actionable subset and set a separate, much tighter target for them.",
+                "Review the most frequent single cause each week. Pipeline failures cluster heavily, so one fix usually removes most of the noise."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -427,6 +538,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 10 minutes for successful builds",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jenkins",
+                "CircleCI"
+            ],
+            "recipe_steps": [
+                "Measure successful builds only. Failed builds exit early and will flatter the median if included.",
+                "Pull duration per run from the CI provider's API and report the median with the 85th percentile beside it.",
+                "Break the total down by pipeline stage: checkout, dependency install, compile, test, package. The distribution matters more than the total.",
+                "Attack the single longest stage first, usually through caching, parallelism or test splitting, and re-measure before moving to the next.",
+                "Watch for slow growth over months rather than week-to-week noise. Build time creeps up a few seconds at a time and is rarely noticed until it hurts."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -449,6 +578,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No fixed target. Investigate when churn exceeds roughly 25% of lines changed in a period",
+            "telemetry_sources": [
+                "git log --numstat",
+                "git blame",
+                "CodeScene",
+                "Custom git analysis script"
+            ],
+            "recipe_steps": [
+                "Define churn precisely before measuring: lines written and then changed again within a fixed window, typically 21 or 30 days. Note that this differs from Code Rework Rate, which counts how often changes touch recent code rather than how much code is rewritten.",
+                "Compute it from git history by comparing line authorship dates against subsequent modifications, excluding generated files, vendored dependencies and bulk reformatting.",
+                "Aggregate at repository or team level only. Churn attributed to individuals is misleading and punishes the people doing exploratory work.",
+                "Read a spike as a signal about unclear requirements or a difficult area of the codebase, not about developer quality.",
+                "Compare churn across areas of the codebase rather than over time. The hotspots are where the finding usually is."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -471,6 +618,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median first response under 4 business hours",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "Gerrit",
+                "LinearB",
+                "Swarmia"
+            ],
+            "recipe_steps": [
+                "Measure time to the first substantive human response, not the first comment. Bot and linter comments will otherwise make this metric look excellent while reviewers are absent.",
+                "Count business hours rather than wall clock, and handle time zones explicitly if the team is distributed. A pull request opened on Friday evening should not register as a 60-hour wait.",
+                "Report the median and the 85th percentile. The tail is where the frustration lives and the median will hide it.",
+                "Segment by pull request size. Large changes legitimately wait longer, and mixing them with one-line fixes obscures both.",
+                "Act with a review rota or an explicit team agreement on response time rather than by reporting the number. Visibility alone rarely changes reviewer behaviour."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -493,6 +659,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 15% of changes modifying code less than 30 days old",
+            "telemetry_sources": [
+                "git log",
+                "git blame",
+                "CodeScene",
+                "Custom git analysis script"
+            ],
+            "recipe_steps": [
+                "Define recent explicitly, typically code written within the last 30 days. Note that this differs from Code Churn, which measures the volume of rewritten lines rather than how frequently changes touch recent code.",
+                "For each commit, use git blame to establish the age of the lines it modifies, and mark the commit as rework if a meaningful share of those lines are recent.",
+                "Exclude planned refactors and migrations, which are intentional rework and will distort the rate if counted.",
+                "Report at team and codebase-area level. Rework concentrates in specific modules, and naming the module is the actionable output.",
+                "Read it next to Code Churn. Together they distinguish a lot of rewriting in one place from frequent small revisits across the codebase, which have different causes."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -555,6 +739,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly, or once per sprint",
+            "target_goal": "Mean under 2.5 on a 5-point load scale, where lower is better",
+            "telemetry_sources": [
+                "NASA-TLX short form",
+                "Google Forms",
+                "Slack Polly",
+                "Culture Amp"
+            ],
+            "recipe_steps": [
+                "Use an established instrument rather than inventing questions. The NASA-TLX short form, reduced to mental demand, effort and frustration, is well validated and takes under a minute to answer.",
+                "Anchor the question to a specific recent task rather than asking about work in general. Generalised answers drift towards mood and stop tracking anything measurable.",
+                "Run it on the same cadence every time, ideally attached to an existing ritual such as sprint close, so it does not feel like an extra demand.",
+                "Read the score alongside objective load signals you already have: work in progress count, number of concurrent assignments and context switches per day.",
+                "Act on the task types that score highest rather than on the overall average. Cognitive load is concentrated in particular kinds of work, and that is where tooling or documentation will help."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -577,6 +779,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Set locally after a four-week baseline. There is no transferable target for a composite score",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jenkins",
+                "Existing component metric exports"
+            ],
+            "recipe_steps": [
+                "Build the score from three or four component metrics you already collect, such as build time, pipeline failure rate, determinism and deployment frequency. Do not introduce new collection for a composite.",
+                "Normalise each component to a 0-100 scale against a locally agreed good and bad bound, and write those bounds down. An unexplained composite is impossible to act on.",
+                "State the weighting explicitly and keep it stable. A score whose weights change quietly cannot be compared across quarters.",
+                "Always display the component values next to the composite. The score is a conversation starter; the components are what anyone actually acts on.",
+                "Review after two quarters whether anyone drills into the components. If nobody does, retire the composite rather than maintaining a number that looks informative and changes nothing."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -599,6 +819,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. Use for capacity trends only, never as a productivity score",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "Jira",
+                "Linear"
+            ],
+            "recipe_steps": [
+                "Pick one contribution unit and keep it fixed: work items closed, modules touched or requirements implemented. Switching units breaks the trend.",
+                "Aggregate at team level. The metric's own definition warns against standalone use, and per-developer reporting converts it into a target that will be met by splitting work.",
+                "Annotate the series with leave, onboarding, incidents and holidays before anyone reads it. Most apparent changes in volume have a mundane explanation.",
+                "Use it for capacity planning and for spotting sustained shifts, not for comparing teams against each other. Different teams work on different kinds of problems.",
+                "Pair it with an outcome or quality metric whenever it is reported, so rising volume at falling quality is visible in the same view."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -621,6 +859,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly, measured per initiative",
+            "target_goal": "Set per initiative when it is proposed. An organisation-wide target is not meaningful for this metric",
+            "telemetry_sources": [
+                "AWS Cost Explorer",
+                "Google Cloud Billing",
+                "Azure Cost Management",
+                "Finance or BI reporting",
+                "Vendor invoices"
+            ],
+            "recipe_steps": [
+                "Measure per initiative, never in aggregate. A single savings figure for the organisation cannot be traced to any decision and will not survive scrutiny.",
+                "Record the baseline cost before the change, over a window long enough to cover normal variation, and agree that window with finance in advance.",
+                "Separate hard savings, where an invoice actually falls, from avoided cost, which is an estimate of spend that did not happen. Report them as two numbers and never merge them.",
+                "Write down the counterfactual assumption: what would have happened without this work. Most disputed savings claims fail at this step rather than at the arithmetic.",
+                "Have finance confirm the figure before it is reported outside engineering. An unverified savings claim damages credibility more than having no number at all."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -643,6 +900,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly for relational surveys, or continuously after support interactions",
+            "target_goal": "80% or more of respondents satisfied, meaning 4 or 5 on a 5-point scale",
+            "telemetry_sources": [
+                "Zendesk",
+                "Intercom",
+                "Delighted",
+                "Typeform",
+                "In-product survey widget"
+            ],
+            "recipe_steps": [
+                "Decide whether you are measuring transactional satisfaction, asked right after an interaction, or relational satisfaction, asked periodically about the product overall. Do not mix the two in one score.",
+                "Keep it to one rating question plus one open text question. Longer surveys lower the response rate, and the response rate is what determines whether the score means anything.",
+                "Report the response rate next to the score every time. A 90% satisfaction score from 11 responses is not a finding.",
+                "Segment by customer type or plan. An average across very different customers hides the group whose experience is actually deteriorating.",
+                "Route the open text verbatims to the team that owns the relevant area. The free text is where the actionable content is; the number only tells you whether to look."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -665,6 +941,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "A declining trend once normalised by active users or releases; no absolute target",
+            "telemetry_sources": [
+                "Jira Service Management",
+                "Zendesk",
+                "Sentry",
+                "Linear",
+                "GitHub Issues"
+            ],
+            "recipe_steps": [
+                "Define customer-reported precisely and distinguish it from internally found defects. Tag the source at intake, because reconstructing it later is unreliable.",
+                "Normalise by active users or by number of releases. A growing product will report more defects without getting worse, and the raw count will be misread as regression.",
+                "Segment by severity and report the severity mix alongside the count. Ten cosmetic issues and one data-loss bug are not the same month.",
+                "Track time from release to first report as a secondary signal. Defects found quickly by customers point at gaps in test coverage rather than at code quality generally.",
+                "Review the top recurring defect area each month. Customer-reported defects cluster, and naming the component is the actionable output."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -728,6 +1023,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "A declining defect density against your chosen size unit; set the baseline in the first quarter",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "GitHub Issues",
+                "SonarQube"
+            ],
+            "recipe_steps": [
+                "Choose the size unit you will normalise by, such as function points, thousands of lines of code, or releases shipped. Every option is imperfect, so pick one, write down why, and keep it fixed.",
+                "Tag defects consistently at intake with component and severity. Retrospective tagging is unreliable and will quietly corrupt the series.",
+                "Decide whether to severity-weight the count. If you do, state the weights explicitly, because an unweighted and a weighted density are not comparable.",
+                "Report per component or service rather than for the whole codebase. Defects concentrate, and the aggregate hides where the problem is.",
+                "Do not compare density across projects that use different size units or different defect definitions. The comparison will be wrong in a way that is hard to see."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -791,6 +1104,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "95% or more of deployment runs completing successfully",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "Argo CD",
+                "Spinnaker",
+                "GitLab CI/CD",
+                "Octopus Deploy"
+            ],
+            "recipe_steps": [
+                "Define success as the pipeline completing and the service passing its health check afterwards, not merely a green pipeline. A deploy that completes and leaves the service unhealthy is not a success.",
+                "Distinguish this from two neighbouring metrics before reporting it: Change Failure Rate counts deployments that succeed and then cause production incidents, and CI Pipeline Failure Rate covers build pipelines rather than deployments.",
+                "Exclude manually cancelled runs, which otherwise register as failures and make the rate look worse than it is.",
+                "Classify failures by cause: configuration, migration, timeout, dependency or health check. The cause breakdown is the actionable part.",
+                "Fix the single most frequent cause each month. Deployment failures cluster tightly around a small number of recurring problems."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -813,6 +1145,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No service going a full month without a deployment",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "Argo CD",
+                "Spinnaker",
+                "Backstage service catalog"
+            ],
+            "recipe_steps": [
+                "Establish a service inventory first. You cannot measure deploys per service without an agreed list of services, and most teams discover the list is out of date.",
+                "Map each deployment to a service through the pipeline or repository, and record the mapping rather than inferring it each time.",
+                "Report the distribution across services, not the average. One frequently deployed service will hide a dozen dormant ones in any mean.",
+                "Treat this as distinct from Deployment Frequency, which measures the aggregate rate for a team or organisation. This metric exists to expose the spread between services.",
+                "Investigate services with no deploys for a month. Dormant services accumulate unpatched dependencies and undocumented drift, and the risk is invisible in aggregate figures."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -835,6 +1185,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Set locally when the metric is defined. The catalog definition is deliberately broad and has no transferable target",
+            "telemetry_sources": [
+                "Architecture decision record repository",
+                "Confluence",
+                "Notion",
+                "Design review records",
+                "Team survey"
+            ],
+            "recipe_steps": [
+                "Narrow the scope before measuring. This metric covers documentation quality, architectural decisions and prototyping, which are three different things with three different remedies. Pick one.",
+                "If you choose architectural decisions, adopt architecture decision records first. Without a standard place for decisions there is nothing to count.",
+                "Measure coverage rather than quality for the automated part, for example the share of significant changes that have a recorded decision. Quality needs human judgement and belongs in the survey.",
+                "Add one survey question for perceived quality, for example whether developers can understand why the current architecture is the way it is.",
+                "Revisit the definition each quarter. A broad metric that is never narrowed will produce a number nobody can act on."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -857,6 +1226,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 2 minutes and P90 under 5 minutes for incremental builds",
+            "telemetry_sources": [
+                "Gradle Develocity",
+                "Bazel build event protocol",
+                "Custom shell wrapper around the build command",
+                "WakaTime"
+            ],
+            "recipe_steps": [
+                "Separate incremental builds from clean builds and measure them independently. Mixing them produces a bimodal distribution where neither the median nor the mean describes anything real.",
+                "Instrument the local build command to log duration, build type and machine profile to a shared location, rather than asking developers to report times.",
+                "Report P50 and P90 as the catalog definition suggests. The P90 is what breaks flow and is the number worth acting on.",
+                "Keep this distinct from CI Build Time, which runs on uniform hardware. Local build time varies with the developer's machine and the two cannot be compared directly.",
+                "Record the hardware profile alongside each measurement, so a change in the laptop fleet is not mistaken for a change in the build."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -895,7 +1282,7 @@
                 "Calculate the percentage of positive respondents (rating 4 or 5) and segment results by squad to isolate tooling bottlenecks.",
                 "Review open-text blocker comments alongside score trends to prioritize platform improvements for the next cycle."
             ],
-            "provenance": "ai-human-reviewed"
+            "provenance": "ai-generated"
         }
     },
     {
@@ -918,6 +1305,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Annually",
+            "target_goal": "Improvement against your own previous assessment. A peer-relative target requires a benchmark dataset most organisations do not have",
+            "telemetry_sources": [
+                "McKinsey Developer Velocity assessment",
+                "DX",
+                "Internal adaptation survey"
+            ],
+            "recipe_steps": [
+                "Be clear which instrument you are running. The Developer Velocity Index is a proprietary McKinsey assessment, and a self-built survey covering similar ground should not be called DVI.",
+                "If you build an internal adaptation, cover the same dimensions the original does: tooling, working practices, and organisational enablement such as culture and talent management.",
+                "Run it annually. These dimensions move slowly, and a quarterly cadence produces noise and survey fatigue without new information.",
+                "Benchmark against your own previous year unless you have access to a genuine peer dataset. Comparing against published industry figures from a different instrument is not a benchmark.",
+                "Use the result to identify two or three areas of opportunity and act on those. The value is in the dimension-level detail, not the headline index."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -981,6 +1385,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "80% or more agreeing they can find what they need within 15 minutes",
+            "telemetry_sources": [
+                "Google Forms",
+                "Culture Amp",
+                "Confluence or Notion search analytics",
+                "Slack question volume"
+            ],
+            "recipe_steps": [
+                "Ask two separate questions: whether people can find the documentation they need, and whether they can identify the right colleague to ask. These fail for different reasons and need different fixes.",
+                "Anchor the question to a time, for example within 15 minutes. Without an anchor, answers drift towards whether the information exists at all rather than whether it was findable.",
+                "Pull failed and zero-result searches from your wiki's search analytics. That list is a direct inventory of missing or badly named documentation.",
+                "Count repeated questions in team channels as a supporting signal. A question asked three times in a quarter indicates documentation that exists but cannot be found, or does not exist.",
+                "Fix the top three gaps each quarter rather than trying to move the score. The score follows the gaps; the gaps do not follow the score."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1044,6 +1466,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly, aligned to any existing company engagement survey",
+            "target_goal": "75% or more favourable responses",
+            "telemetry_sources": [
+                "Culture Amp",
+                "Peakon",
+                "Officevibe",
+                "Lattice"
+            ],
+            "recipe_steps": [
+                "Check whether HR already runs an engagement survey and add engineering-specific items to it rather than launching a second one. Two overlapping surveys halve the response rate on both.",
+                "Keep this distinct from neighbouring metrics when you report it: Developer Satisfaction covers tooling and systems, Burnout Risk Score covers workload and conditions, and engagement covers commitment to the work, the team and the organisation.",
+                "Ask about motivation, belonging and belief in the direction of the work as separate items. A single engagement number cannot be acted on.",
+                "Segment by tenure. Engagement typically dips at particular points in the employment lifecycle, and the aggregate hides which cohort is affected.",
+                "Read it next to regrettable attrition. Engagement that falls two quarters before people leave is the signal worth having; engagement reported alone rarely changes anything."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1066,6 +1506,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Under 1% of requests returning server errors; set separate thresholds per critical user flow",
+            "telemetry_sources": [
+                "Sentry",
+                "Datadog",
+                "New Relic",
+                "Grafana",
+                "Cloud provider request logs"
+            ],
+            "recipe_steps": [
+                "Separate system errors from user errors before anything else. Server failures and users mistyping a form have different owners and different remedies, and blending them produces a number nobody acts on.",
+                "Set rates per endpoint or per critical user flow rather than one global figure. A global error rate is dominated by your highest-traffic endpoint and hides failures everywhere else.",
+                "Exclude known bot and scanner traffic, which can account for most 4xx responses and will swamp genuine user errors.",
+                "Alert on rate of change rather than on an absolute threshold. A doubling from 0.1% to 0.2% matters more than a steady 0.9%.",
+                "Attribute the top recurring errors to an owning team each week. Errors concentrate heavily, and naming the owner is what turns the number into action."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1088,6 +1547,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "At 30, 60 and 90 days after each new hire's start date",
+            "target_goal": "4.0 or higher on a 5-point scale at the 90-day mark, with every hire completing the 30-day check",
+            "telemetry_sources": [
+                "Google Forms",
+                "Lattice",
+                "Culture Amp",
+                "Onboarding checklist in Notion or Confluence"
+            ],
+            "recipe_steps": [
+                "Trigger the survey from each hire's start date, not on a calendar quarter. Onboarding experience is relative to time in role, and a quarterly cadence will sample people at random points.",
+                "Ask about practical support, clarity of expectations and sense of belonging as separate items. They fail independently and have different fixes.",
+                "Keep the 30-day survey to three questions. New joiners are the least likely group to complete a long survey and the most valuable to hear from.",
+                "Pair it with an objective signal such as time to first merged pull request, so perceived and actual ramp-up can be compared.",
+                "Act within the cohort: feedback from the 30-day check should change the next hire's first month. Onboarding feedback that is only reviewed annually has no mechanism to improve anything."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1110,6 +1587,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Median experiment reaching a decision within 3 weeks, with 80% or more of started experiments reaching a conclusion",
+            "telemetry_sources": [
+                "LaunchDarkly",
+                "Optimizely",
+                "Statsig",
+                "GrowthBook",
+                "Amplitude Experiment"
+            ],
+            "recipe_steps": [
+                "Define the clock explicitly: idea to live, or live to decision. These measure different bottlenecks and teams routinely report one while believing they measure the other.",
+                "Count experiments that reach a conclusion, not experiments started. Abandoned tests are the most common failure mode and counting starts will hide them.",
+                "Report the decision rate alongside the speed. An organisation running experiments quickly but concluding few of them has a worse problem than a slow one.",
+                "Require a pre-registered success metric and sample size before an experiment goes live, otherwise the decision step has nothing to decide against.",
+                "Check you have the traffic to support experimentation at all before adopting this metric. Below a few thousand weekly users per variant, most tests will never reach significance and the metric will measure patience rather than velocity."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1132,6 +1628,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Per occurrence, reviewed monthly",
+            "target_goal": "Median under 15 minutes from detection to service restored",
+            "telemetry_sources": [
+                "Argo CD",
+                "Spinnaker",
+                "GitHub Actions",
+                "PagerDuty",
+                "Deployment logs"
+            ],
+            "recipe_steps": [
+                "Define the clock as detection of the failed deployment to service restored, whether restoration came from a rollback or a fix forward.",
+                "Keep this distinct from Mean Time to Recover, which covers all incidents. This metric is specifically about deployments that fail, and the remedies are mostly in the deployment pipeline rather than in incident response.",
+                "Record which recovery path was used. Rollbacks and fix-forwards have very different durations, and a median that mixes them describes neither.",
+                "Automate rollback on health check failure where the deployment tool supports it. This is the single change that moves this metric most.",
+                "Rehearse a rollback deliberately each quarter. Teams routinely discover that the documented rollback path no longer works only during a real incident."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1154,6 +1669,25 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Automated feedback under 10 minutes; human feedback under 4 business hours",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "CI provider APIs",
+                "LinearB",
+                "Swarmia"
+            ],
+            "recipe_steps": [
+                "List the feedback loops you actually care about and measure each separately: local test run, CI result, review response, and deployment confirmation. A single blended latency figure is not interpretable.",
+                "Split automated from human feedback. They have completely different causes and completely different fixes, and averaging them hides both.",
+                "Note the overlap with neighbouring metrics: CI Build Time and Code Reviewer Response Time each measure one loop within this one. If you already track those, this metric adds value only by covering the loops they miss.",
+                "Report the slowest loop rather than the average. Developers experience the worst wait, not the mean one.",
+                "Use business hours for human loops and wall clock for automated ones. Mixing the two conventions makes the comparison between loops meaningless."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1217,6 +1751,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Set locally per team. There is no transferable target, and a company-wide impact figure is not meaningful",
+            "telemetry_sources": [
+                "Jira with an outcome field on epics",
+                "Amplitude",
+                "Mixpanel",
+                "Customer feedback records",
+                "Quarterly team review"
+            ],
+            "recipe_steps": [
+                "Define impact in terms of each team's own area of ownership rather than through one company-wide formula. A platform team and a customer-facing team produce incomparable outcomes.",
+                "Require every completed initiative to record an observed outcome after the fact, not the projected outcome written when it was proposed. The gap between the two is the most useful thing this metric produces.",
+                "Accept qualitative evidence where numbers do not exist. A documented customer account of what changed is better data than a fabricated percentage.",
+                "Distinguish it from its neighbours when reporting: Business Objective Advancement measures whether work was aligned to objectives, and Initiative Progress and ROI measures financial return on DevEx investments. This metric asks whether the work mattered.",
+                "Review it in a forum with product and business stakeholders rather than putting it on a dashboard. Impact requires argument and context, and a number on a screen will be read as precision it does not have."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1239,6 +1792,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly, measured per initiative",
+            "target_goal": "Payback within two quarters, agreed per initiative when it is proposed",
+            "telemetry_sources": [
+                "Jira",
+                "Finance or BI reporting",
+                "Time tracking",
+                "The DevEx metric the initiative targets"
+            ],
+            "recipe_steps": [
+                "Name the specific DevEx metric each initiative is meant to move, and record its baseline before work starts. An initiative without a named target metric cannot have a return calculated afterwards.",
+                "Estimate cost as engineering time at a standard internal rate plus any licence or infrastructure spend. Keep the rate constant across initiatives so they remain comparable.",
+                "Re-measure the target metric after an agreed period, long enough for the change to take effect and short enough to still attribute it.",
+                "Report progress and return as two separate figures. Progress is observed and reliable; return is an estimate built on assumptions, and merging them lends the estimate unearned credibility.",
+                "Write down the assumptions behind any time-saved-to-money conversion. Most disputed ROI claims fail on the conversion rather than on the measurement."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1261,6 +1832,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "60% or more of development time in the inner loop",
+            "telemetry_sources": [
+                "Self-report survey",
+                "Google Forms",
+                "WakaTime",
+                "IDE activity telemetry"
+            ],
+            "recipe_steps": [
+                "Publish the classification before measuring: which activities count as inner loop and which as outer. Disagreement about where integration testing or code review belongs is the main source of noise in this metric.",
+                "Prefer a periodic self-report over continuous time tracking. For a small team the survey is cheaper, far less intrusive, and accurate enough to act on.",
+                "Ask about a specific recent week rather than a typical week. Typical-week estimates drift towards what people think the answer should be.",
+                "State that the figure is approximate when reporting it. Self-reported time allocation is reliable for trends and direction, not for precise percentages.",
+                "Act by automating the single largest outer-loop activity. That is the whole point of the metric: outer-loop time is the part tooling can remove."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1283,6 +1872,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly, during a one or two week sampling period",
+            "target_goal": "Fewer than 5 unplanned interruptions per developer per day",
+            "telemetry_sources": [
+                "Self-report tally",
+                "Slack or Teams message analytics",
+                "Calendar data",
+                "Clockwise"
+            ],
+            "recipe_steps": [
+                "Define an interruption explicitly: unplanned, requiring an immediate context switch, and breaking focused work. Without a definition, people count very different things.",
+                "Sample over one or two weeks rather than measuring continuously. Asking developers to tally interruptions permanently is itself an interruption, and the data quality falls off quickly.",
+                "Record the source of each interruption: a colleague, an alert, an unplanned meeting, or a production issue. The source determines the remedy and the raw count does not.",
+                "Read it alongside Focus Time. The two describe the same problem from different directions, and acting on one without the other usually fails.",
+                "Address the single dominant source rather than the total. Interruptions are rarely evenly distributed, and one alerting channel or one recurring question often accounts for most of them."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1346,6 +1953,25 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Per pull request, with a weekly trend review",
+            "target_goal": "No decrease from the current baseline. Avoid setting an absolute percentage target",
+            "telemetry_sources": [
+                "Codecov",
+                "SonarQube",
+                "JaCoCo",
+                "Istanbul or nyc",
+                "pytest-cov"
+            ],
+            "recipe_steps": [
+                "Measure coverage on changed lines rather than across the whole codebase. Diff coverage is actionable at review time; total coverage moves too slowly to inform any decision.",
+                "Set a ratchet rather than a target: coverage must not fall below the current level. An absolute percentage target reliably produces tests written to execute lines without asserting anything.",
+                "State the limitation wherever the number appears. Line coverage records that a line ran during a test, not that its behaviour was checked, and fully covered code can contain no assertions at all.",
+                "Exclude generated code, migrations and vendored dependencies, which otherwise dominate the figure and move it for reasons unrelated to testing.",
+                "Never mandate a coverage percentage for individuals or teams. This is among the most reliably gamed metrics in the catalog and the gaming is hard to detect in review."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1368,6 +1994,25 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Under 10 seconds locally on changed files; under 2 minutes in the pipeline",
+            "telemetry_sources": [
+                "ESLint timing output",
+                "Ruff",
+                "Biome",
+                "pre-commit hook timing",
+                "CI job duration"
+            ],
+            "recipe_steps": [
+                "Measure local and pipeline linting separately. They have different acceptable durations and different fixes, and one combined figure obscures both.",
+                "Lint only changed files locally and the full tree in CI. Running the full lint on every local commit is the usual reason this metric gets bad.",
+                "Treat 10 seconds as the practical ceiling locally. Beyond that developers start bypassing the hook, and the metric stops describing anything real because the slow runs stop happening.",
+                "Check whether a faster linter exists for your stack before optimising configuration. Ruff for Python and Biome for JavaScript are typically an order of magnitude faster than the tools they replace.",
+                "Keep the pipeline lint as the enforcing gate and the local lint as fast feedback. Trying to make one do both jobs is what produces slow local runs."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1431,6 +2076,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No isolated team members and no single person brokering communication between sub-teams. No numeric target",
+            "telemetry_sources": [
+                "GitHub review graph",
+                "Slack or Teams analytics API",
+                "Meeting attendance records"
+            ],
+            "recipe_steps": [
+                "Build the graph from work artefacts, such as who reviews whose pull requests, rather than from message content. It answers the same question and is far less intrusive.",
+                "Check your legal position before collecting communication data. In much of Europe this requires works council consultation or an explicit lawful basis, and retrofitting consent after collection is not possible.",
+                "Report only at team level and never name individuals. A network graph that identifies people will be read as surveillance regardless of intent.",
+                "Look for two specific patterns rather than a density number: isolated nodes, meaning people nobody collaborates with, and single brokers connecting otherwise disconnected groups. Both are concrete risks.",
+                "Act by rotating reviewers or deliberately pairing across the gap. The structure is the finding; the density figure itself is not actionable."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1453,6 +2115,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "No target in isolation. Use Deployment Frequency, which expresses the same data as a rate",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Jenkins",
+                "Argo CD"
+            ],
+            "recipe_steps": [
+                "Recognise that this is a raw count of the same events Deployment Frequency measures as a rate. If you already track Deployment Frequency, this metric adds nothing and is a candidate for retirement.",
+                "If you do track it, fix the denominator you implicitly compare against: deployments per week for a team of three and a team of thirty are not comparable numbers.",
+                "Define what counts as a deployment once and apply it consistently, including whether rollbacks and configuration-only changes are counted.",
+                "Count from the deployment pipeline rather than from release tickets, which are often batched or created retrospectively.",
+                "Prefer reporting it per service or per team. An organisation-wide count is dominated by whichever service deploys most often."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1475,6 +2155,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 10% of all defects discovered in production rather than before release",
+            "telemetry_sources": [
+                "Jira",
+                "Sentry",
+                "Linear",
+                "Test management tooling"
+            ],
+            "recipe_steps": [
+                "Define an escaped bug as a defect found after release that an existing or reasonable test could have caught. Issues arising from genuinely unforeseeable conditions are a different category.",
+                "Tag defects at the point of discovery with whether they were found pre-release or in production. Reconstructing this later is unreliable.",
+                "Report the escape rate, escaped divided by total defects found, rather than the raw count. The raw count moves with release volume and will mislead.",
+                "Distinguish it from Number of Customer-Reported Defects, which counts by reporter. A bug your monitoring catches in production is escaped but not customer-reported.",
+                "For each escaped bug, record which test layer should have caught it, and add that test. The action is the point of this metric, not the trend line."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1497,6 +2195,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly, supported by an annual value stream mapping session",
+            "target_goal": "Three or fewer handoffs per work item",
+            "telemetry_sources": [
+                "Jira workflow transitions",
+                "Linear",
+                "Value stream mapping workshop"
+            ],
+            "recipe_steps": [
+                "Count transitions that change the owning person or team. A status change within the same team is not a handoff and including it inflates the number.",
+                "Map one representative work item end to end by hand before automating anything. Teams routinely discover handoffs that exist in practice but not in the tracker.",
+                "Measure the wait time at each handoff, not just the count. Handoffs matter because of the queueing they create, and a count alone does not show where the time goes.",
+                "Include handoffs to groups outside engineering, such as security review, legal or procurement. These are frequently the longest waits and the easiest to overlook.",
+                "Reduce handoffs by cross-skilling or merging adjacent stages rather than by asking people to move work faster through the existing path."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1519,6 +2234,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Per hire, reviewed quarterly",
+            "target_goal": "First independent change in production within 30 days; full ramp within 90",
+            "telemetry_sources": [
+                "HRIS",
+                "Onboarding checklist",
+                "Jira first assigned ticket",
+                "First merged commit"
+            ],
+            "recipe_steps": [
+                "Define the end point concretely, for example the first change the new hire ships to production without pairing. Ready is not measurable and will be interpreted differently by every manager.",
+                "Include HR and IT onboarding in the clock: laptop, accounts and repository access. Access delays are the most common cause of slow ramp-up and the easiest to fix.",
+                "Track checklist completion alongside elapsed time. A fast ramp with half the checklist skipped is storing up problems.",
+                "Review per cohort rather than per individual. Individual ramp speed varies for many legitimate reasons and is not a performance signal.",
+                "Keep this distinct from Experience of New Members, which captures how onboarding felt. This metric measures elapsed time; that one measures whether the time was well spent."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1541,6 +2274,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 20% of team capacity spent on unplanned operational work",
+            "telemetry_sources": [
+                "Jira with an operational work label",
+                "PagerDuty",
+                "On-call handover logs"
+            ],
+            "recipe_steps": [
+                "Separate scheduled maintenance from unplanned, interrupt-driven work. They have different causes and only the second one damages focus.",
+                "Label operational work at intake. Retrospective classification consistently undercounts the small interruptions that make up most of the load.",
+                "Express the result as a share of team capacity rather than in absolute hours, so it remains comparable as the team changes size.",
+                "Report who carries the load. Operational work concentrates on a few people, and a team average will hide someone spending half their time on it.",
+                "Automate the single most frequent recurring task each quarter. Operational load is dominated by repetition, and one automation usually removes a disproportionate share."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1563,6 +2313,64 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly, per service",
+            "target_goal": "Every production service meeting the agreed minimum checklist before it is considered production-ready",
+            "telemetry_sources": [
+                "Backstage scorecards",
+                "Service catalog",
+                "Monitoring configuration",
+                "Runbook repository"
+            ],
+            "recipe_steps": [
+                "Define the checklist explicitly: monitoring coverage, alerting with a named owner, a current runbook, on-call rotation, and documented dependencies. Vague readiness cannot be scored.",
+                "Score each item as met or not met rather than on a scale. Binary items avoid arguments about weighting and are far cheaper to assess honestly.",
+                "Automate what you can read from configuration, such as whether alerts exist and whether a runbook link is present in the service catalog.",
+                "Publish per service and never as a portfolio average. One unready service is a risk that an average will conceal.",
+                "Gate new services on a minimum score at launch. Retrofitting operational readiness after a service is live is substantially more expensive."
+            ],
+            "provenance": "ai-generated"
+        }
+    },
+    {
+        "name": "Operational Health and Security Score",
+        "id": 76,
+        "parent": 324,
+        "alsoknownas": "-",
+        "company": "-",
+        "research": "514; 9",
+        "type": "quantitative",
+        "value": 2,
+        "company_mentions": 0,
+        "research_mentions": 2,
+        "description": "Tracks the operational health and security posture of production systems. As currently defined, this metric is vague and underspecified as it doesn't specify which signals are tracked or how they're aggregated.",
+        "is_research": 1,
+        "ai_specific_category": "",
+        "related_metrics": "-",
+        "outcome_goals": "Organizational Effectiveness",
+        "ease_of_collection": "Moderate",
+        "prerequisites": {
+            "tech_level": "Low",
+            "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly, per service",
+            "target_goal": "No critical vulnerabilities older than 7 days and no service below the agreed minimum",
+            "telemetry_sources": [
+                "Dependabot",
+                "Snyk",
+                "Trivy",
+                "Cloud security posture management tooling"
+            ],
+            "recipe_steps": [
+                "Start by specifying what the score actually covers. The catalog definition notes this metric is underspecified, so the first task is choosing which signals you aggregate: patch currency, open vulnerabilities, monitoring coverage, incident frequency, or some subset.",
+                "Keep the security and reliability components separate rather than merging them into one figure. They have different owners, different urgency and different remedies.",
+                "Report the age of the oldest unresolved critical finding rather than a count. One critical vulnerability open for three months is worse than twenty opened yesterday, and a count cannot express that.",
+                "Automate dependency and image scanning so the data is collected continuously rather than assembled by hand before each review.",
+                "Never let a composite score average away a critical finding. Set a rule that any open critical issue caps the score regardless of the other components."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1585,6 +2393,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "4.0 or higher on a 5-point scale",
+            "telemetry_sources": [
+                "Google Forms",
+                "DX",
+                "Culture Amp",
+                "Slack Polly"
+            ],
+            "recipe_steps": [
+                "Anchor the question to a defined recent period, for example the past two weeks. Unanchored questions measure mood rather than anything about the work.",
+                "Add one open text question asking what got in the way. The rating tells you whether to look; the text tells you where.",
+                "Aggregate to team level only and state that individual responses are never reported. Self-reported productivity attributed to individuals will not be answered honestly.",
+                "Compare it against your objective delivery metrics. Where perceived productivity falls while throughput holds steady, the gap is the finding and usually points at friction rather than output.",
+                "Expect perception and measured output to diverge, particularly where AI tooling is in use. Treat the divergence as information rather than as an error in one of the two measures."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1607,6 +2433,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "4.0 or higher on a 5-point scale from stakeholders outside the engineering team",
+            "telemetry_sources": [
+                "Stakeholder survey",
+                "Google Forms",
+                "Quarterly business review notes"
+            ],
+            "recipe_steps": [
+                "Survey stakeholders rather than engineers. This metric is specifically about external perception, and asking the delivery team measures something else entirely.",
+                "Run it in the same quarter you measure actual deployment frequency or cycle time, so the two can be compared directly.",
+                "Treat the gap between perceived and actual delivery speed as the primary finding. A team delivering quickly but perceived as slow has a communication problem, not a delivery problem.",
+                "Segment by stakeholder group. Sales, support and executives form their impressions from different evidence and will diverge.",
+                "Act on transparency first, through roadmap visibility and release communication, before acting on delivery speed. Perception usually responds faster to the former."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1629,6 +2472,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "4.0 or higher on a 5-point scale",
+            "telemetry_sources": [
+                "In-product survey",
+                "Delighted",
+                "Zendesk",
+                "App store reviews"
+            ],
+            "recipe_steps": [
+                "Ask users rather than the development team. Internal estimates of perceived quality are consistently wrong in both directions.",
+                "Distinguish it from Customer Satisfaction Score, which covers the whole relationship including support, pricing and onboarding. This metric is about the software itself.",
+                "Ask about reliability, usability and performance as separate items. They fail independently and a single quality rating cannot be acted on.",
+                "Compare against your objective error rates and defect counts. Where perception is worse than the measured data, the problem is usually in a small number of highly visible flows.",
+                "Route verbatims to the owning team by component. The comments identify which part of the product is driving the perception."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1651,6 +2512,22 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly, as a rolling 12-month rate",
+            "target_goal": "Under 5% annualised. For teams under about 20 people, report the count rather than a percentage",
+            "telemetry_sources": [
+                "HRIS",
+                "Exit interview records"
+            ],
+            "recipe_steps": [
+                "Write down the rule for what counts as regrettable before anyone leaves. Classifying departures after the fact is unavoidably biased and will not survive scrutiny.",
+                "Use a rolling 12-month window. Quarterly attrition in a small organisation is dominated by single events and the percentage will swing wildly.",
+                "For small teams, report the absolute count instead of a rate. One departure from a team of eight is 12.5%, which reads as a crisis and usually is not.",
+                "Read it alongside engagement and burnout indicators from previous quarters. Attrition is a lagging measure, and its value lies in validating whichever leading signal you already collect.",
+                "Keep individual reasons confidential and report only themes. Exit interview candour depends entirely on this, and one breach ends it permanently."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1673,6 +2550,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "60 to 70% of effort on new capabilities; set the split locally with product",
+            "telemetry_sources": [
+                "Jira with a work type label",
+                "Linear",
+                "Time tracking"
+            ],
+            "recipe_steps": [
+                "Define the categories before measuring: new capability, maintenance, defect fix, operational toil and technical debt. Ambiguous categories are the main source of error here.",
+                "Label work at intake rather than reconstructing it at month end. Retrospective labelling systematically overstates the new capability share.",
+                "If time tracking is too heavy, weight issue counts by estimate instead. An approximate split from existing data beats an accurate one nobody maintains.",
+                "Report the trend across several months. A single month is dominated by whatever large item happened to land in it.",
+                "Treat a very high new capability share as a warning rather than a success. Sustained above roughly 80% usually means maintenance and debt are being deferred rather than avoided."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1695,6 +2589,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 24 hours from first commit to merge",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "LinearB",
+                "Swarmia"
+            ],
+            "recipe_steps": [
+                "Define it as first commit to merge. Cycle Time and Change Lead Time extend to production, and the three are routinely confused when reported side by side.",
+                "Break the total into authoring, waiting for pickup, active review, rework and waiting to merge. The breakdown is what you act on.",
+                "Expect pickup wait to be the largest sub-stage in most teams. It is also the cheapest to fix, usually through a review rota rather than through tooling.",
+                "Report the median with the 85th percentile. A few long-running pull requests will distort any mean and those are exactly the ones causing frustration.",
+                "Segment by pull request size before drawing conclusions. Large changes legitimately take longer, and mixing them with small ones makes the metric look worse than the process is."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1717,6 +2629,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 30% of a pull request's lines changed after it was opened for review",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "Gerrit patchsets"
+            ],
+            "recipe_steps": [
+                "Calculate the share of lines changed in commits made after the pull request was opened, relative to the total lines in the merged change.",
+                "Exclude merge commits, rebases and formatting-only commits, which otherwise dominate the ratio without representing real rework.",
+                "Read a high ratio as design happening during review rather than before it. The fix is earlier discussion, not faster reviewers.",
+                "Pair it with Pull Request Size. Large pull requests reliably produce more post-submission editing, and the size is usually the easier thing to change.",
+                "Encourage draft pull requests for work in progress so exploratory commits do not count against the ratio and reviewers are not pulled in early."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1739,6 +2668,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 250 lines changed, with fewer than 10% of pull requests exceeding 400",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "LinearB"
+            ],
+            "recipe_steps": [
+                "Count lines added plus deleted, excluding generated files, lockfiles and vendored dependencies. Without those exclusions the metric measures dependency updates.",
+                "Report the share of pull requests above your threshold alongside the median. The share is more actionable, because the problem is the tail rather than the typical case.",
+                "Use the threshold as a review signal rather than a block. Some changes genuinely cannot be split, and a hard limit encourages artificial splitting that is worse for reviewers.",
+                "Read it next to Pull Request Cycle Time and Quality of Code Reviews. Large pull requests predictably produce slower reviews and fewer substantive comments.",
+                "Act at planning time by breaking work into smaller deliverable units. Asking developers to split a finished change at review time wastes the work already done."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1801,6 +2747,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "4.0 or higher on a 5-point scale for whether documentation let the reader finish the task without asking someone",
+            "telemetry_sources": [
+                "Google Forms",
+                "Confluence or Notion page feedback widget",
+                "Documentation page analytics",
+                "Slack question volume"
+            ],
+            "recipe_steps": [
+                "Ask a task-oriented question rather than asking people to rate the documentation. Whether someone completed their task without asking a colleague is answerable; overall quality is not.",
+                "Add an inline feedback control to documentation pages so ratings attach to specific pages rather than to the corpus as a whole.",
+                "Keep this distinct from Discoverability of Documentation and Expertise. That metric asks whether people can find the page; this one asks whether the page helped once found.",
+                "Cross-reference page traffic with page rating. High traffic and low rating is your prioritised rewrite list, and it is usually short.",
+                "Put a review-by date on the pages that matter most. Documentation quality decays silently, and nothing in the measurement will tell you a page went stale."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1823,6 +2787,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly for the survey, with monthly sampling",
+            "target_goal": "4.0 or higher on a 5-point scale from pull request authors on whether reviews improved their change",
+            "telemetry_sources": [
+                "Survey of pull request authors",
+                "GitHub API",
+                "Sampled manual assessment against a rubric"
+            ],
+            "recipe_steps": [
+                "Ask authors whether the review improved their change. They are the only people positioned to judge whether a review was useful, and the question is specific enough to answer honestly.",
+                "Supplement with a monthly sample of ten reviews read against a short rubric: did it catch defects, did it question design, was it timely, was the tone constructive.",
+                "Do not use comment count as a quality proxy. It rewards nitpicking and penalises the reviewer who spots the one structural problem and says so in a sentence.",
+                "Track the share of pull requests approved with no comments at all as a separate warning signal. A high rate usually means rubber-stamping rather than flawless code.",
+                "Read it alongside Pull Request Size. Review quality falls sharply above a few hundred lines, and the size is usually the easier thing to fix."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1845,6 +2826,22 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Annually",
+            "target_goal": "No engineering target. Benchmarks vary widely by company stage and sector and are not comparable across them",
+            "telemetry_sources": [
+                "Finance statements",
+                "ERP or accounting system"
+            ],
+            "recipe_steps": [
+                "Take the figure from finance rather than reconstructing it from engineering data. Engineering does not own this metric and a parallel calculation will not match the official one.",
+                "Agree what is included in R&D and keep the definition stable: whether operations, quality assurance, product management and infrastructure count materially changes the result.",
+                "Compare only against your own history or against companies at the same stage and in the same sector. A published industry average spanning seed startups and listed enterprises means nothing.",
+                "Treat this as a board-level allocation metric rather than a measure of engineering performance. Nothing an engineering team does in a quarter should be judged by it.",
+                "Do not use it on its own to argue for headcount. The argument needs a capability or delivery case, and the ratio alone will not carry it."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1867,6 +2864,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Set locally. The right frequency depends on your product and release model, not on an industry figure",
+            "telemetry_sources": [
+                "LaunchDarkly",
+                "Flagsmith",
+                "Release notes",
+                "Product analytics"
+            ],
+            "recipe_steps": [
+                "Measure when a feature becomes available to users, not when the code deploys. The catalog definition is explicit on this point and the two diverge sharply once feature flags are in use.",
+                "Where you use flags, treat flag enablement as the release event and record it. Deployment pipelines will not show you this.",
+                "Track staged rollouts by exposure percentage rather than as a single release event, so a feature at 5% of users is not counted the same as one at 100%.",
+                "Keep this distinct from Deployment Frequency. A team can deploy daily and release monthly, and conflating the two hides exactly that pattern.",
+                "Read it next to Time to Market for New Features. Release frequency tells you the cadence; time to market tells you whether the cadence is translating into value reaching users."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1889,6 +2904,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly for the survey component, continuously for telemetry",
+            "target_goal": "Meeting your own stated reliability targets. The score is meaningless without those targets defined first",
+            "telemetry_sources": [
+                "Datadog SLO dashboards",
+                "Grafana",
+                "Incident records",
+                "DORA-style reliability survey"
+            ],
+            "recipe_steps": [
+                "Define service level objectives before measuring anything. The original DORA question asks whether you are meeting your reliability targets, which cannot be answered if no targets exist.",
+                "Measure the components separately: availability, latency percentiles, error rate and behaviour under load. They fail independently and a single score cannot direct any action.",
+                "State which method you are using. The DORA original is a self-rated survey, while the same dimensions can be measured from telemetry, and the two produce different numbers that are not interchangeable.",
+                "Report error budget consumption as the headline figure. It is the single most actionable number in this area because it translates directly into whether to ship or to stabilise.",
+                "Always display the components alongside any composite. As with other composite scores, if nobody drills into the components within two quarters, retire the composite."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1911,6 +2944,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "95th percentile under 500ms for interactive endpoints; set separate targets per endpoint class",
+            "telemetry_sources": [
+                "Datadog",
+                "New Relic",
+                "Grafana",
+                "Cloud load balancer metrics"
+            ],
+            "recipe_steps": [
+                "Report percentiles, never averages. A mean response time is dominated by the fast majority and will look healthy while a meaningful share of users wait seconds.",
+                "Set targets per endpoint class. A search endpoint, a write operation and a static asset have different reasonable expectations and one global threshold serves none of them.",
+                "Measure server-side and client-perceived timing separately. Users experience network, rendering and server time together, and server-side numbers alone will look better than reality.",
+                "Exclude health checks, synthetic monitors and known bot traffic, which are fast and numerous enough to pull the percentiles down.",
+                "Alert on regression against a rolling baseline rather than on a fixed threshold. Gradual degradation is the common failure mode and a static threshold will not catch it until it is severe."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1933,6 +2984,21 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly, as a rolling 12-month rate",
+            "target_goal": "90% or higher annualised. Below about 20 people, report headcount changes rather than a rate",
+            "telemetry_sources": [
+                "HRIS"
+            ],
+            "recipe_steps": [
+                "Define the population and the window explicitly, including how joiners partway through the period are counted. Different conventions produce materially different rates.",
+                "Track either retention or attrition, not both. They are complements, and reporting both invites arithmetic disputes that distract from the finding.",
+                "For small teams, report the absolute numbers. A rate calculated over eight people swings by double digits on a single departure and will be over-interpreted.",
+                "Segment by tenure band. First-year departures usually indicate hiring or onboarding problems, while departures after three years usually indicate progression problems, and the aggregate hides both.",
+                "Read it alongside Regrettable Attrition Rate. Overall retention can look healthy while the people you most wanted to keep are the ones leaving."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1955,6 +3021,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No engineering target. This is a company metric reported for context, not an engineering objective",
+            "telemetry_sources": [
+                "Finance statements",
+                "ERP or accounting system",
+                "BI reporting"
+            ],
+            "recipe_steps": [
+                "Take this from finance and report it unchanged. Engineering has no independent means of calculating revenue and should not attempt one.",
+                "Include it only as context alongside engineering metrics, never as an engineering key result. Revenue responds to pricing, sales, market conditions and product decisions that engineering does not control.",
+                "Resist drawing causal links between engineering activity and revenue movement in the same period. The lag is long and variable, and the attribution will not survive challenge.",
+                "If you want a traceable link between engineering work and business outcomes, use Business Objective Advancement or Initiative Progress and ROI, which are designed for it.",
+                "Agree with the business which revenue figure is used, such as recognised, booked or annual recurring, and keep it consistent across reports."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1977,6 +3060,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No target. Treat as context only, and never as an efficiency measure for engineering",
+            "telemetry_sources": [
+                "Finance statements",
+                "HRIS headcount",
+                "BI reporting"
+            ],
+            "recipe_steps": [
+                "Understand what the ratio does before reporting it. Revenue divided by engineering headcount improves when revenue rises for reasons unrelated to engineering, and it also improves when you make engineers redundant.",
+                "Never use it as an efficiency target. It is one of the few metrics in this catalog that can be improved by actively harming the organisation's capability.",
+                "Define the denominator explicitly: engineers only, or the whole product organisation including design, product management and quality assurance. The two produce very different figures.",
+                "Compare only against your own history and only over multiple years. Period-to-period movement is dominated by hiring timing and revenue recognition.",
+                "If the question behind this metric is whether engineering investment is paying off, use Initiative Progress and ROI instead, which can actually be traced to decisions."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -1999,6 +3099,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "80% or more of dependency updates merged without manual intervention",
+            "telemetry_sources": [
+                "Dependabot",
+                "Renovate",
+                "Snyk",
+                "GitHub API"
+            ],
+            "recipe_steps": [
+                "Measure this from pull request data rather than by survey. The catalog describes a survey-based method, but automatically merged bot pull requests divided by total bot pull requests is cheaper, continuous and more reliable. State which method you used.",
+                "Require passing CI before any automatic merge. Automation without a gate converts a toil problem into a reliability problem.",
+                "Separate patch and minor updates, which are generally safe to automate, from major version bumps, which should not be. Reporting them together hides whether the automation is actually safe.",
+                "Track the age of your oldest outdated dependency as a companion figure. A high automation rate is compatible with a handful of ancient, pinned dependencies nobody dares touch.",
+                "Review which updates consistently fail automation. The recurring failures identify the fragile parts of your test suite more reliably than most quality metrics."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2021,6 +3139,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "4.0 or higher on a 5-point scale for each tool individually",
+            "telemetry_sources": [
+                "Google Forms",
+                "Slack Polly",
+                "DX",
+                "In-tool feedback widgets"
+            ],
+            "recipe_steps": [
+                "Ask about each tool separately rather than about tooling in general. An overall score averages away the one tool everybody dislikes, which is the only actionable finding in the data.",
+                "Keep the list to five to eight tools. Longer lists lower the response rate and produce ratings from people who barely use half of them.",
+                "Include a direct question on whether the respondent would keep the tool. It is more decisive than a satisfaction rating and maps onto an actual decision.",
+                "Keep it distinct from Developer Satisfaction, which covers the development experience as a whole. This metric is specifically about individual tools.",
+                "Feed the results into renewal and procurement decisions. That is the action this metric exists to support, and without it the survey is just a complaint channel."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2043,6 +3179,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No target for the umbrella. Set targets on the underlying measures instead",
+            "telemetry_sources": [
+                "Existing cycle time measures",
+                "Developer survey",
+                "CI/CD pipeline metrics"
+            ],
+            "recipe_steps": [
+                "Recognise this as an umbrella over measures you may already track. If you collect Cycle Time, Change Lead Time or Pull Request Cycle Time, you are already measuring most of what this covers.",
+                "Adopt it only if you specifically want a paired view: one objective duration measure and one perceived speed measure, read together.",
+                "Pair exactly one quantitative measure with one survey question rather than assembling several of each. The value is in the comparison, not in coverage.",
+                "Treat the gap between measured and perceived speed as the finding. Where the data says fast and developers say slow, the friction is usually in waiting rather than in working.",
+                "Do not report this as a single composite number. Combining durations and survey responses into one score produces a figure that cannot be interpreted or acted on."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2065,6 +3218,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Per sprint",
+            "target_goal": "Predictability, not growth. A stable velocity with a narrow range is the goal",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "Azure DevOps"
+            ],
+            "recipe_steps": [
+                "Use this for forecasting only. Velocity was designed to help a team predict what it can take on, and it does that job well and almost no other job at all.",
+                "Never compare velocity between teams. Story points are calibrated within a team by construction, and cross-team comparison is meaningless regardless of how the points were agreed.",
+                "Never set velocity as a target. Points inflate immediately and silently once anyone is measured on them, and the estimation signal is then lost permanently.",
+                "Report a rolling three-sprint average with the range rather than a single sprint figure. The range is what tells you whether the forecast is trustworthy.",
+                "If you find velocity being used in performance discussions, retire it. A compromised estimation scale is worse than no velocity measure, because planning silently degrades."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2087,6 +3257,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "99.9% for user-facing services, which allows roughly 43 minutes of downtime per month. Set per service",
+            "telemetry_sources": [
+                "Pingdom",
+                "UptimeRobot",
+                "Datadog Synthetics",
+                "Cloud load balancer health metrics"
+            ],
+            "recipe_steps": [
+                "Measure availability from outside your infrastructure using synthetic checks. Internal health checks routinely report a service as up while users cannot reach it.",
+                "Set targets per service rather than one organisation-wide figure. An internal admin tool and a customer-facing API do not warrant the same target or the same cost.",
+                "Express the result as error budget consumed rather than as a percentage. Saying nineteen of your forty-three allowed minutes are gone prompts a decision; saying 99.96% does not.",
+                "Decide explicitly whether planned maintenance is excluded, and make it match whatever your customer agreements say. Excluding it internally while counting it externally produces uncomfortable surprises.",
+                "Translate the target into minutes when communicating it. Most people cannot intuitively convert 99.9% into downtime, and the minutes make the trade-off concrete."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2109,6 +3297,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Semi-annually, and whenever the technical roadmap changes materially",
+            "target_goal": "No critical capability dependent on a single person",
+            "telemetry_sources": [
+                "Skills matrix",
+                "Self-assessment",
+                "Manager calibration"
+            ],
+            "recipe_steps": [
+                "Build the matrix from the capabilities your roadmap actually requires over the next year, not from a generic industry skills list. A generic list produces gaps nobody needs to close.",
+                "Combine self-assessment with manager calibration. Self-assessment alone is unreliable in both directions and calibration alone misses capability people have but do not use.",
+                "Look for coverage gaps and single points of failure rather than computing an average score. One person holding a critical capability is the finding worth acting on.",
+                "Never use this for individual performance assessment. The moment it affects reviews, self-assessments become strategic and the matrix stops describing reality.",
+                "Refresh it when the roadmap changes rather than on a fixed calendar. Skills requirements move with technical direction, not with the financial year."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2131,6 +3336,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Set locally against identified capability gaps. A volume target produces activity rather than capability",
+            "telemetry_sources": [
+                "Learning management system",
+                "Certification records",
+                "Internal training attendance"
+            ],
+            "recipe_steps": [
+                "Pair this with Talent Capability Score. Counting courses measures activity, and only the capability picture tells you whether the activity closed anything.",
+                "Count completion rather than enrolment. Enrolment numbers are easy to grow and tell you nothing about whether learning happened.",
+                "Include informal learning such as pairing, internal talks and documented self-study. Measuring only purchasable training will quietly bias investment towards vendors.",
+                "Relate each activity to an identified gap. Training unconnected to a known gap may still be worthwhile, but it should not count towards closing one.",
+                "Watch for the metric becoming a compliance exercise. A rising completion rate with a static capability picture means people are clicking through courses, and the metric should then be retired or redesigned."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2193,6 +3415,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Set locally. Report the underlying signals rather than targeting a combined score",
+            "telemetry_sources": [
+                "GitHub review graph",
+                "Team survey",
+                "Slack or Teams analytics"
+            ],
+            "recipe_steps": [
+                "Pick two or three signals you already collect, such as review turnaround, cross-team contribution and documentation practice, and add one survey item. Do not introduce new collection for this metric.",
+                "Report the signals side by side rather than combining them into a single effectiveness score. A composite here averages away the one thing that is going wrong.",
+                "If you use communication platform data, check your legal position first. In much of Europe this requires works council consultation or a documented lawful basis.",
+                "Look for structural patterns rather than levels: teams that never contribute to each other, or one person through whom all cross-team work flows.",
+                "Act on the structure through reviewer rotation, shared ownership or deliberate pairing. The survey item tells you whether the structural change was felt."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2215,6 +3454,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 5%, which corresponds to the conventional A rating in most analysis tools",
+            "telemetry_sources": [
+                "SonarQube",
+                "Code Climate",
+                "CodeScene"
+            ],
+            "recipe_steps": [
+                "Understand what the tool is calculating before reporting it. The ratio is estimated remediation effort divided by estimated development effort, both derived from rule violations and assumed minutes per fix. It is a model, not a measurement.",
+                "Do not compare the absolute value across tools or across languages. Different rule sets and different remediation assumptions produce different ratios for identical code.",
+                "Track the trend rather than the absolute figure. Direction is meaningful even though the level is tool-dependent.",
+                "Exclude generated code, migrations and vendored dependencies, which can dominate the estimate without representing debt anyone will ever pay down.",
+                "Read it alongside change frequency. Debt in code nobody touches costs nothing; debt in your most-modified files is what actually slows delivery."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2237,6 +3493,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Per pull request, with a weekly trend review",
+            "target_goal": "No decrease from the current baseline. Avoid an absolute percentage target",
+            "telemetry_sources": [
+                "Codecov",
+                "SonarQube",
+                "JaCoCo",
+                "pytest-cov"
+            ],
+            "recipe_steps": [
+                "State which coverage type you mean: line, branch or statement. They differ substantially, and branch coverage is considerably more informative than line coverage for the same effort.",
+                "Check whether this duplicates Line Coverage in your catalog. If you already track that one, this metric only adds value when you upgrade to branch coverage.",
+                "Measure coverage on changed lines rather than across the whole codebase. Diff coverage is actionable at review time; total coverage moves too slowly to inform anything.",
+                "Set a ratchet rather than a target. An absolute percentage reliably produces tests that execute code without asserting anything about it.",
+                "Never mandate a coverage figure for individuals or teams. This is among the most reliably gamed metrics available and the gaming is difficult to spot in review."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2259,6 +3533,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Local unit suite under 60 seconds; full suite under 10 minutes in the pipeline",
+            "telemetry_sources": [
+                "Test framework timing output",
+                "pytest --durations",
+                "Gradle Develocity",
+                "CI job duration"
+            ],
+            "recipe_steps": [
+                "Measure the suite developers actually run before pushing separately from the full pipeline suite. They have different acceptable durations and different fixes.",
+                "Report the ten slowest tests rather than the total. Test time is heavily concentrated, and a handful of tests usually account for most of the wall clock.",
+                "Treat roughly two minutes as the practical ceiling for the local suite. Beyond that developers stop running it before pushing, and the fast feedback loop is lost regardless of what the metric says.",
+                "Separate slow integration tests into their own suite so the fast loop stays fast, and run the slow suite in the pipeline only.",
+                "Shard or parallelise before optimising individual tests. Parallelisation usually buys more time for less effort than rewriting assertions."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2281,6 +3573,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "40% or more of elapsed time spent in value-added states",
+            "telemetry_sources": [
+                "Jira workflow transitions",
+                "GitHub API",
+                "Value stream mapping workshop"
+            ],
+            "recipe_steps": [
+                "Classify every workflow state as either active work or waiting, and publish the classification. Ambiguous states such as in review need an explicit decision.",
+                "Derive the split from status transition timestamps rather than asking people to estimate. The tracker already holds the data.",
+                "Expect waiting to dominate, typically between 60 and 80% of elapsed time. A low value-added share is normal and is the point of measuring it.",
+                "Attack the single largest queue rather than trying to speed up active work. Active work is rarely where the time goes.",
+                "Treat this as the diagnostic behind Cycle Time. Cycle time tells you delivery is slow; this metric tells you where the time is actually sitting."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2303,6 +3612,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "10 to 15% of development time spent reviewing",
+            "telemetry_sources": [
+                "Quarterly self-report survey",
+                "WakaTime",
+                "GitHub API review session timestamps"
+            ],
+            "recipe_steps": [
+                "Keep this distinct from Code Reviewer Response Time, which measures how long an author waits. This metric measures reviewer effort, and the two can move in opposite directions.",
+                "Prefer a periodic self-report estimate over instrumentation. Measuring true active review time requires IDE telemetry that is disproportionate for most teams.",
+                "If you approximate from first-to-last comment timestamps within a review, label the figure a proxy wherever it appears. It systematically understates reading time.",
+                "Report at team level only. Review effort attributed to individuals becomes a target and the quality of reviews falls as the counts rise.",
+                "Look at how the load is distributed rather than at the average. Review effort concentrating on two or three people is the common and actionable finding."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2325,6 +3651,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Set locally per feature class. A single target across all feature sizes is not meaningful",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "Product analytics",
+                "Release notes"
+            ],
+            "recipe_steps": [
+                "Define the start point explicitly: first idea, approved for build, or first commit. Teams routinely report one while believing they measure another, and the three differ by weeks.",
+                "Define the end point as availability to users rather than deployment. Where feature flags are used, these diverge substantially.",
+                "Segment by feature size or class. Mixing a two-day change with a quarter-long initiative produces a median that describes neither.",
+                "Break the elapsed time into discovery, build and release phases. The delay is frequently before any code is written, which no engineering metric will reveal.",
+                "Read it next to Release Frequency. A short time to market with infrequent releases means features wait in a queue rather than reaching users as they complete."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2347,6 +3691,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Per hire, reviewed quarterly",
+            "target_goal": "First pull request within 5 working days; tenth within 60 days",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "HRIS start dates"
+            ],
+            "recipe_steps": [
+                "Pick the values of N deliberately. The first pull request measures environment setup and access; the tenth measures genuine productive ramp-up. Both are useful and they measure different things.",
+                "Count from the official start date, including any delay in getting accounts and repository access. Excluding setup time hides the most fixable part of the problem.",
+                "Expect the first pull request to be trivial and treat that as intended. A documentation fix on day two is a healthy signal, not a gamed one.",
+                "Report per cohort rather than per individual. Individual ramp speed varies for legitimate reasons and is not a performance signal.",
+                "Read it alongside Experience of New Members. A fast ramp with a poor reported experience usually means the new hire was left to work it out alone."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2369,6 +3730,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "No target. Use Deployment Frequency, which measures the same events without a headcount denominator",
+            "telemetry_sources": [
+                "GitHub Actions",
+                "GitLab CI/CD",
+                "Argo CD"
+            ],
+            "recipe_steps": [
+                "Recognise that this is Deployment Frequency divided by headcount. The denominator adds no information and introduces sensitivity to team size and work splitting.",
+                "Never report it per named individual. Deployments per person is trivially increased by splitting changes, and the splitting makes review and rollback harder.",
+                "If you track Deployment Frequency already, treat this as a retirement candidate. Two views of the same events double the maintenance and the opportunity for misreading.",
+                "Where you do use it, report the team figure for capacity context only, and annotate it with team size changes.",
+                "Pair it with Change Failure Rate whenever it is shown, so a rising deployment count that is degrading stability cannot be read as improvement."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2391,6 +3769,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "No individual target. No reviewer carrying more than twice the team median",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "LinearB"
+            ],
+            "recipe_steps": [
+                "Report the distribution across the team rather than the average. Unlike most per-developer counts, the spread here is genuinely informative because review load should be shared.",
+                "Identify reviewers carrying a disproportionate share. Concentrated review load is a bus factor risk and a common cause of slow pickup times.",
+                "Never set a per-person review target. Counting reviews rewards fast approvals, which is precisely the behaviour that makes reviews worthless.",
+                "Read it alongside Quality of Code Reviews. A rising review count with falling perceived usefulness means people are rubber-stamping to hit the number.",
+                "Rebalance through a review rota or explicit ownership rather than by asking the overloaded person to delegate. They are usually overloaded because they are the only one who knows the area."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2413,6 +3808,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. Counting documents measures activity rather than design quality",
+            "telemetry_sources": [
+                "Confluence",
+                "Notion",
+                "Architecture decision record repository",
+                "Google Docs"
+            ],
+            "recipe_steps": [
+                "Be clear about what this counts. A number of documents says nothing about whether designs were considered, discussed or followed.",
+                "Do not mandate a rate. A required documents-per-engineer figure produces perfunctory documents written to satisfy the count, which is worse than no documents.",
+                "If the underlying question is whether significant changes have a recorded design decision, measure coverage of significant changes instead. The Design metric in this catalog covers that.",
+                "Report at team level only, and only as context for a conversation about design practice.",
+                "Treat it as a retirement candidate once a coverage-based measure exists. It is an output count standing in for a quality question."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2476,6 +3889,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Under 15% of developer time lost to environmental obstacles",
+            "telemetry_sources": [
+                "Google Forms",
+                "DX",
+                "Culture Amp"
+            ],
+            "recipe_steps": [
+                "Ask for hours lost in the past week against a fixed list of obstacle categories: unclear requirements, waiting on others, meetings, context switching, tooling and technical debt.",
+                "Anchor to the past week rather than a typical week. Typical-week estimates drift towards what people believe the answer should be.",
+                "Convert the result into cost using a standard internal rate. Making the loss legible in financial terms is this metric's stated purpose and the reason it reaches business stakeholders.",
+                "Report by obstacle category. The categories are the action list; the total is only what gets the conversation started.",
+                "Present the figure as a range rather than a point estimate. Self-reported time loss is approximate, and a precise-looking number will be challenged on exactly that basis."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2498,6 +3928,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Median under 5 working days for non-critical defects; per-severity targets for the rest",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "Zendesk",
+                "GitHub Issues"
+            ],
+            "recipe_steps": [
+                "Decide whether the clock starts at report or at triage, and state which. Triage start is fairer to the team; report start is what the customer experiences. Both are defensible, mixing them is not.",
+                "Segment by severity and report each separately. A median across all severities is dominated by low-priority items that sit for months by design.",
+                "Report the median rather than the mean. A handful of long-running defects will distort any average.",
+                "Measure time spent in each state to find whether the delay is in triage, in fixing or in waiting for release. The remedies are completely different.",
+                "Exclude defects closed as will-not-fix or duplicate, which otherwise either inflate or deflate the figure depending on how quickly they are dismissed."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2520,6 +3968,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No individual target. Watch for sustained concentration on one or two people",
+            "telemetry_sources": [
+                "GitHub API",
+                "Jira",
+                "Linear"
+            ],
+            "recipe_steps": [
+                "Note that the catalog definition compares a developer against the rest of the team, which makes it a performance metric by construction. Decide deliberately whether you want that before adopting it.",
+                "If the question is whether defect work is fairly distributed, measure the distribution across the team without naming individuals. That answers the useful version of the question.",
+                "Treat sustained concentration on one person as an ownership and knowledge risk rather than a performance observation. It usually means only one person understands that area.",
+                "Never use this in performance review. A developer who takes on unglamorous defect work will be penalised by any interpretation that favours feature commits.",
+                "Consider Percentage of Time Spent on New Capabilities instead, which answers the same underlying question at team level without comparing individuals."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2542,6 +4007,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "4.0 or higher on a 5-point scale for whether a clear path for progression exists",
+            "telemetry_sources": [
+                "Culture Amp",
+                "Lattice",
+                "Google Forms",
+                "Exit interview records"
+            ],
+            "recipe_steps": [
+                "Ask two separate questions: whether a path for progression exists and is understood, and whether the respondent believes they can realistically follow it. Clarity and credibility fail independently.",
+                "Segment by tenure and level. Progression concerns concentrate sharply at particular career points and the aggregate will hide them.",
+                "Read it alongside Regrettable Attrition Rate. Lack of progression is among the most common reasons strong engineers leave, and this is the leading indicator for it.",
+                "Review exit interview themes against the survey. Where departing people cite progression and current staff rate it highly, the survey is not being answered candidly.",
+                "Act by publishing the progression framework and worked examples. Perceived opportunity responds far more to visible criteria than to statements of intent."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2564,6 +4047,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No new function exceeding a cyclomatic complexity of 10 to 15",
+            "telemetry_sources": [
+                "SonarQube",
+                "Lizard",
+                "radon",
+                "CodeScene"
+            ],
+            "recipe_steps": [
+                "Narrow to one measure before collecting. Cyclomatic complexity per function is the usual choice; cognitive complexity is a reasonable alternative. Measuring several at once produces noise.",
+                "Gate new and changed code rather than the whole codebase. A legacy function with a complexity of 60 that nobody touches is not costing you anything this quarter.",
+                "Combine complexity with change frequency. Code that is both complex and frequently modified is where the cost actually falls, and that intersection is a short list.",
+                "Target the outliers rather than the average. An average complexity figure is stable, uninformative and cannot be acted on.",
+                "Treat a rising complexity trend in your most-changed files as the signal to schedule refactoring, and connect it to Technical Debt Ratio rather than tracking both independently."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2586,6 +4087,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No target. Function point analysis is rarely justified outside fixed-price contracting",
+            "telemetry_sources": [
+                "IFPUG or COSMIC function point count",
+                "Finance reporting",
+                "Time tracking"
+            ],
+            "recipe_steps": [
+                "Establish whether you need function points at all. Counting them properly requires trained assessors and meaningful effort, and the practice has largely been abandoned outside regulated and fixed-price contexts.",
+                "If you adopt it, choose one standard, either IFPUG or COSMIC, and apply it consistently. Counts from different standards are not comparable and the difference is large.",
+                "Take the cost side from finance rather than estimating it in engineering. A locally invented cost basis will not survive comparison with the official figures.",
+                "Do not benchmark against published industry figures unless you know which counting standard produced them. Most published cost-per-function-point data is unusable for this reason.",
+                "If what you actually need is cost per unit of delivery, define a cheaper local proxy, name it clearly as a proxy, and avoid the function point apparatus entirely."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2608,6 +4126,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Under 5% of test cases failing per run, excluding flakes",
+            "telemetry_sources": [
+                "CI provider test reports",
+                "Datadog CI Visibility",
+                "JUnit XML output",
+                "pytest reports"
+            ],
+            "recipe_steps": [
+                "Separate genuine failures from flaky ones before reporting anything. Without that split this metric simply restates CI Determinism from the other direction.",
+                "Keep it distinct from CI Pipeline Failure Rate, which counts whole pipeline runs. This metric counts individual test cases and the two move independently.",
+                "Report per suite rather than across the whole test estate. One unstable integration suite will dominate an aggregate and mask everything else.",
+                "Investigate a persistently very low failure rate as well as a high one. Tests that never fail may be asserting too little to catch anything.",
+                "List the top failing tests each week. Failures concentrate on a small number of tests, and fixing those few resolves most of the noise."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2670,6 +4206,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. This measures use rather than benefit",
+            "telemetry_sources": [
+                "GitHub Copilot metrics API",
+                "Pull request template checkbox",
+                "Commit trailer convention"
+            ],
+            "recipe_steps": [
+                "Decide how AI assistance is recorded before measuring. A pull request template checkbox or a commit trailer is the only practical method, and both depend on self-declaration.",
+                "Expect self-declaration to be unreliable, and to decline as soon as people suspect the data informs any judgement about them. State clearly that it does not.",
+                "Set no target. A higher proportion of AI-assisted pull requests is not self-evidently better, and targeting it produces declaration rather than adoption.",
+                "The useful analysis is comparative: do AI-assisted pull requests differ from others in size, review time, post-submission editing or change failure rate.",
+                "Report at team level. Individual AI usage rates have no legitimate management use and collecting them damages the honesty of the declaration."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2692,6 +4245,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. A higher share is neither good nor bad on its own",
+            "telemetry_sources": [
+                "GitHub Copilot metrics API",
+                "Cursor admin dashboard",
+                "git blame with authorship conventions"
+            ],
+            "recipe_steps": [
+                "Distinguish code accepted at suggestion time from code still present later. These differ substantially once developers edit what they accepted, and vendors report the first.",
+                "Treat vendor-reported percentages as acceptance data rather than authorship data. They answer a different question from the one this metric asks.",
+                "If you want a defensible figure, measure survival: the share of AI-originated lines still present after 30 days. It is harder to collect and much more meaningful.",
+                "Set no target in either direction. A high share may indicate leverage or it may indicate unreviewed generated code, and the number alone cannot distinguish them.",
+                "Never report this per developer. It is among the easiest metrics in the catalog to game and among the least informative about contribution."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2714,6 +4284,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "No target. Typical inline completion acceptance sits around 25 to 35%, but the figure varies by language and task",
+            "telemetry_sources": [
+                "GitHub Copilot metrics API",
+                "Cursor admin dashboard",
+                "JetBrains AI usage reports"
+            ],
+            "recipe_steps": [
+                "Understand that acceptance is not value. A suggestion accepted and then substantially rewritten counts as accepted, and a rejected suggestion may still have saved thinking time.",
+                "Track retention alongside acceptance where the tooling allows: how much accepted code survives to merge. The gap between the two is the interesting figure.",
+                "Segment by suggestion type. Inline completion, chat-generated blocks and agent edits have very different acceptance profiles and averaging them hides all three.",
+                "Treat an unusually high acceptance rate as a warning rather than a success. It can indicate uncritical acceptance, which shows up later as review burden and defects.",
+                "Report at team level only, and pair with a quality measure such as change failure rate so acceptance cannot be read as benefit on its own."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2736,6 +4323,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "Identify three to five people whose practice is worth spreading. This is not a score",
+            "telemetry_sources": [
+                "GitHub Copilot usage data",
+                "Developer survey",
+                "Internal community channel"
+            ],
+            "recipe_steps": [
+                "Treat this as an identification exercise rather than a measurement. The output is a short list of people, not a number on a dashboard.",
+                "Use usage data to shortlist, then confirm by conversation. High usage alone identifies enthusiasts, not necessarily people with transferable practice.",
+                "Ask the people you identify to run a short internal session or write up their workflow. Knowledge transfer is the stated purpose of this metric and it does not happen automatically.",
+                "Never publish a usage ranking. It converts a knowledge-sharing exercise into a leaderboard and changes behaviour in ways that make the data useless.",
+                "Watch for the metric becoming adoption pressure. Developers whose work genuinely benefits less from AI should not appear as a problem to be fixed."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2758,6 +4362,24 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 10% of purchased licences showing no activity in the past 30 days",
+            "telemetry_sources": [
+                "GitHub Copilot admin",
+                "Cursor admin dashboard",
+                "SSO sign-in logs",
+                "Vendor billing"
+            ],
+            "recipe_steps": [
+                "Define unused explicitly, for example no recorded activity in 30 days, and apply the same definition each month.",
+                "Ask why before reclaiming. Non-use frequently means the tool does not fit that person's work, which is a more useful finding than the licence saving.",
+                "Reassign rather than cancel where there is a waiting list. Reallocation is faster than procurement and the cost is already sunk for the term.",
+                "Review in the month before renewal rather than continuously. Licence counts are usually only adjustable at renewal, so measuring more often produces no decision.",
+                "Keep this separate from adoption metrics. An unused licence is a cost question; low adoption is a fit or enablement question, and conflating them leads to the wrong remedy."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2780,6 +4402,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Set against budget. Track cost per active user rather than the total",
+            "telemetry_sources": [
+                "Vendor billing",
+                "Cloud AI service billing",
+                "Finance reporting"
+            ],
+            "recipe_steps": [
+                "Include all three components: seat licences, API or token consumption, and any dedicated infrastructure. Token spend is frequently missed and is the part that grows unpredictably.",
+                "Report cost per active user alongside the total. The total rises with headcount and tells you nothing about whether spending is efficient.",
+                "Attribute spend to teams where the billing allows it. Unattributed AI spend becomes a central line item nobody owns and nobody questions.",
+                "Watch token-based costs specifically. They scale with usage rather than with seats, and an agent workflow can change the bill by an order of magnitude without any procurement decision.",
+                "Always report this next to a value or adoption measure. Spend reported alone invites either indiscriminate cutting or unchecked growth, depending on who reads it."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2802,6 +4441,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Set per feature. Measure engagement with shipped AI features, not the number shipped",
+            "telemetry_sources": [
+                "Amplitude",
+                "Mixpanel",
+                "PostHog",
+                "Product analytics"
+            ],
+            "recipe_steps": [
+                "Be clear that this measures AI capability in your product, used by your customers, and not AI tooling used by your developers. The two are routinely confused because the names are similar.",
+                "Measure the share of active users engaging with each AI feature, defined per feature. An aggregate across several features hides the ones nobody uses.",
+                "Count usage rather than availability. Shipping an AI feature is not adoption, and the gap between the two is often very large.",
+                "Pair with retention and satisfaction for the users who engage. Adoption without retention usually indicates novelty rather than value.",
+                "Review features with low adoption after a fair exposure period and decide explicitly whether to improve, reposition or remove them."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2824,6 +4481,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No target. Report as a range and treat as directional",
+            "telemetry_sources": [
+                "Google Forms",
+                "DX",
+                "Culture Amp"
+            ],
+            "recipe_steps": [
+                "Ask for hours saved in the past week on specific named task types rather than in general. Open-ended savings questions produce large, unverifiable numbers.",
+                "Bound the question. Offering ranges rather than a free-text hour count reduces the inflation that self-reported savings reliably produce.",
+                "Report as a range and label it self-reported wherever it appears. A precise-looking figure will be challenged on exactly that basis, and correctly so.",
+                "Do not convert this into headcount equivalents or cost savings for anyone outside engineering without stating the method and its weakness. This conversion is where AI savings claims usually fail scrutiny.",
+                "Validate against an objective measure for the same task type, such as cycle time. Where reported savings are large and measured delivery is unchanged, that gap is the finding worth discussing."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2846,6 +4520,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "At deploy time, reviewed monthly",
+            "target_goal": "4.0 or higher on a 5-point scale",
+            "telemetry_sources": [
+                "Post-deploy micro-survey in the pipeline",
+                "Slack prompt",
+                "Google Forms",
+                "DX"
+            ],
+            "recipe_steps": [
+                "Ask at deploy time, with a single question, triggered from the pipeline or a chat prompt. Asking quarterly loses the connection to a specific change and the answers become general sentiment.",
+                "Keep it to one question answerable in a few seconds. Anything longer will be skipped and the response rate determines whether this metric is usable.",
+                "Read it against Change Failure Rate. The informative cases are high confidence followed by failure, which reveals a blind spot, and low confidence followed by success, which reveals unnecessary caution.",
+                "Segment by service. Confidence varies far more between parts of a system than between developers.",
+                "Treat consistently low confidence as a signal about test coverage, observability or rollback capability rather than about the people deploying."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2868,6 +4560,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No numeric target. The list of frictions is the output",
+            "telemetry_sources": [
+                "Google Forms",
+                "DX",
+                "Culture Amp",
+                "Slack Polly"
+            ],
+            "recipe_steps": [
+                "Keep the open text central. The rating tells you whether things are getting worse; the text tells you what to fix, and only the second is actionable.",
+                "Distinguish it from Time Loss, which quantifies hours lost. This metric captures what the obstacles are and how severe they feel, not how much time they cost.",
+                "Categorise responses rather than averaging a score. Ten people describing the same slow environment is a different finding from ten people describing ten different problems.",
+                "Fix the top three each quarter rather than trying to move the score. The score follows the fixes.",
+                "Report back publicly on what was fixed. Friction surveys that produce no visible change see their response rate collapse within two cycles, and the metric then becomes useless."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2890,6 +4600,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. This is adoption tracking in a fast-moving area",
+            "telemetry_sources": [
+                "Agent platform logs",
+                "GitHub API",
+                "Jira or Linear with an agent label"
+            ],
+            "recipe_steps": [
+                "Define what counts as a task assigned to an agent before collecting anything. The boundary between an autocomplete suggestion, a chat request and a delegated task is not obvious and teams will classify differently.",
+                "Measure completion and rework rates alongside the count. A task assigned to an agent and then redone by hand is worse than not assigning it, and a raw count cannot show that.",
+                "Track the human review time spent on agent output. Delegation that shifts effort from writing to reviewing may not be a saving, and this is where that shows up.",
+                "Set no target. The practice is changing quickly and a target set this quarter will be measuring the wrong thing by the next.",
+                "Plan to revise the definition within two quarters. Treat the first version as provisional and say so when reporting it."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2912,6 +4639,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Quarterly",
+            "target_goal": "No target. Interpret direction alongside Code Ownership rather than maximising",
+            "telemetry_sources": [
+                "Google Forms",
+                "DX",
+                "Developer survey"
+            ],
+            "recipe_steps": [
+                "Ask about specific observable behaviours, such as how often the respondent left their editor to search documentation or to ask a colleague, rather than for an abstract self-sufficiency rating.",
+                "Measure before and after introducing a tool where possible. Without a baseline this metric cannot distinguish a tool effect from the team simply becoming more experienced.",
+                "Name the downside explicitly when reporting. Reduced reliance on colleagues also means reduced incidental knowledge sharing, and that cost is invisible in this metric.",
+                "Read it alongside Code Ownership. Rising self-sufficiency with falling ownership is the pattern that indicates people are shipping code they understand less well.",
+                "Do not treat an increase as automatically positive. The useful question is whether people are unblocked faster, not whether they ask fewer questions."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2934,6 +4678,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Quarterly, with monthly sampling",
+            "target_goal": "4.0 or higher on a 5-point scale for whether authors can explain and modify their own merged changes",
+            "telemetry_sources": [
+                "Author survey",
+                "Sampled review against a rubric",
+                "GitHub API"
+            ],
+            "recipe_steps": [
+                "Ask authors whether they could explain and safely modify their own merged change a month later. That question gets at understanding far better than asking whether they used AI.",
+                "Sample rather than surveying every change. Ten sampled changes a month gives a usable signal at a fraction of the effort.",
+                "Read a falling score alongside rising AI usage as the clearest available indicator of accumulating cognitive debt in the codebase.",
+                "Pair it with review depth. Code nobody fully understands tends to attract shallow reviews, which compounds the problem rather than catching it.",
+                "Act through an explicit team agreement on authorship: the author owns the change, must understand it before requesting review, and flags the risk level. This is more effective than any amount of measurement."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2956,6 +4717,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "4.0 or higher on a 5-point scale from reviewers",
+            "telemetry_sources": [
+                "Post-review micro-survey",
+                "Google Forms",
+                "GitHub API"
+            ],
+            "recipe_steps": [
+                "Ask the reviewer immediately after review with a single question. Retrospective quarterly answers measure the worst recent experience rather than the typical one.",
+                "Distinguish it from Quality of Code Reviews, which asks authors whether the review helped them. This metric asks reviewers how hard the review was to perform.",
+                "Read it alongside Pull Request Size and Post-Submission Edit Ratio. Both predict review difficulty, and both are easier to change than reviewer stamina.",
+                "Look at the change description as a cause. Reviews are frequently hard because the author did not explain the intent, which is cheap to fix and rarely measured.",
+                "Act by changing how work is prepared and split rather than by asking reviewers to try harder. Reviewer effort is not the variable under your control."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -2978,6 +4756,22 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Annually",
+            "target_goal": "Improvement against your own previous assessment. Peer benchmarking requires the vendor's dataset",
+            "telemetry_sources": [
+                "DX platform",
+                "Internal multi-dimension survey"
+            ],
+            "recipe_steps": [
+                "Be clear which instrument you are running. The Developer Experience Index is a proprietary composite from DX built on fourteen dimensions, and its benchmarking value comes from their dataset rather than from the questions alone.",
+                "Do not call a self-built survey a DXI. If you build internally, choose four or five dimensions relevant to your context and name the result something else.",
+                "Run it annually. The dimensions move slowly and a shorter cadence produces survey fatigue without new information.",
+                "Use the dimension-level results rather than the headline index. The index exists to make the result communicable upward; the dimensions are what anyone can act on.",
+                "Treat any claimed link between the index and financial impact with care when reporting outside engineering. The relationship is modelled rather than measured in your own organisation."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3000,6 +4794,23 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. Use it to direct review attention rather than to gate changes",
+            "telemetry_sources": [
+                "Historical incident and change data",
+                "CodeScene",
+                "Custom heuristic scoring"
+            ],
+            "recipe_steps": [
+                "Check whether you have the data before attempting this. Predicting incident likelihood from change characteristics needs a labelled history of changes and the incidents they caused, and most small organisations do not have enough incidents to support it.",
+                "Start with simple heuristics rather than a model: change size, number of files touched, test coverage of the changed lines, and how familiar the author is with that area. These capture most of the available signal.",
+                "Use the score to route review attention towards riskier changes, not to block them. A gate will be worked around and will slow everything.",
+                "Validate against actual incidents for at least a quarter before anyone relies on it. An unvalidated risk score is a source of false confidence.",
+                "Recalculate the heuristics periodically. What predicts incidents changes as the architecture and the team change."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3022,6 +4833,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "No target. A low share is not a problem in itself",
+            "telemetry_sources": [
+                "WakaTime",
+                "IDE telemetry",
+                "Gradle Develocity"
+            ],
+            "recipe_steps": [
+                "Check whether IDE telemetry is proportionate for your team and legally permissible before collecting it. In much of Europe this requires consultation and a documented basis, and the data is intrusive by nature.",
+                "Report at team level only, and say so in advance. Individual coding-time data has no legitimate management use and its collection will change behaviour.",
+                "Resist reading a low coding share as a problem. Review, design, collaboration and investigation are also the work, and a developer coding most of the day may simply be the only one doing none of it.",
+                "Focus on the composition of the non-coding time rather than on the coding percentage. That is where the actionable finding is.",
+                "Read it alongside Focus Time. Coding time fragmented into ten-minute slices is a different situation from the same total in two long blocks."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3044,6 +4872,24 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 10% of deployments being unplanned incident responses",
+            "telemetry_sources": [
+                "Argo CD",
+                "GitHub Actions",
+                "PagerDuty",
+                "Deployment logs with a hotfix tag"
+            ],
+            "recipe_steps": [
+                "Tag unplanned deployments at deploy time with the incident they respond to. Reconstructing this afterwards from commit messages is unreliable.",
+                "Keep it distinct from Change Failure Rate. That metric counts deployments that cause failures; this one counts the additional deployments needed to recover from them.",
+                "Compare the two directly. A high rework rate with a low change failure rate means your failures take several attempts to fix, which points at observability rather than at code quality.",
+                "Count each recovery attempt separately rather than counting one incident once. The number of attempts is the information this metric adds.",
+                "Read it with Failed Deployment Recovery Time. Together they distinguish slow recoveries from repeated unsuccessful ones, which have different remedies."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3066,6 +4912,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Weekly",
+            "target_goal": "Median under 2 business hours from ready-for-review to first review action",
+            "telemetry_sources": [
+                "GitHub API",
+                "GitLab API",
+                "LinearB",
+                "Swarmia"
+            ],
+            "recipe_steps": [
+                "Define the start as the move from draft to ready-for-review, not pull request creation. Drafts can sit intentionally for days and will distort the figure.",
+                "Count the first non-author review action, excluding bot comments and automated checks, which otherwise make pickup look instantaneous.",
+                "Use business hours and handle time zones explicitly. Wall clock turns every Friday evening pull request into an apparent two-day wait.",
+                "Expect this to be the largest single component of Pull Request Cycle Time in most teams. It is also typically the cheapest to improve.",
+                "Fix it with a review rota or an agreed limit on open reviews per person rather than by publishing the number. Visibility alone rarely changes pickup behaviour."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3088,6 +4952,23 @@
         "prerequisites": {
             "tech_level": "Low",
             "team_intrusion": "Active Collaboration"
+        },
+        "implementation": {
+            "cadence": "Per iteration",
+            "target_goal": "80 to 90% of committed work completed. Consistent 100% indicates under-commitment",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "Azure DevOps"
+            ],
+            "recipe_steps": [
+                "Check whether this duplicates Task Completion Rate in your catalog. The two definitions are close enough that tracking both is usually unnecessary.",
+                "Snapshot the committed scope at iteration start. Without a snapshot, work added mid-iteration silently changes the denominator and the ratio becomes meaningless.",
+                "Record scope added after the snapshot separately rather than folding it in. That figure is what Capacity accuracy uses.",
+                "Treat consistent 100% completion as a warning. A team that always finishes everything it committed to is committing to less than it could.",
+                "Discuss the reasons for misses in the retrospective. The ratio only indicates whether to have the conversation; the reasons are what change anything."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3110,6 +4991,23 @@
         "prerequisites": {
             "tech_level": "High",
             "team_intrusion": "Passive Only"
+        },
+        "implementation": {
+            "cadence": "Per iteration",
+            "target_goal": "Close to 1.0 when read together with Planning accuracy",
+            "telemetry_sources": [
+                "Jira",
+                "Linear",
+                "Azure DevOps"
+            ],
+            "recipe_steps": [
+                "Use the same unit and the same snapshot as Planning accuracy. The two metrics are designed to be read as a pair and diverge meaninglessly if measured differently.",
+                "Interpret them together: low planning accuracy with a capacity ratio near or above one means unplanned work displaced the plan, while low values on both means the team over-committed.",
+                "Count unplanned work explicitly rather than inferring it. Items added mid-iteration need a marker at the time they are added.",
+                "Use the pair to argue for reserved capacity. A team consistently absorbing 30% unplanned work should plan for 70%, and this is the evidence for that conversation.",
+                "Do not target either ratio in isolation. Each can be improved by changing planning behaviour in ways that make the other worse."
+            ],
+            "provenance": "ai-generated"
         }
     },
     {
@@ -3132,6 +5030,24 @@
         "prerequisites": {
             "tech_level": "Partial",
             "team_intrusion": "Light Participation"
+        },
+        "implementation": {
+            "cadence": "Monthly",
+            "target_goal": "Under 20% of developer-days affected by friction events",
+            "telemetry_sources": [
+                "Build and CI logs",
+                "Incident management tooling",
+                "Calendar data",
+                "Version control activity"
+            ],
+            "recipe_steps": [
+                "Define the friction events explicitly and keep the list short: build failure, incident response, a long context switch, or blocked waiting. An open-ended list makes the metric unreproducible.",
+                "Set the threshold for what makes a day bad, for example two or more events, and keep it fixed. The threshold choice matters more than the underlying data.",
+                "Expect this to be the most demanding metric in the catalog to implement. It requires joining several telemetry sources that usually do not share identifiers.",
+                "Report at team level only. A per-developer count of bad days would be both intrusive and misleading, since exposure to incidents is rarely evenly distributed.",
+                "Act on the dominant event type rather than the overall percentage. The mix of events is the finding; the headline share only tells you whether to look."
+            ],
+            "provenance": "ai-generated"
         }
     }
 ]
