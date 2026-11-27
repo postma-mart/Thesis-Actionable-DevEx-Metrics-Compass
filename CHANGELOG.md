@@ -9,6 +9,7 @@
 - Hid assumed capacity budgets and capacity indicators from shortlist-only roadmaps.
 - Resolved Cardsort group labels for shortlist-only Ranking Results cards.
 - Resolved chart-selected shortlist metrics' Cardsort groups from the catalog by metric ID.
+- Added the Actionable Roadmap as a fourth welcome-screen step and clarified the preceding shortlist-review step.
 
 ## 2026-11-23 -- Added My Answers tab and fixed roadmap profiling inconsistencies
 

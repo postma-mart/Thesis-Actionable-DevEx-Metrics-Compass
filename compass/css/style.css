@@ -1681,7 +1681,7 @@ a {
     margin-bottom: 8px;
 }
 
-/* Welcome screen 3-step strip */
+/* Welcome screen step strip */
 .welcome-steps-strip {
     display: flex;
     align-items: flex-start;
@@ -1752,6 +1752,62 @@ a {
     color: #ccc;
     flex-shrink: 0;
     padding-top: 22px;
+}
+
+.welcome-steps-strip--four {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.welcome-steps-strip--four .welcome-step-item {
+    min-width: 0;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.welcome-step-item--new .welcome-step-name {
+    font-size: 15px;
+}
+
+.welcome-step-new {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: #e8e8ff;
+    color: #1B1AFF;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    padding: 2px 6px;
+}
+
+@media (max-width: 1300px) {
+    .welcome-steps-strip--four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .welcome-steps-strip--four .welcome-step-arrow {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .welcome-steps-strip--four {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .welcome-steps-strip--four .welcome-step-arrow {
+        display: block;
+        justify-self: center;
+        transform: rotate(90deg);
+        padding-top: 0;
+    }
 }
 
 /* Welcome CTA button */
