@@ -494,7 +494,7 @@ function buildTooltipContent(metricData, excludeId = null) {
             title: 'This recipe was drafted by a language model and checked by a human.'
         },
         'ai-generated': {
-            label: 'AI-generated, not yet reviewed',
+            label: 'AI-generated',
             title: 'This recipe was drafted by a language model and has not yet been checked by a human.'
         }
     };

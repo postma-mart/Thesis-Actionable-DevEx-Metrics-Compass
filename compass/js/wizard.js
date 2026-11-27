@@ -534,12 +534,23 @@ function getContextCardsortGroup(metric, parentById) {
     );
     if (explicitGroup) return explicitGroup;
 
-    let parent = parentById.get(String(metric.parent));
-    while (parent) {
-        if (String(parent.parent) === '9999') return parent.name;
-        parent = parentById.get(String(parent.parent));
-    }
-    return '';
+    const resolveParentGroup = sourceMetric => {
+        let parent = sourceMetric.parent != null
+            ? parentById.get(String(sourceMetric.parent))
+            : null;
+        while (parent) {
+            if (String(parent.parent) === '9999') return parent.name || '';
+            parent = parentById.get(String(parent.parent));
+        }
+        return '';
+    };
+
+    const group = resolveParentGroup(metric);
+    if (group) return group;
+    const catalogMetric = parentById.get(String(metric.id));
+    return catalogMetric && catalogMetric !== metric
+        ? resolveParentGroup(catalogMetric)
+        : '';
 }
 
 function isContextAiMetric(metric) {
@@ -833,6 +844,7 @@ function randomizeContextProfiling() {
 }
 
 function renderContextRanking() {
+    roadmapHasContextRanking = true;
     const rankedMetrics = rankContextMetrics();
     contextExcludedResults = getContextExcludedMetrics();
     contextRankingResults = rankedMetrics.map(item => ({

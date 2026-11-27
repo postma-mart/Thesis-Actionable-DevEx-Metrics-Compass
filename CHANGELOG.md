@@ -5,6 +5,10 @@
 - Added AI-generated Implementation Recipes to each metric for testing.
 - Preserved metrics with empty synonyms and limited row filtering to required fields in both Excel sheets.
 - Added per-row drop details and an implementation/provenance summary to parser output.
+- Clarified shortlist-only roadmap labels and intro copy, and hid uncomputed ranking scores and breakdowns when no context profile was completed.
+- Hid assumed capacity budgets and capacity indicators from shortlist-only roadmaps.
+- Resolved Cardsort group labels for shortlist-only Ranking Results cards.
+- Resolved chart-selected shortlist metrics' Cardsort groups from the catalog by metric ID.
 
 ## 2026-11-23 -- Added My Answers tab and fixed roadmap profiling inconsistencies
 

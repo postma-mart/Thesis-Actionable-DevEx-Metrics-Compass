@@ -11,11 +11,16 @@ const ROADMAP_BUDGETS = Object.freeze(
 );
 let roadmapState = null;
 let roadmapUnlocked = false;
+let roadmapHasContextRanking = false;
 let roadmapDragDropHandled = false;
 let roadmapBacklogFilters = { type: 'all', score: 'all', difficulty: 'all' };
 let roadmapActiveTab = 'backlog';
 let isRoadmapIntroActive = false;
 let isRoadmapProfilingActive = false;
+
+function hasRoadmapContextProfile() {
+    return roadmapHasContextRanking && hasCompletedContextProfile();
+}
 
 function addRoadmapOwner(value) {
     const owner = String(value || '').trim();
@@ -136,6 +141,7 @@ function reconcileRoadmapShortlist() {
 function resetRoadmapState() {
     roadmapState = null;
     roadmapUnlocked = false;
+    roadmapHasContextRanking = false;
     isRoadmapProfilingActive = false;
     roadmapActiveTab = 'backlog';
     isRoadmapIntroActive = false;
@@ -180,11 +186,13 @@ function initializeRoadmap() {
 }
 
 function setShortlistRankingResults(metrics) {
+    roadmapHasContextRanking = false;
     contextExcludedResults = [];
+    const parentById = new Map(originalData.map(item => [String(item.id), item]));
     contextRankingResults = metrics.map((metric, index) => ({
         metric: { ...metric, roadmapScore: metric.roadmapScore ?? metric.value ?? 0 },
         breakdown: { goal: 0, friction: 0, type: 0, bandwidth: 0, consensus: 0 },
-        cardsortGroup: '',
+        cardsortGroup: getContextCardsortGroup(metric, parentById),
         ease: metric.ease_of_collection || '',
         collectionType: metric.type || '',
         shortlistRank: index + 1
@@ -215,6 +223,7 @@ function startRoadmapFromShortlist() {
 function renderRoadmapCard(metric, expectedType = null) {
     const difficulty = roadmapDifficulty(metric);
     const provenance = roadmapState.provenance[metric.id] === 'manual' ? 'Manually Added' : 'Suggested';
+    const hasContextProfile = hasRoadmapContextProfile();
     const benchmark = Array.isArray(window.mockCohortData) && window.mockCohortData.length > 0 &&
         typeof window.calculateBenchmark === 'function'
         ? calculateBenchmark(contextProfilingState.answers, metric.id, window.mockCohortData)
@@ -229,7 +238,7 @@ function renderRoadmapCard(metric, expectedType = null) {
             <div class="roadmap-card-heading">
                 <strong class="roadmap-card-name">${escapeContextHtml(metric.name || 'Unnamed metric')}</strong>
                 <div class="roadmap-card-metadata">
-                    <span class="roadmap-card-score" title="Recommendation Fit: ${fitScore}/100 match based on your profile">🎯 ${fitScore}</span>
+                    ${hasContextProfile ? `<span class="roadmap-card-score" title="Recommendation Fit: ${fitScore}/100 match based on your profile">🎯 ${fitScore}</span>` : ''}
                     <span class="roadmap-card-badge roadmap-card-badge--${difficulty.label.toLowerCase()}" title="Collection Difficulty: ${difficultyLabel} effort to collect and maintain">🛠️ ${difficultyLabel}</span>
                     ${benchmarkBadge}
                     <span class="roadmap-card-time" title="Estimated Setup Time: ${difficulty.estimate} hours">⏱️ ${difficulty.estimate}h</span>
@@ -341,9 +350,11 @@ function renderRoadmap() {
     const view = document.getElementById('roadmap-view');
     const panel = document.getElementById('roadmap-panel');
     if (!view || !panel || !roadmapState) return;
+    const hasContextProfile = hasRoadmapContextProfile();
+    const hasCompletedProfile = hasCompletedContextProfile();
     view.innerHTML = `
         <div class="roadmap-actions" aria-label="Roadmap actions">
-            <span class="roadmap-highlight">Wizard-generated plan</span>
+            <span class="roadmap-highlight">${hasContextProfile ? 'Wizard-generated plan' : 'Manual plan'}</span>
             <div class="roadmap-action-buttons">
                 <button class="next-step-btn next-step-btn--secondary roadmap-action-btn" id="roadmap-reset-btn" type="button">🔄 Reset Roadmap</button>
                 <button class="next-step-btn next-step-btn--secondary roadmap-action-btn" id="roadmap-restart-ranking" type="button">📝 Restart Wizard</button>
@@ -354,7 +365,9 @@ function renderRoadmap() {
             <div>
                 <p class="roadmap-kicker">DevEx Improvement Initiative</p>
                 <h1>90-Day Roadmap</h1>
-                <p class="roadmap-subtitle">Balance the highest-ranked qualitative and quantitative metrics across three phases.</p>
+                <p class="roadmap-subtitle">${hasContextProfile
+                    ? 'Balance the highest-ranked qualitative and quantitative metrics across three phases.'
+                    : 'Organize your shortlisted metrics across three phases.'}</p>
             </div>
         </div>
         <div class="roadmap-phases">
@@ -362,7 +375,7 @@ function renderRoadmap() {
                 <section class="roadmap-phase">
                     <header class="roadmap-phase-header">
                         <div><h2>${phase.label}</h2><span>${phase.days}</span></div>
-                        <strong>${roadmapState.budget} hours/month</strong>
+                        ${hasContextProfile ? `<strong>${roadmapState.budget} hours/month</strong>` : ''}
                     </header>
                             ${roadmapOwnerInput('roadmap-owner', phaseIndex, roadmapState.owners[phaseIndex], 'Phase Owner')}
                     <div class="roadmap-slot" data-roadmap-slot="${phaseIndex}:qualitative">
@@ -392,14 +405,19 @@ function renderRoadmap() {
         view.insertAdjacentHTML('beforeend', `
             <div class="roadmap-intro-backdrop" aria-hidden="true"></div>
             <section class="roadmap-intro-dialog overlay-content" role="dialog" aria-modal="true" aria-labelledby="roadmap-intro-title">
-                <h2 id="roadmap-intro-title">Your suggested roadmap is ready</h2>
+                <h2 id="roadmap-intro-title">${hasContextProfile ? 'Your suggested roadmap is ready' : 'Your shortlist plan is ready'}</h2>
                 <div class="roadmap-intro-copy">
-                    <p>On the right, you see the results of your context ranking.</p>
-                    <p>You can update your context and restart the wizard at any time using the button above the ranking.</p>
-                    <p>To edit your roadmap, you will drag and drop metrics from the Backlog tab.</p>
-                    <p>Keep an eye on the capacity bar—metrics require varying levels of effort, and each phase has a strict budget.</p>
+                    ${hasContextProfile ? `
+                        <p>On the right, you see the results of your context ranking.</p>
+                        <p>You can update your context and restart the wizard at any time using the button above the ranking.</p>
+                        <p>To edit your roadmap, you will drag and drop metrics from the Backlog tab.</p>
+                        <p>Keep an eye on the capacity bar—metrics require varying levels of effort, and each phase has a strict budget.</p>
+                    ` : `
+                        <p>Your shortlist is shown in the order you selected it; no context ranking was performed.</p>
+                        <p>To edit your roadmap, drag and drop metrics from the Backlog tab.</p>
+                    `}
                 </div>
-                <button class="overlay-action-button" id="reveal-roadmap-btn" type="button">Reveal Suggested Roadmap</button>
+                <button class="overlay-action-button" id="reveal-roadmap-btn" type="button">${hasContextProfile ? 'Reveal Suggested Roadmap' : 'Reveal Shortlist Plan'}</button>
             </section>
         `);
         view.querySelector('#reveal-roadmap-btn').addEventListener('click', revealSuggestedRoadmap);
@@ -408,14 +426,13 @@ function renderRoadmap() {
     const filteredBacklog = roadmapState.backlog.filter(roadmapBacklogMatches);
     const rankedMetrics = Array.isArray(contextRankingResults) ? contextRankingResults : [];
     const excludedMetrics = Array.isArray(contextExcludedResults) ? contextExcludedResults : [];
-    const hasContextProfile = hasCompletedContextProfile();
-    if (!hasContextProfile && roadmapActiveTab === 'answers') roadmapActiveTab = 'backlog';
+    if (!hasCompletedProfile && roadmapActiveTab === 'answers') roadmapActiveTab = 'backlog';
     panel.innerHTML = `
         <div class="welcome-provenance-tabs" role="tablist" aria-label="Roadmap metric lists">
             <span class="welcome-provenance-tab${roadmapActiveTab === 'backlog' ? ' active' : ''}" data-roadmap-tab="backlog" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'backlog'}">Backlog</span>
             <span class="welcome-provenance-sep">&bull;</span>
             <span class="welcome-provenance-tab${roadmapActiveTab === 'ranking' ? ' active' : ''}" data-roadmap-tab="ranking" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'ranking'}">Ranking Results</span>
-            ${hasContextProfile ? `
+            ${hasCompletedProfile ? `
                 <span class="welcome-provenance-sep">&bull;</span>
                 <span class="welcome-provenance-tab${roadmapActiveTab === 'answers' ? ' active' : ''}" data-roadmap-tab="answers" role="tab" tabindex="0" aria-selected="${roadmapActiveTab === 'answers'}">My Answers</span>
             ` : ''}
@@ -457,14 +474,16 @@ function renderRoadmap() {
         </div>
         <div class="roadmap-backlog${roadmapActiveTab === 'ranking' ? '' : ' hidden'}" data-roadmap-tab-panel="ranking">
             <div class="controls-title">Ranking Results</div>
-            <div class="filter-description">Results of the ranking process.</div>
-            <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers; ${excludedMetrics.length} excluded from recommendations.</p>
+            ${hasContextProfile ? `
+                <div class="filter-description">Results of the ranking process.</div>
+                <p class="filter-description">${rankedMetrics.length} eligible metrics ranked against your answers; ${excludedMetrics.length} excluded from recommendations.</p>
+            ` : '<p class="filter-description">Not ranked — showing your shortlist in the order you selected it.</p>'}
             <div class="context-ranking-list">
                 ${renderContextRankingCards(rankedMetrics)}
                 ${renderExcludedContextRankingCards(excludedMetrics, rankedMetrics.length)}
             </div>
         </div>
-        ${hasContextProfile ? `
+        ${hasCompletedProfile ? `
             <div class="roadmap-backlog${roadmapActiveTab === 'answers' ? '' : ' hidden'}" data-roadmap-tab-panel="answers">
                 <div class="controls-title">My Answers</div>
                 <div class="filter-description">Context profile answers used for your ranking.</div>
@@ -797,6 +816,7 @@ function renderRoadmapImplementationMetric(metric) {
 }
 
 function renderContextRankingCards(rankedMetrics) {
+    const hasContextProfile = hasRoadmapContextProfile();
     return rankedMetrics.map((item, index) => {
         const metric = item.metric;
         const difficulty = String(item.ease || '').toLowerCase();
@@ -820,15 +840,17 @@ function renderContextRankingCards(rankedMetrics) {
                 <div class="context-ranking-card-header">
                     <strong class="context-ranking-rank">#${index + 1}</strong>
                     <h3>${escapeContextHtml(metric.name || 'Unnamed metric')}</h3>
-                    <span class="context-ranking-score">${metric.roadmapScore}/100</span>
+                    ${hasContextProfile ? `<span class="context-ranking-score">${metric.roadmapScore}/100</span>` : ''}
                 </div>
-                <div class="context-ranking-chips">
-                    ${scoreChip('Goal', item.breakdown.goal, 35)}
-                    ${scoreChip('Friction', item.breakdown.friction, 30)}
-                    ${scoreChip('Type', item.breakdown.type, 15)}
-                    ${scoreChip('Bandwidth', item.breakdown.bandwidth, 10)}
-                    ${scoreChip('Consensus', item.breakdown.consensus, 10)}
-                </div>
+                ${hasContextProfile ? `
+                    <div class="context-ranking-chips">
+                        ${scoreChip('Goal', item.breakdown.goal, 35)}
+                        ${scoreChip('Friction', item.breakdown.friction, 30)}
+                        ${scoreChip('Type', item.breakdown.type, 15)}
+                        ${scoreChip('Bandwidth', item.breakdown.bandwidth, 10)}
+                        ${scoreChip('Consensus', item.breakdown.consensus, 10)}
+                    </div>
+                ` : ''}
                 <div class="context-ranking-metadata">
                     <span class="context-ranking-chip context-ranking-chip--neutral">${escapeContextHtml(item.cardsortGroup || 'Unknown group')}</span>
                     <span class="context-ranking-chip context-ranking-chip--difficulty context-ranking-chip--difficulty-${difficulty || 'unknown'}">🛠️ ${difficultyLabel}</span>
@@ -859,6 +881,7 @@ function renderExcludedContextRankingCards(excludedMetrics, rankedCount) {
 }
 
 function renderRoadmapStatistics() {
+    const hasContextProfile = hasRoadmapContextProfile();
     const slotted = roadmapState.placements.flatMap(Object.values).filter(Boolean);
     const used = slotted.reduce((total, metric) => total + roadmapDifficulty(metric).estimate, 0);
     const total = roadmapState.budget * ROADMAP_PHASES.length;
@@ -880,7 +903,7 @@ function renderRoadmapStatistics() {
             }
         });
     });
-    if (overflow) warnings.push(`Roadmap capacity exceeded by ${used - total}h. Consider moving metrics to another phase or reducing the scope.`);
+    if (hasContextProfile && overflow) warnings.push(`Roadmap capacity exceeded by ${used - total}h. Consider moving metrics to another phase or reducing the scope.`);
     const scaleMax = Math.max(total, used);
     let consumed = 0;
     const capacitySegments = slotted.map(metric => {
@@ -901,7 +924,7 @@ function renderRoadmapStatistics() {
         : '';
     return `
         ${warnings.length ? `<div class="roadmap-alerts" role="status">${warnings.map(warning => `<div class="roadmap-alert" role="alert">${warning}</div>`).join('')}</div>` : ''}
-        <div class="roadmap-stat roadmap-stat--capacity"><div class="roadmap-stat-label"><strong>Capacity Used</strong><span>${used}h / ${total}h</span></div><div class="roadmap-capacity-bar" role="img" aria-label="Roadmap capacity used: ${used} hours of ${total} hours"><div class="roadmap-capacity-bar-track">${capacitySegments}</div>${budgetMarker}</div></div>
+        ${hasContextProfile ? `<div class="roadmap-stat roadmap-stat--capacity"><div class="roadmap-stat-label"><strong>Capacity Used</strong><span>${used}h / ${total}h</span></div><div class="roadmap-capacity-bar" role="img" aria-label="Roadmap capacity used: ${used} hours of ${total} hours"><div class="roadmap-capacity-bar-track">${capacitySegments}</div>${budgetMarker}</div></div>` : ''}
         <div class="roadmap-statistics-bottom">
             <div class="roadmap-stat"><strong>Metric Balance</strong><span>${qualitative} Qualitative / ${quantitative} Quantitative</span></div>
             <div class="roadmap-stat"><strong>Difficulty</strong><span>${difficulties.Easy} Easy · ${difficulties.Medium} Medium · ${difficulties.Hard} Hard</span></div>
